@@ -1170,32 +1170,161 @@ document.getElementById('btnGoDaily').addEventListener('click',()=>{
   document.getElementById('tD').click();
 });
 
-/* ── Tesseract worker (lazy-init, reused across files) ── */
+/* ══════════════════════════════════════════════════════════════
+   IMAGE PRE-PROCESSING ENGINE v2
+   Pipeline: load → grayscale → Otsu binarize → 3×3 median
+             denoise → upscale if small → return Blob for OCR
+══════════════════════════════════════════════════════════════ */
+async function preprocessImage(source){
+  /* source: File | Blob | HTMLCanvasElement */
+  return new Promise((resolve, reject)=>{
+    const img=new Image();
+    const url=(source instanceof HTMLCanvasElement)
+      ?source.toDataURL()
+      :URL.createObjectURL(source);
+    img.onload=()=>{
+      try{
+        let w=img.naturalWidth, h=img.naturalHeight;
+
+        /* ── 1. Upscale if small text likely (< 1200px wide) ── */
+        const scale=(w<1200)?Math.min(3, 1200/w):1;
+        w=Math.round(w*scale); h=Math.round(h*scale);
+
+        const offscreen=document.createElement('canvas');
+        offscreen.width=w; offscreen.height=h;
+        const ctx=offscreen.getContext('2d');
+        ctx.imageSmoothingEnabled=true;
+        ctx.imageSmoothingQuality='high';
+        ctx.drawImage(img,0,0,w,h);
+
+        /* ── 2. Grayscale via luminance ── */
+        const id=ctx.getImageData(0,0,w,h);
+        const d=id.data;
+        for(let i=0;i<d.length;i+=4){
+          const g=Math.round(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2]);
+          d[i]=d[i+1]=d[i+2]=g;
+        }
+        ctx.putImageData(id,0,0);
+
+        /* ── 3. Otsu threshold binarization ── */
+        const gray=new Uint8Array(w*h);
+        for(let i=0;i<w*h;i++) gray[i]=d[i*4];
+
+        /* Build 256-bin histogram */
+        const hist=new Int32Array(256);
+        for(let i=0;i<gray.length;i++) hist[gray[i]]++;
+        const total=gray.length;
+
+        /* Compute Otsu threshold */
+        let sumAll=0;
+        for(let t=0;t<256;t++) sumAll+=t*hist[t];
+        let sumB=0,wB=0,wF=0,maxVar=0,threshold=128;
+        for(let t=0;t<256;t++){
+          wB+=hist[t]; if(!wB) continue;
+          wF=total-wB; if(!wF) break;
+          sumB+=t*hist[t];
+          const mB=sumB/wB, mF=(sumAll-sumB)/wF;
+          const varBetween=wB*wF*(mB-mF)*(mB-mF);
+          if(varBetween>maxVar){maxVar=varBetween;threshold=t;}
+        }
+
+        /* Apply threshold — white text on black bg is rare; keep dark=text */
+        for(let i=0;i<w*h;i++){
+          const v=gray[i]>threshold?255:0;
+          d[i*4]=d[i*4+1]=d[i*4+2]=v;
+        }
+        ctx.putImageData(id,0,0);
+
+        /* ── 4. 3×3 Median filter (denoise salt-and-pepper) ── */
+        const src=ctx.getImageData(0,0,w,h);
+        const dst=ctx.createImageData(w,h);
+        const sd=src.data, dd=dst.data;
+        const neighbors=new Uint8Array(9);
+        for(let y=1;y<h-1;y++){
+          for(let x=1;x<w-1;x++){
+            let n=0;
+            for(let dy=-1;dy<=1;dy++)
+              for(let dx=-1;dx<=1;dx++)
+                neighbors[n++]=sd[((y+dy)*w+(x+dx))*4];
+            neighbors.sort();
+            const med=neighbors[4];
+            const idx=(y*w+x)*4;
+            dd[idx]=dd[idx+1]=dd[idx+2]=med;
+            dd[idx+3]=255;
+          }
+        }
+        /* Copy border pixels unchanged */
+        for(let x=0;x<w;x++){
+          for(const y of [0,h-1]){const i=(y*w+x)*4;dd[i]=dd[i+1]=dd[i+2]=sd[i];dd[i+3]=255;}
+        }
+        for(let y=0;y<h;y++){
+          for(const x of [0,w-1]){const i=(y*w+x)*4;dd[i]=dd[i+1]=dd[i+2]=sd[i];dd[i+3]=255;}
+        }
+        ctx.putImageData(dst,0,0);
+
+        /* ── 5. Return processed Blob ── */
+        offscreen.toBlob(blob=>{
+          if(!(source instanceof HTMLCanvasElement)) URL.revokeObjectURL(url);
+          resolve(blob);
+        },'image/png');
+      } catch(e){ reject(e); }
+    };
+    img.onerror=()=>{ if(!(source instanceof HTMLCanvasElement)) URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+    img.src=url;
+  });
+}
+
+/* ── Tesseract worker (lazy-init, singleton, reused across files) ── */
 let _tWorker=null;
 async function getTesseract(){
   if(_tWorker) return _tWorker;
-  log('  OCR: inicializando Tesseract…');
+  log('  OCR: inicializando Tesseract (primera vez requiere internet)…');
   _tWorker=await Tesseract.createWorker('eng',1,{
-    logger:m=>{if(m.status==='recognizing text')
-      document.getElementById('queueCurrent').textContent=
-        `OCR: ${Math.round((m.progress||0)*100)}% — ${document.getElementById('queueCurrent').textContent.replace(/^OCR:.*?—\s*/,'')}`;}
+    logger:m=>{
+      if(m.status==='recognizing text'){
+        const pct=Math.round((m.progress||0)*100);
+        const cur=document.getElementById('queueCurrent');
+        if(cur) cur.textContent=`OCR ${pct}% — ${cur.textContent.replace(/^OCR \d+% — /,'')}`;
+      }
+    }
   });
-  log('  OCR: listo');
+  /* Tune Tesseract for automotive deal sheet layouts */
+  await _tWorker.setParameters({
+    tessedit_pageseg_mode: Tesseract.PSM.AUTO,          // 3 = full auto
+    tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,/$-# :/',
+    preserve_interword_spaces:'1',
+  });
+  log('  OCR: listo ✓');
   return _tWorker;
 }
 
-/* ── Image → text via Tesseract ── */
-async function processImage(file){
-  log(`  Tipo: imagen — usando OCR (Tesseract)`);
+/* ── Image file → preprocessed → OCR text ── */
+async function ocrImage(source, label){
+  log(`  Pre-procesando ${label||'imagen'}…`);
+  let blob;
+  try{
+    blob=await preprocessImage(source);
+    log(`  Pre-proceso OK (${(blob.size/1024).toFixed(0)} KB)`);
+  } catch(e){
+    log(`  Pre-proceso falló (${e.message}) — usando original`);
+    blob=(source instanceof File||source instanceof Blob)?source:null;
+    if(!blob){
+      /* canvas fallback */
+      blob=await new Promise(res=>(source instanceof HTMLCanvasElement?source:document.createElement('canvas')).toBlob(res,'image/png'));
+    }
+  }
   const worker=await getTesseract();
-  const url=URL.createObjectURL(file);
-  const {data:{text}}=await worker.recognize(url);
-  URL.revokeObjectURL(url);
-  log(`  OCR extraído (${text.length} chars): ${text.slice(0,120)}…`);
+  const url=URL.createObjectURL(blob);
+  let text='';
+  try{
+    const result=await worker.recognize(url);
+    text=result.data.text||'';
+  } finally{ URL.revokeObjectURL(url); }
+  log(`  OCR: ${text.length} chars — "${text.slice(0,100).replace(/\n/g,' ')}…"`);
   return text;
 }
 
-/* ── PDF → text; if blank → OCR each page as image ── */
+/* ── PDF → text; scanned pages → preprocess+OCR ── */
 async function parsePdfAllDeals(file){
   const ab=await file.arrayBuffer();
   const pdf=await pdfjsLib.getDocument({data:ab}).promise;
@@ -1215,21 +1344,19 @@ async function parsePdfAllDeals(file){
     log(`  Pág.${p}: ${txt.slice(0,80)||'(sin texto)'}…`);
   }
 
-  /* If PDF has no meaningful text layer → render pages to canvas → OCR */
-  if(totalChars<40){
-    log(`  Sin capa de texto — renderizando páginas para OCR…`);
+  /* If text layer is empty/sparse → render each page → preprocess → OCR */
+  if(totalChars<50){
+    log(`  Sin capa de texto — activando OCR por página…`);
     const ocrPages=[];
     for(let p=1;p<=pdf.numPages;p++){
       const pg=await pdf.getPage(p);
-      const vp=pg.getViewport({scale:2});
+      const vp=pg.getViewport({scale:2.5});    /* higher DPI for small text */
       const canvas=document.createElement('canvas');
-      canvas.width=vp.width; canvas.height=vp.height;
+      canvas.width=Math.round(vp.width);
+      canvas.height=Math.round(vp.height);
       await pg.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-      const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
-      const ocrFile=new File([blob],`page${p}.png`,{type:'image/png'});
-      const txt=await processImage(ocrFile);
+      const txt=await ocrImage(canvas,`pág.${p}`);
       ocrPages.push(txt);
-      log(`  OCR pág.${p}: ${txt.slice(0,80)}…`);
     }
     return extractAllDeals(ocrPages.join('\n'), file.name);
   }
@@ -1265,8 +1392,8 @@ async function processQueue(files){
       let deals=[];
 
       if(isImage(file)){
-        /* Pure image: OCR directly */
-        const text=await processImage(file);
+        /* Pure image: preprocess → OCR */
+        const text=await ocrImage(file, file.name);
         deals=extractAllDeals(text, file.name);
       } else {
         /* PDF: try text layer, fall back to OCR if blank */
@@ -1380,60 +1507,109 @@ function extractAllDeals(text, filename){
   return deals;
 }
 
-/* ── SINGLE DEAL FIELD EXTRACTOR ─────────────────────────────── */
+/* ── SINGLE DEAL FIELD EXTRACTOR — Honda deal sheet aware ────── */
 function extractOneField(text, filename){
   const r={date:'',clientLastName:'',stock:'',payPeriod:'',
     commissionNo1:0,fBonus1:0,adjustments:0,
     status:'Paid',holdReason:'',pdfAttachmentName:filename||''};
 
-  /* Date (MM/DD/YY or MM/DD/YYYY) */
-  const dm=text.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);
+  /* Normalize common OCR errors for Honda forms */
+  const T=text
+    .replace(/[|l](?=\d)/g,'1')          // pipe/l misread as 1 before digit
+    .replace(/O(?=\d)|(?<=\d)O/g,'0')    // O misread as 0 near digits
+    .replace(/\bComm\b\.?\s*No/gi,'Comm No')
+    .replace(/\bF\s*[&8]\s*I\b/gi,'F&I')
+    .replace(/\bStk\b/gi,'Stock')
+    .replace(/\bDeal\s*#/gi,'Deal#');
+
+  /* ── Date ── multiple formats: MM/DD/YY, MM/DD/YYYY, MM-DD-YY, YYYY-MM-DD */
+  const dm=T.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
   if(dm){
-    const p=dm[1].split('/'),yr=p[2].length===2?'20'+p[2]:p[2];
-    r.date=`${yr}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;
+    const yr=dm[3].length===2?'20'+dm[3]:dm[3];
+    r.date=`${yr}-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`;
   } else {
-    const im=text.match(/(\d{4}-\d{2}-\d{2})/);
-    if(im) r.date=im[1];
+    const iso=T.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
+    if(iso) r.date=`${iso[1]}-${iso[2]}-${iso[3]}`;
   }
 
-  /* Pay period */
-  const pm=text.match(/(?:Pay Period|Period Ending)[:\s]+([^\n\r,]{3,25})/i);
+  /* ── Pay period ── */
+  const pm=T.match(/(?:Pay Period|Period Ending|Pay Date)[:\s]+([^\n\r,]{3,28})/i);
   if(pm) r.payPeriod=pm[1].trim();
   else if(r.date) r.payPeriod=derivePP(r.date);
 
-  /* Client last name */
-  const nm=text.match(/([A-Z]{2,}(?:\s[A-Z]{2,})?,\s*[A-Z][A-Za-z]*)/);
-  if(nm) r.clientLastName=nm[1].split(',')[0].trim();
+  /* ── Customer / Client last name ──
+     Honda deal sheets show "Customer Name: SMITH, John" or "SMITH, J"
+     Also handle OCR spacing: "SMITH ,John" */
+  const custPatterns=[
+    /(?:Customer(?:\s+Name)?|Client(?:\s+Name)?|Buyer)[:\s]+([A-Z][A-Z\s]{1,18}),\s*[A-Za-z]/i,
+    /([A-Z]{2,}(?:\s+[A-Z]{2,})?)\s*,\s*[A-Z][A-Za-z]/,
+  ];
+  for(const rx of custPatterns){
+    const m=T.match(rx);
+    if(m){ r.clientLastName=m[1].trim().replace(/\s+$/,''); break; }
+  }
 
-  /* Stock number */
-  const sm=text.match(/(?:Stock|STK)\s*[:#]?\s*(\d{4,7})/i);
-  if(sm) r.stock=sm[1];
+  /* ── Stock number ── STK, Stock#, Stock No, Deal# (sometimes same field area) */
+  const stockRx=/(?:Stock(?:\s*(?:#|No\.?|Number))?|STK)[:\s#]*([A-Z0-9]{4,8})/i;
+  const sm=T.match(stockRx);
+  if(sm) r.stock=sm[1].trim();
+  /* Fallback: standalone 5-6 digit number near "STK" */
+  if(!r.stock){
+    const fb=T.match(/\bSTK\b[\s:#]*(\d{4,7})/i)||T.match(/\b(\d{5,6})\b/);
+    if(fb) r.stock=fb[1];
+  }
 
-  /* Commission No1 */
-  const c1=text.match(/(?:Commission[^$\n]{0,30}?|Comm\.?\s*#?1[^$\n]{0,20}?)\$\s*([\d,]+\.?\d*)/i);
-  if(c1) r.commissionNo1=parseFloat(c1[1].replace(/,/g,''))||0;
-  else {
-    /* Fallback: first dollar amount */
-    const aa=[...text.matchAll(/\$\s*([\d,]+\.\d{2})/g)].map(m=>parseFloat(m[1].replace(/,/g,'')));
+  /* ── Commission No. 1 ──
+     Deal sheets show field labels like:
+     "Comm. No. 1"  "Commission No1"  "Comm No. 1"  "Commission 1"
+     Amount follows on same line or next line, with or without $ */
+  const commRx=[
+    /Comm(?:ission)?\.?\s*No\.?\s*[1I][\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
+    /Comm(?:ission)?\.?\s*[1I][\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
+    /Commission[\s:$]+(\d[\d,]*\.\d{2})/i,
+  ];
+  for(const rx of commRx){
+    const m=T.match(rx);
+    if(m){r.commissionNo1=parseFloat(m[1].replace(/,/g,''))||0;break;}
+  }
+  /* Fallback: labeled $ amount */
+  if(!r.commissionNo1){
+    const aa=[...T.matchAll(/\$\s*(\d[\d,]*\.\d{2})/g)]
+      .map(m=>parseFloat(m[1].replace(/,/g,'')))
+      .filter(n=>n>=50&&n<9999);       /* realistic commission range */
     if(aa.length) r.commissionNo1=aa[0];
   }
 
-  /* F&I / Aftermarket */
-  const fi=text.match(/(?:F&I|F\s*&\s*I|Aftermarket|After\s*Market|FI Bonus)[^$\n]{0,20}?\$\s*([\d,]+\.?\d*)/i);
-  if(fi) r.fBonus1=parseFloat(fi[1].replace(/,/g,''))||0;
+  /* ── F&I / F Bonus 1 ──
+     "F & I Bonus 1"  "F&I Bonus1"  "F Bonus 1"  "Finance Bonus" */
+  const fiRx=[
+    /F\s*[&8]\s*I[\s\w]*Bonus\s*[1I]?[\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
+    /F\s*Bonus\s*[1I][\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
+    /Finance\s*Bonus[\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
+    /Aftermarket[\s:$]+(\d[\d,]*(?:\.\d{1,2})?)/i,
+  ];
+  for(const rx of fiRx){
+    const m=T.match(rx);
+    if(m){r.fBonus1=parseFloat(m[1].replace(/,/g,''))||0;break;}
+  }
 
-  /* Adjustment */
-  const aj=text.match(/(?:Adjustment|Chargeback|Adj\.?)[^$\n-]{0,20}?-?\$\s*([\d,]+\.?\d*)/i);
-  if(aj) r.adjustments=parseFloat(aj[1].replace(/,/g,''))||0;
+  /* ── Adjustments / Chargebacks ── */
+  const adjRx=/(?:Adjustment|Chargeback|Over[\s-]Allowance|Over Allowance|Adj\.?)[\s:$-]*(\d[\d,]*(?:\.\d{1,2})?)/i;
+  const aj=T.match(adjRx);
+  if(aj) r.adjustments=-(parseFloat(aj[1].replace(/,/g,''))||0); /* negative = deduction */
 
-  /* Status */
-  if(/\bhold\b/i.test(text))    r.status='On Hold';
-  if(/\bpending\b/i.test(text)) r.status='Pending';
-  if(/\bpaid\b/i.test(text))    r.status='Paid';
+  /* ── Status detection ── */
+  if(/\b(?:on\s*hold|pending\s*docs|missing\s*title|pass\s*the\s*keys)\b/i.test(T)) r.status='On Hold';
+  else if(/\bpending\b/i.test(T)) r.status='Pending';
+  /* "Paid" is the safe default — don't flip if just the word appears in an address etc. */
 
-  /* Hold reason */
-  const hr=text.match(/(?:Reason[:\s]+|Hold[:\s]+)([^\n\r]{5,60})/i);
-  if(hr) r.holdReason=hr[1].trim();
+  /* ── Hold reason ── */
+  const hr=T.match(/(?:Hold\s*Reason|Reason\s*for\s*Hold|Missing)[:\s]+([^\n\r]{5,70})/i)
+         ||T.match(/(?:PASS THE KEYS|MISSING TITLE|MISSING DOCS)([^\n\r]{0,50})/i);
+  if(hr){
+    r.holdReason=hr[0].trim().slice(0,80);
+    r.status='On Hold';
+  }
 
   return r;
 }
