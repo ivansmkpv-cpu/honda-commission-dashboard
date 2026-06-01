@@ -1290,9 +1290,10 @@ async function getTesseract(){
   });
   /* Tune Tesseract for automotive deal sheet layouts */
   await _tWorker.setParameters({
-    tessedit_pageseg_mode: Tesseract.PSM.AUTO,          // 3 = full auto
-    tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,/$-# :/',
+    tessedit_pageseg_mode: 6,   /* PSM 6 = single uniform text block — best for forms */
+    tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,/$-#&():/ \n',
     preserve_interword_spaces:'1',
+    textord_min_linesize:'2.5', /* help with small printed text */
   });
   log('  OCR: listo ✓');
   return _tWorker;
@@ -1401,8 +1402,8 @@ async function processQueue(files){
       }
 
       if(!deals.length){
-        log(`  ⚠ No se encontraron datos suficientes.`);
-        rows.push({file:file.name,client:'—',total:'—',status:'—',result:'sin datos',err:true});
+        log(`  ⚠ No se encontraron campos reconocibles. Revisa el Parse Log.`);
+        rows.push({file:file.name,client:'—',total:'—',status:'—',result:'sin datos — abrir manual',err:true});
         gErrors++;
         hasImageOnly=true; lastImageFile=file.name;
         continue;
@@ -1452,165 +1453,235 @@ async function processQueue(files){
   toast(`Import completo: ${gAdded} añadidos, ${gSkipped} duplicados, ${gErrors} errores.`,4500);
 }
 
-/* ── MULTI-DEAL EXTRACTOR ────────────────────────────────────────
-   Intenta encontrar bloques de deals repetidos en la hoja de pago.
-   Estrategia A: split por marcadores Honda DMS (Deal, Stock#).
-   Estrategia B: split por repetición de patrón APELLIDO, Nombre.
-   Estrategia C: fallback a un solo deal (comportamiento original).
-─────────────────────────────────────────────────────────────────── */
-function extractAllDeals(text, filename){
+/* ══════════════════════════════════════════════════════════════
+   VALLEY HONDA DEAL SHEET EXTRACTOR v3
+   ─────────────────────────────────────────────────────────────
+   Exact field names from real Valley Honda DMS deal sheets:
+     Stock#  Deal #  Customer  Salesperson 1
+     Commission No. 1/Accessories   F & I Bonus 1
+     Over-Allowance  Under-Allowance  Profit of Sale
+     (no date on deal sheet itself — falls back to today)
+══════════════════════════════════════════════════════════════ */
+
+/* OCR text normalizer — fixes common Tesseract mistakes on
+   printed forms: spacing, punctuation, digit confusion.      */
+function normalizeOCR(raw){
+  return raw
+    /* Join lines that were split mid-word by OCR column detection */
+    .replace(/([a-z])-\n([a-z])/g,'$1$2')
+    /* Standardize common field label mangling */
+    .replace(/Comm(?:ission)?\s*No\.?\s*[1Il]\s*[\/\-]?\s*Acc?es?s?ories?/gi,'Commission No. 1/Accessories')
+    .replace(/Comm(?:ission)?\s*No\.?\s*[1Il]/gi,'Commission No. 1')
+    .replace(/F\s*[&8]\s*I\s+Bonus\s*[1Il]/gi,'F & I Bonus 1')
+    .replace(/F\s*[&8]\s*I\s+Bonus\s*[2Z]/gi,'F & I Bonus 2')
+    .replace(/Sal[ae]sp[eo]rs[eo]n\s*[1Il]/gi,'Salesperson 1')
+    .replace(/Sal[ae]sp[eo]rs[eo]n\s*[2Z]/gi,'Salesperson 2')
+    .replace(/Over[\s\-]?All[oa]w[ae]nce/gi,'Over-Allowance')
+    .replace(/Under[\s\-]?All[oa]w[ae]nce/gi,'Under-Allowance')
+    .replace(/Pr[io]f[il]t\s+of\s+Sal[ae]/gi,'Profit of Sale')
+    /* Fix digit/letter OCR swaps inside numbers */
+    .replace(/(?<=\d)O(?=\d|\.)/g,'0')
+    .replace(/(?<=\s|^)[Ii](?=\d)/gm,'1')
+    /* N/A variants */
+    .replace(/\bN\s*[\/\\]\s*A\b/gi,'N/A')
+    /* Remove stray underscores from form blank lines */
+    .replace(/_{3,}/g,' ');
+}
+
+/* Extract a dollar amount from text immediately following a label.
+   Handles:  "Label   75.00"  "Label: $75.00"  "Label\n75.00"
+   Skips N/A, blank, and negative values unless allowNeg=true.  */
+function amountAfterLabel(text, labelRx, allowNeg=false){
+  const m=text.match(new RegExp(
+    labelRx.source+'[\\s:$]*(-?[\\d,]+\\.\\d{1,2})',
+    labelRx.flags+'i'
+  ));
+  if(!m) return 0;
+  const v=parseFloat(m[1].replace(/,/g,''));
+  if(isNaN(v)) return 0;
+  if(!allowNeg&&v<0) return 0;
+  return v;
+}
+
+/* ── MULTI-DEAL EXTRACTOR ────────────────────────────────────
+   Split strategy: Valley Honda pay stubs can have multiple
+   deal blocks separated by "Stock#" or "Deal #" headers.
+   Each block is parsed independently.
+─────────────────────────────────────────────────────────────── */
+function extractAllDeals(rawText, filename){
+  const text=normalizeOCR(rawText);
   const deals=[];
 
-  /* Strategy A: split by DMS deal-block markers */
-  const blockRx=/(?=(?:Deal\s*#?\s*\d|DEAL\s*#?\s*\d|Sold\s+\d{2}\/\d{2}|\bSTK\b\s*[:#]?\s*\d{4,7}))/gi;
-  let blocks=text.split(blockRx).filter(s=>s.trim().length>30);
+  /* Strategy A: split on "Stock#" or "Deal #" block headers
+     These appear at the start of every deal block on pay stubs */
+  const blockRx=/(?=(?:Stock\s*#|Deal\s*#)\s*\d{3,})/gi;
+  let blocks=text.split(blockRx).filter(s=>s.trim().length>40);
 
-  /* Strategy B: split by repeating CLIENT pattern (LAST, F) */
-  if(!blocks||blocks.length<=1){
-    const clientRx=/([A-Z]{2,}(?:\s[A-Z]{2,})?,\s*[A-Z][A-Za-z]*)/g;
-    const cm=[...text.matchAll(clientRx)];
-    if(cm.length>1){
-      log(`  ${cm.length} clientes detectados — modo multi-deal`);
-      blocks=[];
-      for(let i=0;i<cm.length;i++){
-        const s=cm[i].index;
-        const e=cm[i+1]?cm[i+1].index:text.length;
-        /* Include 200 chars before each client for context (amounts often precede name) */
-        blocks.push(text.slice(Math.max(0,s-200), e+150));
-      }
-    }
+  /* Strategy B: one block per "Customer" label (pay stub lists customers) */
+  if(blocks.length<=1){
+    const custRx=/(?=Customer\s+[A-Z])/gi;
+    const cb=text.split(custRx).filter(s=>s.trim().length>20);
+    if(cb.length>1){ blocks=cb; log(`  Split por Customer: ${cb.length} bloques`); }
   }
 
-  /* Strategy C: single deal */
-  if(!blocks||blocks.length<=1){
-    const single=extractOneField(text, filename);
+  /* Strategy C: entire text is one deal */
+  if(blocks.length<=1){
+    const single=extractOneDeal(text, filename);
     if(single.clientLastName||single.commissionNo1>0) deals.push(single);
     return deals;
   }
 
-  /* Parse each block, de-duplicate within same file */
+  log(`  ${blocks.length} bloque(s) detectado(s)`);
   const seenInFile=new Set();
   for(const block of blocks){
-    const d=extractOneField(block, filename);
+    const d=extractOneDeal(block, filename);
     if(!d.clientLastName&&!d.commissionNo1) continue;
-    const mini=`${d.clientLastName}_${calcTotal(d).toFixed(2)}`;
-    if(seenInFile.has(mini)) continue;
-    seenInFile.add(mini);
+    const key=`${d.clientLastName}_${calcTotal(d).toFixed(2)}`;
+    if(seenInFile.has(key)) continue;
+    seenInFile.add(key);
     deals.push(d);
   }
 
-  /* If multi-block gave nothing, fall back */
+  /* Fallback if blocks yielded nothing */
   if(!deals.length){
-    const single=extractOneField(text, filename);
+    const single=extractOneDeal(text, filename);
     if(single.clientLastName||single.commissionNo1>0) deals.push(single);
   }
   return deals;
 }
 
-/* ── SINGLE DEAL FIELD EXTRACTOR — Honda deal sheet aware ────── */
-function extractOneField(text, filename){
-  const r={date:'',clientLastName:'',stock:'',payPeriod:'',
-    commissionNo1:0,fBonus1:0,adjustments:0,
-    status:'Paid',holdReason:'',pdfAttachmentName:filename||''};
+/* ── SINGLE DEAL PARSER — Valley Honda DMS format ────────────
+   Field layout (from real deal sheet photo):
+   ┌─────────────────────────────────────────────────────────┐
+   │ Stock# 92667    Description 2026 HONDA CR-V             │
+   │ Deal # 214901                                           │
+   │ Customer ANGI OSPINA FLOREZ    Mgr. TYLER A DAVIS       │
+   │ Salesperson 1 OSCAR IVAN MENDEZ                         │
+   │ Salesperson 2 ___                                       │
+   │                                                         │
+   │ Commission No. 1/Accessories    75.00         N/A       │
+   │ Aftermarket 1                   N/A                     │
+   │ F & I Bonus 1                   5.00                    │
+   │ Commission No. 2/Accessories    N/A           N/A       │
+   │ F & I Bonus 2                   N/A                     │
+   │ Over-Allowance                  1500.00                 │
+   │ Under-Allowance                 N/A                     │
+   │ Profit of Sale                  -1245.54                │
+   └─────────────────────────────────────────────────────────┘
+─────────────────────────────────────────────────────────────── */
+function extractOneDeal(text, filename){
+  const r={
+    date:       '',
+    clientLastName:'',
+    stock:      '',
+    payPeriod:  '',
+    commissionNo1: 0,
+    fBonus1:    0,
+    adjustments: 0,
+    status:     'Paid',
+    holdReason: '',
+    pdfAttachmentName: filename||'',
+    notes:      '',
+  };
 
-  /* Normalize common OCR errors for Honda forms */
-  const T=text
-    .replace(/[|l](?=\d)/g,'1')          // pipe/l misread as 1 before digit
-    .replace(/O(?=\d)|(?<=\d)O/g,'0')    // O misread as 0 near digits
-    .replace(/\bComm\b\.?\s*No/gi,'Comm No')
-    .replace(/\bF\s*[&8]\s*I\b/gi,'F&I')
-    .replace(/\bStk\b/gi,'Stock')
-    .replace(/\bDeal\s*#/gi,'Deal#');
+  /* ── Stock # ── "Stock# 92667" or "Stock # 92667" */
+  const stockM=text.match(/Stock\s*#\s*(\d{3,7})/i);
+  if(stockM) r.stock=stockM[1];
 
-  /* ── Date ── multiple formats: MM/DD/YY, MM/DD/YYYY, MM-DD-YY, YYYY-MM-DD */
-  const dm=T.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-  if(dm){
-    const yr=dm[3].length===2?'20'+dm[3]:dm[3];
-    r.date=`${yr}-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`;
+  /* ── Deal # (store in notes for reference) ── */
+  const dealM=text.match(/Deal\s*#\s*(\d{3,8})/i);
+  if(dealM) r.notes=`Deal#${dealM[1]}`;
+
+  /* ── Customer name ──
+     Format: "Customer ANGI OSPINA FLOREZ   Mgr."
+     We capture everything between "Customer" and next label keyword.
+     Last name = last ALL-CAPS word before a comma OR the last word. */
+  const custM=text.match(
+    /Customer\s+([A-Z][A-Z\s]+?)(?:\s{2,}Mgr\.|\s+Mgr\b|\n)/i
+  )||text.match(
+    /Customer\s+([A-Z][A-Z\s]{2,35})/i
+  );
+  if(custM){
+    const fullName=custM[1].trim().replace(/\s+/g,' ');
+    /* Last word of full name is typically last name in American format
+       but Valley Honda shows "FIRST MIDDLE LAST" — take the last token */
+    const parts=fullName.split(' ').filter(Boolean);
+    r.clientLastName=parts[parts.length-1]||fullName;
+    r.notes=(r.notes?r.notes+' · ':'')+`Customer: ${fullName}`;
+  }
+
+  /* ── Date ──
+     Deal sheets often lack a date; parse if present.
+     Formats: MM/DD/YYYY  MM/DD/YY  YYYY-MM-DD  */
+  const dateM=text.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if(dateM){
+    const yr=dateM[3].length===2?'20'+dateM[3]:dateM[3];
+    r.date=`${yr}-${dateM[1].padStart(2,'0')}-${dateM[2].padStart(2,'0')}`;
   } else {
-    const iso=T.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
-    if(iso) r.date=`${iso[1]}-${iso[2]}-${iso[3]}`;
+    /* Use today as fallback — deal sheets are processed same day */
+    r.date=new Date().toISOString().slice(0,10);
   }
+  r.month=r.date.slice(0,7);
+  r.payPeriod=derivePP(r.date);
 
-  /* ── Pay period ── */
-  const pm=T.match(/(?:Pay Period|Period Ending|Pay Date)[:\s]+([^\n\r,]{3,28})/i);
-  if(pm) r.payPeriod=pm[1].trim();
-  else if(r.date) r.payPeriod=derivePP(r.date);
+  /* ── Commission No. 1/Accessories ──
+     Label: "Commission No. 1/Accessories"
+     Value on same line or immediately after, ignoring N/A        */
+  const comm1M=text.match(
+    /Commission\s+No\.\s*1\s*(?:\/\s*Accessories?)?\s+([\d,]+\.\d{2})/i
+  )||text.match(
+    /Comm(?:ission)?\s+No\.?\s*1[^\n]{0,30}?([\d,]+\.\d{2})/i
+  );
+  if(comm1M) r.commissionNo1=parseFloat(comm1M[1].replace(/,/g,''))||0;
 
-  /* ── Customer / Client last name ──
-     Honda deal sheets show "Customer Name: SMITH, John" or "SMITH, J"
-     Also handle OCR spacing: "SMITH ,John" */
-  const custPatterns=[
-    /(?:Customer(?:\s+Name)?|Client(?:\s+Name)?|Buyer)[:\s]+([A-Z][A-Z\s]{1,18}),\s*[A-Za-z]/i,
-    /([A-Z]{2,}(?:\s+[A-Z]{2,})?)\s*,\s*[A-Z][A-Za-z]/,
-  ];
-  for(const rx of custPatterns){
-    const m=T.match(rx);
-    if(m){ r.clientLastName=m[1].trim().replace(/\s+$/,''); break; }
-  }
-
-  /* ── Stock number ── STK, Stock#, Stock No, Deal# (sometimes same field area) */
-  const stockRx=/(?:Stock(?:\s*(?:#|No\.?|Number))?|STK)[:\s#]*([A-Z0-9]{4,8})/i;
-  const sm=T.match(stockRx);
-  if(sm) r.stock=sm[1].trim();
-  /* Fallback: standalone 5-6 digit number near "STK" */
-  if(!r.stock){
-    const fb=T.match(/\bSTK\b[\s:#]*(\d{4,7})/i)||T.match(/\b(\d{5,6})\b/);
-    if(fb) r.stock=fb[1];
-  }
-
-  /* ── Commission No. 1 ──
-     Deal sheets show field labels like:
-     "Comm. No. 1"  "Commission No1"  "Comm No. 1"  "Commission 1"
-     Amount follows on same line or next line, with or without $ */
-  const commRx=[
-    /Comm(?:ission)?\.?\s*No\.?\s*[1I][\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
-    /Comm(?:ission)?\.?\s*[1I][\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
-    /Commission[\s:$]+(\d[\d,]*\.\d{2})/i,
-  ];
-  for(const rx of commRx){
-    const m=T.match(rx);
-    if(m){r.commissionNo1=parseFloat(m[1].replace(/,/g,''))||0;break;}
-  }
-  /* Fallback: labeled $ amount */
+  /* Fallback: any number $50–$2000 that isn't clearly a vehicle price */
   if(!r.commissionNo1){
-    const aa=[...T.matchAll(/\$\s*(\d[\d,]*\.\d{2})/g)]
-      .map(m=>parseFloat(m[1].replace(/,/g,'')))
-      .filter(n=>n>=50&&n<9999);       /* realistic commission range */
-    if(aa.length) r.commissionNo1=aa[0];
+    const allNums=[...text.matchAll(/(?<![\d,])(\d{2,4}\.\d{2})(?![\d,])/g)]
+      .map(m=>parseFloat(m[1]))
+      .filter(n=>n>=50&&n<=2000&&n!==75.00||n===75.00); /* $75 mini is valid */
+    if(allNums.length) r.commissionNo1=allNums[0];
   }
 
-  /* ── F&I / F Bonus 1 ──
-     "F & I Bonus 1"  "F&I Bonus1"  "F Bonus 1"  "Finance Bonus" */
-  const fiRx=[
-    /F\s*[&8]\s*I[\s\w]*Bonus\s*[1I]?[\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
-    /F\s*Bonus\s*[1I][\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
-    /Finance\s*Bonus[\s:$]*(\d[\d,]*(?:\.\d{1,2})?)/i,
-    /Aftermarket[\s:$]+(\d[\d,]*(?:\.\d{1,2})?)/i,
-  ];
-  for(const rx of fiRx){
-    const m=T.match(rx);
-    if(m){r.fBonus1=parseFloat(m[1].replace(/,/g,''))||0;break;}
+  /* ── F & I Bonus 1 ──
+     Label: "F & I Bonus 1"  value on same line, skip N/A        */
+  const fi1M=text.match(
+    /F\s*[&8]\s*I\s+Bonus\s*1\s+([\d,]+\.\d{2})/i
+  )||text.match(
+    /F\s*[&8]\s*I\s+Bonus\s*[1Il]\s+([\d,]+\.\d{2})/i
+  );
+  if(fi1M) r.fBonus1=parseFloat(fi1M[1].replace(/,/g,''))||0;
+
+  /* ── Aftermarket 1 (counts toward fBonus if no F&I found) ── */
+  if(!r.fBonus1){
+    const aftM=text.match(/Aftermarket\s*1\s+([\d,]+\.\d{2})/i);
+    if(aftM) r.fBonus1=parseFloat(aftM[1].replace(/,/g,''))||0;
   }
 
-  /* ── Adjustments / Chargebacks ── */
-  const adjRx=/(?:Adjustment|Chargeback|Over[\s-]Allowance|Over Allowance|Adj\.?)[\s:$-]*(\d[\d,]*(?:\.\d{1,2})?)/i;
-  const aj=T.match(adjRx);
-  if(aj) r.adjustments=-(parseFloat(aj[1].replace(/,/g,''))||0); /* negative = deduction */
+  /* ── Adjustments ──
+     "Profit of Sale" negative = chargeback on this deal.
+     We do NOT map Over-Allowance to adjustments — it's a trade
+     field that affects gross but not directly the salesperson's
+     commission line. Only map explicit chargeback/adjustment fields. */
+  const profM=text.match(/Profit\s+of\s+Sale\s+(-[\d,]+\.\d{2})/i);
+  if(profM){
+    /* Store profit as a note, don't auto-apply as commission adjustment */
+    r.notes=(r.notes?r.notes+' · ':'')+`Profit: ${profM[1]}`;
+  }
 
-  /* ── Status detection ── */
-  if(/\b(?:on\s*hold|pending\s*docs|missing\s*title|pass\s*the\s*keys)\b/i.test(T)) r.status='On Hold';
-  else if(/\bpending\b/i.test(T)) r.status='Pending';
-  /* "Paid" is the safe default — don't flip if just the word appears in an address etc. */
+  const adjM=text.match(/(?:Chargeback|Adjustment|Adj\.)\s*:?\s*(-?[\d,]+\.\d{2})/i);
+  if(adjM) r.adjustments=parseFloat(adjM[1].replace(/,/g,''))||0;
 
-  /* ── Hold reason ── */
-  const hr=T.match(/(?:Hold\s*Reason|Reason\s*for\s*Hold|Missing)[:\s]+([^\n\r]{5,70})/i)
-         ||T.match(/(?:PASS THE KEYS|MISSING TITLE|MISSING DOCS)([^\n\r]{0,50})/i);
-  if(hr){
-    r.holdReason=hr[0].trim().slice(0,80);
+  /* ── Hold / On Hold detection ── */
+  if(/\b(?:on\s*hold|hold\s*pending|missing\s*title|pass\s*the\s*keys|missing\s*docs)\b/i.test(text)){
     r.status='On Hold';
+    const hrM=text.match(/(?:Reason|Hold)[:\s]+([^\n\r]{5,80})/i)
+             ||text.match(/(MISSING\s+TITLE[^\n\r]{0,40})/i)
+             ||text.match(/(PASS\s+THE\s+KEYS[^\n\r]{0,40})/i);
+    if(hrM) r.holdReason=hrM[1].trim();
   }
 
+  /* Log what was found */
+  log(`  Extraído → Stock:${r.stock||'?'} Cliente:${r.clientLastName||'?'} Comm1:${fmt(r.commissionNo1)} FI:${fmt(r.fBonus1)} Adj:${fmt(r.adjustments)}`);
   return r;
 }
 
