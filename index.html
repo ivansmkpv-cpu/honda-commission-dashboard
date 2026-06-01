@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 :root{
   --bg:#f6f5f4;--surface:#fff;--surface-2:#f0efed;--surface-3:#e8e6e3;
@@ -339,6 +340,9 @@ select.fld{padding-right:27px;appearance:none;cursor:pointer;
    <button class="tab"        id="tS" role="tab" aria-selected="false" aria-controls="pScan">
     <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10v10H7z"/></svg>Scan PDF
    </button>
+   <button class="tab"        id="tPP" role="tab" aria-selected="false" aria-controls="pPayPlan">
+    <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Pay Plan
+   </button>
    <button class="tab"        id="tSt" role="tab" aria-selected="false" aria-controls="pSettings">
     <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Settings
    </button>
@@ -412,21 +416,21 @@ select.fld{padding-right:27px;appearance:none;cursor:pointer;
    <div class="scan-head">
     <div>
      <div class="scan-title">Auto-Import Pay Stubs</div>
-     <div class="scan-sub">Sube uno o varios PDFs — se extraen todos los deals y se guardan directo al dashboard sin pasos intermedios.</div>
+     <div class="scan-sub">PDFs e imágenes (JPG, PNG) — se extraen todos los deals y se guardan directo al dashboard.</div>
     </div>
     <button class="btn" id="btnCPdf">
      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-     Elegir PDFs
+     Elegir archivos
     </button>
    </div>
 
    <!-- DROP ZONE -->
-   <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Drop PDFs or press Enter">
+   <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Drop files or press Enter">
     <div class="drop-icon">&#8679;</div>
-    <div class="drop-txt">Arrastra uno o más PDFs de hoja de pago aquí</div>
-    <div class="drop-hint">o haz clic en "Elegir PDFs" &nbsp;&middot;&nbsp; múltiples archivos permitidos &nbsp;&middot;&nbsp; se procesan en cola automáticamente</div>
+    <div class="drop-txt">Arrastra PDFs o imágenes de hoja de pago aquí</div>
+    <div class="drop-hint">PDF · JPG · PNG · múltiples archivos &nbsp;&middot;&nbsp; OCR automático en imágenes</div>
    </div>
-   <input type="file" id="pdfInput" accept=".pdf,application/pdf" multiple/>
+   <input type="file" id="pdfInput" accept=".pdf,application/pdf,.jpg,.jpeg,.png,image/jpeg,image/png" multiple/>
 
    <!-- QUEUE PROGRESS (shown while processing) -->
    <div id="queueWrap" style="display:none;margin-bottom:14px">
@@ -487,9 +491,234 @@ select.fld{padding-right:27px;appearance:none;cursor:pointer;
    <div class="scan-tip" style="margin-top:16px">
     <div class="scan-tip-lbl">¿Cómo funciona?</div>
     <div class="scan-tip-body">
-     Sube uno o varios PDFs. El parser extrae <em>todos los deals</em> que encuentre en cada archivo (fechas, apellidos, stock, Comm#1, F&amp;I, ajustes, hold reason). Los registros válidos se guardan automáticamente al dashboard. Los duplicados exactos se saltan y se marcan en la tabla. Los PDFs imagen-only muestran opción de captura manual.
+     Sube PDFs o imágenes (JPG/PNG). <strong>PDFs con texto</strong>: extracción directa vía pdf.js. <strong>PDFs escaneados e imágenes</strong>: OCR automático con Tesseract.js (requiere internet la primera vez). El parser detecta todos los deals por archivo — fechas, apellidos, stock, Comm#1, F&amp;I, ajustes, hold reason — y los guarda directo al dashboard. Duplicados se saltan.
     </div>
    </div>
+  </div>
+ </div>
+ <!-- PAY PLAN -->
+ <div class="panel" id="pPayPlan" role="tabpanel" aria-labelledby="tPP">
+  <div class="settings-panel">
+
+   <!-- HEADER -->
+   <div style="margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+     <div>
+      <div style="font-size:.62rem;font-family:var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Valley Honda &middot; Aurora, IL</div>
+      <div style="font-size:1.08rem;font-weight:700;letter-spacing:-.02em">2026 Pay Plan</div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-top:3px">Oscar Ivan Mendez &middot; Sales Consultant &middot; Hire Date: 9/29/2025 &middot; Effective: 4/6/2026</div>
+     </div>
+     <!-- Live commission estimator button -->
+     <button class="btn btn-p btn-sm" id="btnToggleCalc">&#x1F9EE; Estimador</button>
+    </div>
+   </div>
+
+   <!-- COMMISSION ESTIMATOR (collapsible) -->
+   <div id="calcWrap" style="display:none;margin-bottom:20px;padding:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);animation:pi 200ms ease">
+    <div style="font-family:var(--fm);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px">Estimador de Comisión — New Car</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+     <div class="frow">
+      <label class="flbl" for="estFEG">Front End Gross ($)</label>
+      <input class="finp" type="number" id="estFEG" step="1" min="0" placeholder="1200" oninput="calcEstimate()"/>
+     </div>
+     <div class="frow">
+      <label class="flbl" for="estFI">F&amp;I / Finance ($)</label>
+      <input class="finp" type="number" id="estFI" step="1" min="0" placeholder="0" oninput="calcEstimate()"/>
+     </div>
+     <div class="frow">
+      <label class="flbl" for="estAcc">Accessories ($)</label>
+      <input class="finp" type="number" id="estAcc" step="1" min="0" placeholder="0" oninput="calcEstimate()"/>
+     </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.79rem">
+     <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Gross ≤ $600 (25%)</div>
+      <div style="font-size:1.1rem;font-weight:700;font-family:var(--fm)" id="est25">$0.00</div>
+     </div>
+     <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Gross &gt; $600 (30%)</div>
+      <div style="font-size:1.1rem;font-weight:700;font-family:var(--fm)" id="est30">$0.00</div>
+     </div>
+    </div>
+    <div style="margin-top:8px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center">
+     <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint)">+ Pack ($12.24) + Finance bonus + Accessories (40%) =</span>
+     <span style="font-family:var(--fm);font-size:1.15rem;font-weight:700" id="estTotal">$12.24</span>
+    </div>
+   </div>
+
+   <!-- SALARY -->
+   <div class="ss">
+    <div class="ss-title">Salary</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;font-size:.8rem">
+     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Base Salary</div>
+      <div style="font-weight:600">$300 bi-weekly</div>
+     </div>
+     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Demo Charge</div>
+      <div style="font-weight:600">$60 weekly</div>
+     </div>
+     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Mini Deals (New/Used/Cert)</div>
+      <div style="font-weight:600">$75–$100 <span style="font-weight:400;color:var(--text-muted)">(based on quarterly accessory &amp; aftermarket avg.)</span></div>
+     </div>
+     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Demo Mini (2500+ mi)</div>
+      <div style="font-weight:600">$200</div>
+     </div>
+    </div>
+   </div>
+
+   <!-- PACKS -->
+   <div class="ss">
+    <div class="ss-title">Packs — Used Cars</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Lot Fee</div>
+      <div style="font-size:1.05rem;font-weight:700;font-family:var(--fm)">$400</div>
+     </div>
+     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Pack</div>
+      <div style="font-size:1.05rem;font-weight:700;font-family:var(--fm)">$500</div>
+     </div>
+     <div style="padding:10px 13px;background:var(--accent);border:1px solid var(--accent);border-radius:var(--radius-sm);text-align:center">
+      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);opacity:.7;margin-bottom:4px">Total Pack</div>
+      <div style="font-size:1.05rem;font-weight:700;font-family:var(--fm);color:var(--bg)">$900</div>
+     </div>
+    </div>
+   </div>
+
+   <!-- COMMISSION STRUCTURE -->
+   <div class="ss">
+    <div class="ss-title">Commission Structure</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+     <!-- New Cars -->
+     <div>
+      <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">New Cars</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:.79rem">
+       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>25% of first $600</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
+       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>30% after $601</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
+       <div style="padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs);font-size:.72rem;color:var(--text-muted)">Demo 50% no pack (2500+ miles)</div>
+      </div>
+     </div>
+     <!-- Used Cars -->
+     <div>
+      <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Used Cars</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:.79rem">
+       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>25% of first $600</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
+       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>30% after $601</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
+      </div>
+     </div>
+    </div>
+    <!-- Certified Units -->
+    <div style="margin-top:10px">
+     <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Certified Units</div>
+     <div style="display:flex;flex-direction:column;gap:5px;font-size:.79rem">
+      <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>45–60 days old</span><span style="font-family:var(--fm);font-weight:600">flat 30% above pack</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>60+ days old</span><span style="font-family:var(--fm);font-weight:600">flat 35% above pack</span></div>
+     </div>
+    </div>
+    <!-- Non-Certified Used -->
+    <div style="margin-top:10px;padding:10px 13px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--radius-sm)">
+     <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">⚡ Non-Certified Used Units 50 days or older</div>
+     <div style="font-size:.79rem;font-weight:600">50/50 above pack</div>
+    </div>
+   </div>
+
+   <!-- UNIT BONUS -->
+   <div class="ss">
+    <div class="ss-title">Unit Bonus (MTD — Month to Date)</div>
+    <div style="overflow-x:auto">
+     <table class="tbl" style="font-size:.77rem">
+      <thead><tr>
+       <th>Units Delivered</th>
+       <th class="r">MTD ≥ National &amp; Zone</th>
+       <th class="r">Below National</th>
+      </tr></thead>
+      <tbody>
+       <tr><td class="mono">12</td><td class="r mono">$200</td><td class="r mono">$0</td></tr>
+       <tr><td class="mono">15</td><td class="r mono">$675</td><td class="r mono">$175</td></tr>
+       <tr><td class="mono">18</td><td class="r mono">$900</td><td class="r mono">$400</td></tr>
+       <tr><td class="mono">21</td><td class="r mono">$1,150</td><td class="r mono">$650</td></tr>
+       <tr><td class="mono">24</td><td class="r mono">$1,450</td><td class="r mono">$950</td></tr>
+       <tr><td class="mono">27</td><td class="r mono">$1,750</td><td class="r mono">$1,250</td></tr>
+       <tr><td class="mono">30</td><td class="r mono">$2,000</td><td class="r mono">$1,500</td></tr>
+      </tbody>
+     </table>
+    </div>
+    <div style="margin-top:8px;font-size:.72rem;color:var(--text-muted);line-height:1.6">
+     *Non-Accumulative. Must be above National &amp; Zone YTD Recommend score (not NPS) to receive the higher bonus. Payable monthly.
+    </div>
+   </div>
+
+   <!-- USED CAR UNIT BONUS -->
+   <div class="ss">
+    <div class="ss-title">Used Car Unit Bonus (MTD)</div>
+    <div style="overflow-x:auto">
+     <table class="tbl" style="font-size:.77rem">
+      <thead><tr><th>Units</th><th class="r">Bonus</th></tr></thead>
+      <tbody>
+       <tr><td class="mono">6</td><td class="r mono">$500</td></tr>
+       <tr><td class="mono">9</td><td class="r mono">$900</td></tr>
+       <tr><td class="mono">12</td><td class="r mono">$1,250</td></tr>
+       <tr><td class="mono">15</td><td class="r mono">$2,000</td></tr>
+       <tr><td class="mono">17</td><td class="r mono">$2,500</td></tr>
+       <tr><td class="mono">20</td><td class="r mono">$3,000</td></tr>
+       <tr><td class="mono">25</td><td class="r mono">$3,500</td></tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+
+   <!-- FINANCE BONUS -->
+   <div class="ss">
+    <div class="ss-title">Finance Bonus (per deal)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;font-size:.79rem">
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">GAP</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Road Hazard</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Dent &amp; Ding Removal</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Key Replacement</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Extended Warranty</div><div style="font-weight:600;font-family:var(--fm)">$25</div></div>
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Finance (Non-Special APR)</div><div style="font-weight:600;font-family:var(--fm)">$10</div></div>
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Sentinel</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
+    </div>
+   </div>
+
+   <!-- ACCESSORY & SURVEY BONUS -->
+   <div class="ss">
+    <div class="ss-title">Accessory &amp; Survey Bonuses</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.79rem">
+     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">Honda Factory Accessories</div>
+      <div style="font-weight:600;font-size:.92rem">40%</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">All Models</div>
+     </div>
+     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">After Market Sublet</div>
+      <div style="font-weight:600;font-size:.92rem">25%</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">All Models</div>
+     </div>
+     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">DTPS Survey Bonus</div>
+      <div style="font-weight:600">$10 per survey</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">Must qualify via DTPS</div>
+     </div>
+     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">Online Review Bonus</div>
+      <div style="font-weight:600">$50 Google &middot; $40 Yelp*</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">Max 5 reviews/mo. Min 7-day visibility.</div>
+     </div>
+    </div>
+   </div>
+
+   <!-- PTO -->
+   <div class="ss" style="padding-bottom:0;border-bottom:none">
+    <div class="ss-title">PTO</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.79rem">
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Rate</div><div style="font-weight:600">$20/hr (or $160/day)</div></div>
+     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Accrual</div><div style="font-weight:600">Front Loaded</div></div>
+    </div>
+    <div style="margin-top:7px;font-size:.72rem;color:var(--text-muted);line-height:1.6">
+     PTO accrual is equal to the greater of $20/hr or prior YTD total gross wages ÷ 2080. <strong style="color:var(--text)">Salary is reduced for both paid days off and un-paid days off.</strong>
+    </div>
+   </div>
+
   </div>
  </div>
  <!-- SETTINGS -->
@@ -630,9 +859,9 @@ function toast(msg,dur=2800){
 
 /* TABS */
 let activeTab='daily';
-const TB={tD:'daily',tM:'monthly',tP:'paid',tH:'hold',tS:'scan',tSt:'settings'};
-const TP={daily:'pDaily',monthly:'pMonthly',paid:'pPaid',hold:'pHold',scan:'pScan',settings:'pSettings'};
-const HF=['monthly','scan','settings'];
+const TB={tD:'daily',tM:'monthly',tP:'paid',tH:'hold',tS:'scan',tPP:'payplan',tSt:'settings'};
+const TP={daily:'pDaily',monthly:'pMonthly',paid:'pPaid',hold:'pHold',scan:'pScan',payplan:'pPayPlan',settings:'pSettings'};
+const HF=['monthly','scan','payplan','settings'];
 Object.entries(TB).forEach(([id,k])=>{
   document.getElementById(id).addEventListener('click',()=>{
     activeTab=k;
@@ -886,10 +1115,19 @@ document.getElementById('btnExport').addEventListener('click',()=>{
 });
 
 /* ══════════════════════════════════════════════════════════════
-   PDF SCAN — MULTI-FILE AUTO-IMPORT ENGINE v4
-   Drop/Select múltiples PDFs → parse todos → auto-save directo.
-   Sin modal intermedio. Tabla de resultados added/skipped/errors.
+   FILE SCAN — MULTI-FILE AUTO-IMPORT ENGINE v5
+   Soporta: PDF (texto) · PDF (imagen/escaneado) · JPG · PNG
+   PDFs con texto → pdf.js directo
+   PDFs imagen + imágenes → Tesseract.js OCR automático
+   Ambos flujos → extractAllDeals → auto-save al dashboard
 ══════════════════════════════════════════════════════════════ */
+
+const IMG_TYPES=['image/jpeg','image/jpg','image/png'];
+const IMG_EXTS=['.jpg','.jpeg','.png'];
+function isImage(f){return IMG_TYPES.includes(f.type)||IMG_EXTS.some(e=>f.name.toLowerCase().endsWith(e));}
+function isPdf(f){return f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');}
+function isAccepted(f){return isPdf(f)||isImage(f);}
+
 const DZ=document.getElementById('dropZone');
 DZ.addEventListener('click',()=>document.getElementById('pdfInput').click());
 DZ.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')document.getElementById('pdfInput').click();});
@@ -897,13 +1135,13 @@ DZ.addEventListener('dragover',e=>{e.preventDefault();DZ.classList.add('over');}
 DZ.addEventListener('dragleave',()=>DZ.classList.remove('over'));
 DZ.addEventListener('drop',e=>{
   e.preventDefault();DZ.classList.remove('over');
-  const files=[...e.dataTransfer.files].filter(f=>f.type==='application/pdf'||f.name.endsWith('.pdf'));
-  if(files.length)processQueue(files);else toast('Solo se aceptan archivos PDF.');
+  const files=[...e.dataTransfer.files].filter(isAccepted);
+  if(files.length)processQueue(files);else toast('Archivos soportados: PDF, JPG, PNG.');
 });
 document.getElementById('pdfInput').addEventListener('change',e=>{
-  const files=[...e.target.files].filter(f=>f.type==='application/pdf'||f.name.endsWith('.pdf'));
+  const files=[...e.target.files].filter(isAccepted);
   if(files.length)processQueue(files);
-  e.target.value=''; /* Reset so same file can be re-dropped */
+  e.target.value='';
 });
 document.getElementById('btnCPdf').addEventListener('click',()=>document.getElementById('pdfInput').click());
 
@@ -932,17 +1170,80 @@ document.getElementById('btnGoDaily').addEventListener('click',()=>{
   document.getElementById('tD').click();
 });
 
-/* ── QUEUE PROCESSOR ──────────────────────────────────────────
-   Procesa archivos en serie. Un archivo a la vez para no
-   saturar el worker de pdf.js. Guarda todos al final.
-─────────────────────────────────────────────────────────────── */
+/* ── Tesseract worker (lazy-init, reused across files) ── */
+let _tWorker=null;
+async function getTesseract(){
+  if(_tWorker) return _tWorker;
+  log('  OCR: inicializando Tesseract…');
+  _tWorker=await Tesseract.createWorker('eng',1,{
+    logger:m=>{if(m.status==='recognizing text')
+      document.getElementById('queueCurrent').textContent=
+        `OCR: ${Math.round((m.progress||0)*100)}% — ${document.getElementById('queueCurrent').textContent.replace(/^OCR:.*?—\s*/,'')}`;}
+  });
+  log('  OCR: listo');
+  return _tWorker;
+}
+
+/* ── Image → text via Tesseract ── */
+async function processImage(file){
+  log(`  Tipo: imagen — usando OCR (Tesseract)`);
+  const worker=await getTesseract();
+  const url=URL.createObjectURL(file);
+  const {data:{text}}=await worker.recognize(url);
+  URL.revokeObjectURL(url);
+  log(`  OCR extraído (${text.length} chars): ${text.slice(0,120)}…`);
+  return text;
+}
+
+/* ── PDF → text; if blank → OCR each page as image ── */
+async function parsePdfAllDeals(file){
+  const ab=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+  const pages=[];
+  let totalChars=0;
+
+  for(let p=1;p<=pdf.numPages;p++){
+    const pg=await pdf.getPage(p);
+    const ct=await pg.getTextContent();
+    const items=ct.items.slice().sort((a,b)=>{
+      const dy=Math.round((b.transform[5]-a.transform[5])/4)*4;
+      return dy!==0?dy:a.transform[4]-b.transform[4];
+    });
+    const txt=items.map(i=>i.str).join(' ').trim();
+    totalChars+=txt.length;
+    pages.push(txt);
+    log(`  Pág.${p}: ${txt.slice(0,80)||'(sin texto)'}…`);
+  }
+
+  /* If PDF has no meaningful text layer → render pages to canvas → OCR */
+  if(totalChars<40){
+    log(`  Sin capa de texto — renderizando páginas para OCR…`);
+    const ocrPages=[];
+    for(let p=1;p<=pdf.numPages;p++){
+      const pg=await pdf.getPage(p);
+      const vp=pg.getViewport({scale:2});
+      const canvas=document.createElement('canvas');
+      canvas.width=vp.width; canvas.height=vp.height;
+      await pg.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+      const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+      const ocrFile=new File([blob],`page${p}.png`,{type:'image/png'});
+      const txt=await processImage(ocrFile);
+      ocrPages.push(txt);
+      log(`  OCR pág.${p}: ${txt.slice(0,80)}…`);
+    }
+    return extractAllDeals(ocrPages.join('\n'), file.name);
+  }
+
+  return extractAllDeals(pages.join('\n'), file.name);
+}
+
+/* ── QUEUE PROCESSOR ── */
 async function processQueue(files){
   const total=files.length;
-  let gAdded=0, gSkipped=0, gErrors=0;
+  let gAdded=0,gSkipped=0,gErrors=0;
   const rows=[];
-  let hasImageOnly=false, lastImageFile='';
+  let hasImageOnly=false,lastImageFile='';
 
-  /* Show queue UI */
   document.getElementById('queueWrap').style.display='block';
   document.getElementById('importResultsWrap').style.display='none';
   document.getElementById('fbWrap').style.display='none';
@@ -953,26 +1254,34 @@ async function processQueue(files){
 
   for(let i=0;i<files.length;i++){
     const file=files[i];
-    /* Progress bar update */
     document.getElementById('queueCounter').textContent=`${i+1} / ${total}`;
     document.getElementById('queueBar').style.width=`${Math.round((i/total)*100)}%`;
     document.getElementById('queueCurrent').textContent=`Procesando: ${file.name}`;
-    log(`\n━━ [${i+1}/${total}] ${file.name} (${(file.size/1024).toFixed(1)} KB)`);
+
+    const ext=isImage(file)?'imagen':'PDF';
+    log(`\n━━ [${i+1}/${total}] ${file.name} (${ext}, ${(file.size/1024).toFixed(1)} KB)`);
 
     try{
-      const deals=await parsePdfAllDeals(file);
+      let deals=[];
+
+      if(isImage(file)){
+        /* Pure image: OCR directly */
+        const text=await processImage(file);
+        deals=extractAllDeals(text, file.name);
+      } else {
+        /* PDF: try text layer, fall back to OCR if blank */
+        deals=await parsePdfAllDeals(file);
+      }
 
       if(!deals.length){
-        /* Image-only or completely empty PDF */
-        log(`  ⚠ Sin capa de texto — PDF posiblemente escaneado.`);
-        rows.push({file:file.name,client:'—',total:'—',status:'—',result:'imagen (manual)',err:true});
+        log(`  ⚠ No se encontraron datos suficientes.`);
+        rows.push({file:file.name,client:'—',total:'—',status:'—',result:'sin datos',err:true});
         gErrors++;
         hasImageOnly=true; lastImageFile=file.name;
         continue;
       }
 
       log(`  → ${deals.length} deal(s) encontrado(s)`);
-
       for(const d of deals){
         const key=cKey(d);
         if(KEYSET.has(key)){
@@ -980,7 +1289,6 @@ async function processQueue(files){
           rows.push({file:file.name,client:d.clientLastName||'?',total:fmt(calcTotal(d)),status:d.status,result:'duplicado'});
           log(`  SKIP: ${d.clientLastName} ${d.date} ${fmt(calcTotal(d))}`);
         } else {
-          /* Fuzzy check — warn in result but still import */
           let fuzzyNote='';
           for(const k of KEYSET){if(diceSim(key,k)>0.85){fuzzyNote=' (~similar)';break;}}
           const rec=hydrateRec(d);
@@ -997,50 +1305,24 @@ async function processQueue(files){
     }
   }
 
-  /* Complete progress bar */
   document.getElementById('queueBar').style.width='100%';
   document.getElementById('queueCounter').textContent=`${total} / ${total} ✓`;
   document.getElementById('queueCurrent').textContent='Listo.';
 
-  /* Persist everything at once */
   saveData(DATA); rebuildKS(); populateMF(); render(); rebuildGC();
   if(activeTab==='monthly') renderMonthly();
 
-  /* Show fallback hint for image-only PDFs */
   if(hasImageOnly){
     document.getElementById('fbName').textContent=lastImageFile;
     document.getElementById('fbWrap').style.display='block';
   }
 
-  /* Show results table after short delay */
   setTimeout(()=>{
     document.getElementById('queueWrap').style.display='none';
-    showImportResults(rows, gAdded, gSkipped, gErrors);
-  }, 500);
+    showImportResults(rows,gAdded,gSkipped,gErrors);
+  },500);
 
-  toast(`Import completo: ${gAdded} añadidos, ${gSkipped} duplicados, ${gErrors} errores.`, 4500);
-}
-
-/* ── PDF PARSER: extracts ALL deals from one PDF ─────────────── */
-async function parsePdfAllDeals(file){
-  const ab=await file.arrayBuffer();
-  const pdf=await pdfjsLib.getDocument({data:ab}).promise;
-  const pages=[];
-
-  for(let p=1;p<=pdf.numPages;p++){
-    const pg=await pdf.getPage(p);
-    const ct=await pg.getTextContent();
-    /* Preserve reading order: sort by Y desc then X asc */
-    const items=ct.items.slice().sort((a,b)=>{
-      const dy=Math.round((b.transform[5]-a.transform[5])/4)*4;
-      return dy!==0?dy:a.transform[4]-b.transform[4];
-    });
-    const txt=items.map(i=>i.str).join(' ');
-    pages.push(txt);
-    log(`  Pág.${p}: ${txt.slice(0,80)}…`);
-  }
-  const fullText=pages.join('\n');
-  return extractAllDeals(fullText, file.name);
+  toast(`Import completo: ${gAdded} añadidos, ${gSkipped} duplicados, ${gErrors} errores.`,4500);
 }
 
 /* ── MULTI-DEAL EXTRACTOR ────────────────────────────────────────
@@ -1239,6 +1521,27 @@ document.getElementById('btnReset').addEventListener('click',()=>{
   DATA=hydrateSeed(SEED);saveData(DATA);rebuildKS();populateMF();render();rebuildGC();
   if(activeTab==='monthly')renderMonthly();toast('Data reset to seed.');
 });
+
+/* PAY PLAN — estimator */
+document.getElementById('btnToggleCalc').addEventListener('click',()=>{
+  const w=document.getElementById('calcWrap');
+  w.style.display=w.style.display==='none'?'block':'none';
+});
+function calcEstimate(){
+  const feg=parseFloat(document.getElementById('estFEG').value)||0;
+  const fi =parseFloat(document.getElementById('estFI').value)||0;
+  const acc=parseFloat(document.getElementById('estAcc').value)||0;
+  /* New Car: 25% of first $600 above pack, 30% above $601 */
+  let comm25=0,comm30=0;
+  if(feg>0&&feg<=600){comm25=feg*0.25;}
+  else if(feg>600){comm25=600*0.25;comm30=(feg-600)*0.30;}
+  const accBonus=acc*0.40;
+  const total25=comm25+fi+acc*0.40+PACK;
+  const total30=comm25+comm30+fi+accBonus+PACK;
+  document.getElementById('est25').textContent=fmt(total25);
+  document.getElementById('est30').textContent=fmt(total30);
+  document.getElementById('estTotal').textContent=fmt(total30||total25);
+}
 
 /* MASTER RENDER */
 function render(){renderKPIs();renderDaily();renderPaid();renderHold();}
