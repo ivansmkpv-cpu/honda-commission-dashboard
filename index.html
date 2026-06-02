@@ -2,1869 +2,1200 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Valley Honda · Commission Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
-:root{
-  --bg:#f6f5f4;--surface:#fff;--surface-2:#f0efed;--surface-3:#e8e6e3;
-  --border:#dedad6;--border-strong:#c4c0bb;
-  --text:#0d0d0c;--text-muted:#66635f;--text-faint:#a8a5a1;
-  --accent:#0d0d0c;--accent-soft:#ececea;
-  --radius:13px;--radius-sm:8px;--radius-xs:5px;
-  --shadow-xs:0 1px 2px rgba(0,0,0,.05);
-  --shadow-sm:0 2px 6px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
-  --shadow:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.05);
-  --shadow-lg:0 8px 32px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.06);
-  --t:210ms cubic-bezier(.4,0,.2,1);
-  --fu:system-ui,-apple-system,'Segoe UI',sans-serif;
-  --fm:'DM Mono','IBM Plex Mono','Courier New',monospace;
-}
-[data-theme="dark"]{
-  --bg:#111110;--surface:#1b1a18;--surface-2:#232220;--surface-3:#2c2b28;
-  --border:#302f2c;--border-strong:#45433e;
-  --text:#f0eeea;--text-muted:#918d87;--text-faint:#5a5752;
-  --accent:#f0eeea;--accent-soft:#252421;
-  --shadow-xs:0 1px 2px rgba(0,0,0,.25);
-  --shadow-sm:0 2px 6px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
-  --shadow:0 4px 16px rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.22);
-  --shadow-lg:0 8px 32px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.25);
+:root {
+  --bg: #0a0a0a;
+  --surface: rgba(255,255,255,0.06);
+  --surface-hover: rgba(255,255,255,0.10);
+  --text: #ffffff;
+  --text-dim: rgba(255,255,255,0.5);
+  --text-faint: rgba(255,255,255,0.25);
+  --border: rgba(255,255,255,0.12);
+  --border-strong: rgba(255,255,255,0.25);
+  --accent: #e8f0fe;
+  --green: #4ade80;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --blue: #60a5fa;
+  --glass: blur(16px) saturate(180%);
+  --radius: 16px;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:15px;scroll-behavior:smooth}
-body{font-family:var(--fu);background:var(--bg);color:var(--text);min-height:100vh;
-  transition:background var(--t),color var(--t);-webkit-font-smoothing:antialiased}
-button{cursor:pointer;font-family:inherit}input,select,textarea{font-family:inherit;color:var(--text)}
-.app{max-width:1180px;margin:0 auto;padding:0 22px 90px}
-/* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0 20px;
-  border-bottom:1px solid var(--border);margin-bottom:22px;gap:12px;flex-wrap:wrap;
-  transition:border-color var(--t)}
-.brand{display:flex;flex-direction:column;gap:3px}
-.brand-eye{font-family:var(--fm);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)}
-.brand-name{font-size:1.2rem;font-weight:700;letter-spacing:-.025em}
-.topbar-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius-sm);
-  font-size:.79rem;font-weight:500;letter-spacing:.01em;border:1px solid var(--border);
-  background:var(--surface);color:var(--text);white-space:nowrap;line-height:1;
-  transition:background var(--t),border-color var(--t),box-shadow var(--t),opacity var(--t)}
-.btn:hover{background:var(--surface-2);box-shadow:var(--shadow-sm)}
-.btn:active{transform:translateY(1px)}
-.btn-p{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-.btn-p:hover{opacity:.84;background:var(--accent)}
-.btn-sm{padding:6px 11px;font-size:.74rem}.btn-xs{padding:4px 8px;font-size:.69rem}
-.btn svg{width:12px;height:12px;flex-shrink:0}
-.tp{width:46px;height:26px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);
-  display:flex;align-items:center;padding:3px;transition:background var(--t);cursor:pointer}
-.tp:hover{background:var(--accent-soft)}
-.tk{width:18px;height:18px;border-radius:50%;background:var(--text);transition:transform var(--t);flex-shrink:0}
-[data-theme="dark"] .tk{transform:translateX(20px)}
-/* KPI */
-.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:22px}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:15px 17px;box-shadow:var(--shadow-xs);contain:layout style;
-  transition:background var(--t),border-color var(--t),transform 120ms ease,box-shadow 120ms ease}
-.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
-.kpi-lbl{font-family:var(--fm);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
-.kpi-val{font-size:1.42rem;font-weight:700;letter-spacing:-.03em;line-height:1}
-.kpi-sub{font-size:.68rem;color:var(--text-muted);margin-top:5px}
-/* TABS */
-.tabs-wrap{margin-bottom:15px;overflow-x:auto;padding-bottom:2px}
-.tabs{display:flex;gap:3px;background:var(--surface-2);border:1px solid var(--border);
-  border-radius:calc(var(--radius)+2px);padding:4px;width:fit-content;
-  transition:background var(--t),border-color var(--t)}
-.tab{padding:7px 13px;border-radius:var(--radius-sm);font-size:.77rem;font-weight:500;
-  color:var(--text-muted);background:transparent;border:none;white-space:nowrap;
-  display:inline-flex;align-items:center;gap:4px;
-  transition:background var(--t),color var(--t),box-shadow var(--t)}
-.tab:hover{color:var(--text)}.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow-xs)}
-.badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;
-  padding:0 4px;border-radius:999px;background:var(--surface-3);color:var(--text-muted);
-  font-size:.6rem;font-family:var(--fm);transition:background var(--t)}
-.tab.active .badge{background:var(--surface-2);color:var(--text)}
-/* FILTER */
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px;align-items:center}
-.fld{padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);
-  background:var(--surface);color:var(--text);font-size:.79rem;min-width:122px;
-  transition:border-color var(--t),box-shadow var(--t),background var(--t)}
-.fld::placeholder{color:var(--text-faint)}
-.fld:focus{outline:none;border-color:var(--border-strong);box-shadow:0 0 0 3px rgba(0,0,0,.07)}
-select.fld{padding-right:27px;appearance:none;cursor:pointer;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 8px center}
-.fi{font-family:var(--fm);font-size:.66rem;color:var(--text-faint);letter-spacing:.04em;margin-left:auto}
-/* TABLE */
-.tcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  overflow:hidden;box-shadow:var(--shadow-xs);transition:background var(--t),border-color var(--t);contain:layout}
-.tbl{width:100%;border-collapse:collapse;font-size:.81rem}
-.tbl thead th{font-family:var(--fm);font-size:.59rem;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--text-faint);padding:10px 13px;text-align:left;
-  border-bottom:1px solid var(--border);background:var(--surface-2);white-space:nowrap;
-  transition:background var(--t),border-color var(--t)}
-.tbl thead th.r{text-align:right}
-.tbl tbody tr{border-bottom:1px solid var(--border);transition:background var(--t)}
-.tbl tbody tr:last-child{border-bottom:none}
-.tbl tbody tr:hover{background:var(--surface-2)}
-.tbl tbody tr.hl-dup{background:var(--surface-3)!important;outline:2px solid var(--border-strong);outline-offset:-2px}
-.tbl tbody td{padding:10px 13px;vertical-align:middle}
-.tbl td.r{text-align:right}
-.mono{font-family:var(--fm);font-size:.78rem}.bold{font-weight:600}
-.dim{color:var(--text-muted)}.fnt{color:var(--text-faint);font-size:.71rem}
-.row-acts{display:flex;gap:3px;opacity:0;transition:opacity var(--t)}
-.tbl tbody tr:hover .row-acts{opacity:1}
-/* pills */
-.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.64rem;
-  font-family:var(--fm);letter-spacing:.05em;border:1px solid var(--border);white-space:nowrap}
-.pill-paid{color:var(--text);background:var(--surface-3)}
-.pill-hold{color:var(--text-muted);background:var(--surface-2)}
-.pill-pending{color:var(--text-faint);background:transparent}
-.empty{padding:48px 20px;text-align:center;color:var(--text-faint)}
-.empty-icon{font-size:1.7rem;opacity:.2;margin-bottom:9px}.empty p{font-size:.79rem}
-/* CHARTS */
-.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:18px}
-@media(max-width:700px){.chart-grid{grid-template-columns:1fr}}
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:17px;box-shadow:var(--shadow-xs);transition:background var(--t),border-color var(--t)}
-.chart-lbl{font-family:var(--fm);font-size:.59rem;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--text-faint);margin-bottom:11px}
-.chart-wrap{position:relative;height:198px}
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.44);backdrop-filter:blur(6px);
-  z-index:900;display:none;align-items:center;justify-content:center;padding:16px}
-.overlay.open{display:flex;animation:ov-in 160ms ease}
-@keyframes ov-in{from{opacity:0}to{opacity:1}}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:calc(var(--radius)+4px);
-  padding:24px;width:100%;max-width:600px;max-height:94vh;overflow-y:auto;
-  box-shadow:var(--shadow-lg);animation:modal-in 220ms cubic-bezier(.34,1.26,.64,1)}
-@keyframes modal-in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
-.mhead{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-.mtitle{font-size:.92rem;font-weight:700;letter-spacing:-.01em}
-.msub{font-size:.72rem;color:var(--text-muted);margin-top:3px}
-.mx{background:none;border:1px solid var(--border);width:28px;height:28px;border-radius:var(--radius-xs);
-  display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.94rem;flex-shrink:0;
-  transition:background var(--t),color var(--t)}
-.mx:hover{background:var(--surface-2);color:var(--text)}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fg .full{grid-column:1/-1}
-@media(max-width:480px){.fg{grid-template-columns:1fr}.fg .full{grid-column:unset}}
-.frow{display:flex;flex-direction:column;gap:4px}
-.flbl{font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
-.finp{padding:9px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);
-  background:var(--bg);color:var(--text);font-size:.81rem;
-  transition:border-color var(--t),box-shadow var(--t)}
-.finp:focus{outline:none;border-color:var(--border-strong);box-shadow:0 0 0 3px rgba(0,0,0,.07)}
-.finp::placeholder{color:var(--text-faint)}.finp.err{border-color:var(--border-strong);box-shadow:0 0 0 2px rgba(0,0,0,.12)}
-.finp-ro{background:var(--surface-2);color:var(--text-muted);cursor:default}
-.formula-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:9px 11px;font-family:var(--fm);font-size:.7rem;color:var(--text-muted);margin-bottom:13px;line-height:1.6}
-.calc-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface-2);
-  border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px}
-.calc-lbl{font-size:.7rem;color:var(--text-muted)}.calc-val{font-family:var(--fm);font-size:1.04rem;font-weight:700}
-.fo-row{display:flex;align-items:center;gap:8px;margin-top:3px;padding:7px 11px;
-  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)}
-.fo-row label{font-size:.74rem;color:var(--text-muted);cursor:pointer}
-.hold-row{display:none}.hold-row.vis{display:flex}
-.mfoot{display:flex;justify-content:flex-end;gap:7px;margin-top:16px;padding-top:15px;border-top:1px solid var(--border)}
-/* HOLD CARDS */
-.hold-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:10px}
-.hcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:14px 16px;box-shadow:var(--shadow-xs);
-  transition:background var(--t),border-color var(--t),transform 120ms ease}
-.hcard:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
-.hc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.hc-name{font-size:.9rem;font-weight:600;letter-spacing:-.01em}
-.hc-date{font-family:var(--fm);font-size:.66rem;color:var(--text-faint)}
-.hc-r{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.76rem}
-.hc-r:last-of-type{border-bottom:none}
-.hc-rl{color:var(--text-muted)}.hc-rv{font-family:var(--fm);font-weight:500}
-.hc-tot{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
-.hc-tl{font-family:var(--fm);font-size:.61rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint)}
-.hc-tv{font-family:var(--fm);font-size:.88rem;font-weight:700}
-.hc-reason{margin-top:7px;padding:6px 8px;background:var(--surface-2);border:1px solid var(--border);
-  border-radius:var(--radius-xs);font-size:.71rem;color:var(--text-muted)}
-.hc-rl2{font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:2px}
-/* MONTHLY */
-.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;flex-wrap:wrap;gap:10px}
-.mcenter{display:flex;align-items:center;gap:9px}
-.mlbl{font-size:1.01rem;font-weight:700;letter-spacing:-.02em;min-width:133px;text-align:center}
-.mnav{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;
-  color:var(--text-muted);font-size:.77rem;transition:background var(--t),color var(--t)}
-.mnav:hover{background:var(--surface-2);color:var(--text)}
-.tgt-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.tgt-lbl{font-size:.73rem;color:var(--text-muted)}
-.tgt-inp{width:64px;padding:6px 9px;border-radius:var(--radius-sm);border:1px solid var(--border);
-  background:var(--surface);color:var(--text);font-size:.81rem;font-family:var(--fm);
-  text-align:center;transition:border-color var(--t)}
-.tgt-inp:focus{outline:none;border-color:var(--border-strong)}
-.prog-wrap{margin-bottom:17px}
-.prog-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
-.prog-title{font-family:var(--fm);font-size:.61rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)}
-.prog-pct{font-family:var(--fm);font-size:.76rem;color:var(--text-muted)}
-.prog-track{height:7px;background:var(--surface-3);border-radius:999px;overflow:hidden;border:1px solid var(--border)}
-.prog-fill{height:100%;background:var(--text);border-radius:999px;transition:width .65s cubic-bezier(.4,0,.2,1)}
-.mkpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:8px;margin-bottom:15px}
-/* SCAN */
-.scan-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-xs)}
-.scan-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:15px;flex-wrap:wrap;gap:8px}
-.scan-title{font-size:.87rem;font-weight:600;letter-spacing:-.01em}
-.scan-sub{font-size:.71rem;color:var(--text-muted);margin-top:3px}
-.drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;
-  transition:border-color var(--t),background var(--t);margin-bottom:13px}
-.drop-zone:hover,.drop-zone.over{border-color:var(--border-strong);background:var(--surface-2)}
-.drop-icon{font-size:1.9rem;opacity:.22;margin-bottom:7px}
-.drop-txt{font-size:.78rem;color:var(--text-muted)}.drop-hint{font-size:.67rem;color:var(--text-faint);margin-top:3px}
-#pdfInput{display:none}
-.parse-log{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:10px;font-family:var(--fm);font-size:.7rem;color:var(--text-muted);max-height:150px;
-  overflow-y:auto;line-height:1.7;white-space:pre-wrap;margin-bottom:10px}
-.extract-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px}
-.extract-title{font-family:var(--fm);font-size:.59rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px}
-.extract-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.ef-lbl{font-size:.66rem;color:var(--text-muted);margin-bottom:2px}.ef-val{font-family:var(--fm);font-size:.79rem;font-weight:600}
-.dup-warn{padding:9px 12px;background:var(--surface-3);border:1px solid var(--border-strong);
-  border-radius:var(--radius-sm);font-size:.76rem;color:var(--text-muted);margin-bottom:9px;display:none}
-.scan-tip{margin-top:15px;padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)}
-.scan-tip-lbl{font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px}
-.scan-tip-body{font-size:.74rem;color:var(--text-muted);line-height:1.65}
-/* SETTINGS */
-.settings-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-xs)}
-.ss{margin-bottom:19px;padding-bottom:19px;border-bottom:1px solid var(--border)}
-.ss:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-.ss-title{font-size:.81rem;font-weight:600;margin-bottom:4px}
-.ss-desc{font-size:.73rem;color:var(--text-muted);margin-bottom:11px;line-height:1.55}
-.merge-ta{width:100%;height:135px;padding:9px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);
-  background:var(--bg);color:var(--text);font-family:var(--fm);font-size:.72rem;resize:vertical;
-  transition:border-color var(--t);margin-bottom:9px}
-.merge-ta:focus{outline:none;border-color:var(--border-strong);box-shadow:0 0 0 3px rgba(0,0,0,.07)}
-.merge-result{font-family:var(--fm);font-size:.71rem;color:var(--text-muted);padding:8px 10px;
-  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
-  display:none;margin-top:7px;line-height:1.7}
-/* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);
-  background:var(--text);color:var(--bg);padding:8px 16px;border-radius:var(--radius-sm);
-  font-size:.76rem;font-family:var(--fm);letter-spacing:.04em;opacity:0;
-  transition:opacity .2s,transform .2s;z-index:9999;pointer-events:none;
-  white-space:nowrap;box-shadow:var(--shadow-lg);max-width:90vw;text-align:center}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh;overflow-x:hidden}
+
+/* GRID NOISE BACKGROUND */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(96,165,250,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(74,222,128,0.05) 0%, transparent 50%);
+  pointer-events:none;z-index:0;
+}
+
+/* LAYOUT */
+.app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px 20px}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,rgba(96,165,250,0.3),rgba(74,222,128,0.2));border:1px solid var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-family:var(--font-head);font-weight:800;font-size:1.2rem;letter-spacing:-0.02em}
+.logo-sub{font-size:0.7rem;color:var(--text-dim);font-weight:300;letter-spacing:0.08em;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.month-pill{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:0.75rem;color:var(--text-dim)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-mono);font-size:0.78rem;cursor:pointer;transition:all 0.2s ease;backdrop-filter:var(--glass)}
+.btn:hover{background:var(--surface-hover);border-color:var(--border-strong);transform:translateY(-1px)}
+.btn-primary{background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.4);color:#93c5fd}
+.btn-primary:hover{background:rgba(96,165,250,0.25);border-color:rgba(96,165,250,0.6)}
+.btn-green{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.35);color:#86efac}
+.btn-green:hover{background:rgba(74,222,128,0.22)}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;backdrop-filter:var(--glass);transition:all 0.2s ease;position:relative;overflow:hidden}
+.kpi:hover{border-color:var(--border-strong);transform:translateY(-2px)}
+.kpi::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.02) 0%,transparent 60%);pointer-events:none}
+.kpi-label{font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.kpi-value{font-family:var(--font-head);font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:0.7rem;color:var(--text-faint)}
+.kpi-green .kpi-value{color:var(--green)}
+.kpi-blue .kpi-value{color:var(--blue)}
+.kpi-yellow .kpi-value{color:var(--yellow)}
+
+/* MAIN 2-COL */
+.main-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-bottom:16px}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+
 /* PANELS */
-.panel{display:none}.panel.active{display:block;animation:pi 200ms ease}
-@keyframes pi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-/* PRINT */
-@media print{
-  *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
-    color:#000!important;background:#fff!important;border-color:#ccc!important;box-shadow:none!important}
-  body{background:#fff!important}
-  .topbar-r,.tabs-wrap,.filter-bar,.overlay,.toast,.scan-panel,
-  .settings-panel,.row-acts,.btn-p,.tp,.chart-grid,[data-noprint]{display:none!important}
-  .panel{display:block!important}.panel:not(#pDaily){display:none!important}
-  .tcard{border:1px solid #ccc!important;page-break-inside:avoid}
-  .tbl thead th{background:#f0f0f0!important;color:#333!important}
-  .kpi-card{border:1px solid #ddd!important}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:var(--glass);overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.panel-title{font-family:var(--font-head);font-weight:700;font-size:0.9rem;display:flex;align-items:center;gap:8px}
+.panel-title i{color:var(--text-dim);font-size:0.85rem}
+.panel-body{padding:20px}
+
+/* TABLE */
+.deals-table{width:100%;border-collapse:collapse;font-size:0.75rem}
+.deals-table th{color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;font-size:0.65rem;padding:0 10px 12px;text-align:left;font-weight:400;border-bottom:1px solid var(--border)}
+.deals-table td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+.deals-table tr:last-child td{border-bottom:none}
+.deals-table tr:hover td{background:rgba(255,255,255,0.03)}
+.deal-vehicle{font-weight:500;font-family:var(--font-head)}
+.deal-customer{color:var(--text-dim);font-size:0.7rem;margin-top:2px}
+.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:0.65rem;font-weight:500;letter-spacing:0.05em}
+.badge-green{background:rgba(74,222,128,0.15);color:#86efac;border:1px solid rgba(74,222,128,0.25)}
+.badge-yellow{background:rgba(251,191,36,0.15);color:#fde68a;border:1px solid rgba(251,191,36,0.25)}
+.badge-red{background:rgba(248,113,113,0.15);color:#fca5a5;border:1px solid rgba(248,113,113,0.25)}
+.badge-blue{background:rgba(96,165,250,0.15);color:#93c5fd;border:1px solid rgba(96,165,250,0.25)}
+.payout-val{font-family:var(--font-head);font-weight:700;font-size:0.95rem}
+.payout-pos{color:var(--green)}
+.payout-neg{color:var(--red)}
+.del-btn{background:transparent;border:none;color:var(--text-faint);cursor:pointer;padding:4px 6px;border-radius:5px;transition:all 0.15s;font-size:0.8rem}
+.del-btn:hover{color:var(--red);background:rgba(248,113,113,0.1)}
+.edit-btn{background:transparent;border:none;color:var(--text-faint);cursor:pointer;padding:4px 6px;border-radius:5px;transition:all 0.15s;font-size:0.8rem}
+.edit-btn:hover{color:var(--blue);background:rgba(96,165,250,0.1)}
+
+/* CHART */
+.chart-wrap{position:relative;height:220px}
+
+/* PAY PLAN SIDEBAR */
+.payplan-section{margin-bottom:16px}
+.payplan-section:last-child{margin-bottom:0}
+.pp-head{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tier-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tier-label{font-size:0.7rem;color:var(--text-dim);width:60px;flex-shrink:0}
+.tier-track{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.tier-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+.tier-amount{font-size:0.7rem;font-family:var(--font-head);font-weight:600;width:50px;text-align:right;flex-shrink:0}
+.progress-ring{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0}
+.ring-label{font-size:0.7rem;color:var(--text-dim)}
+.ring-val{font-family:var(--font-head);font-weight:800;font-size:1.4rem}
+.ring-sub{font-size:0.65rem;color:var(--text-faint)}
+
+/* OCR UPLOAD */
+.ocr-zone{border:1.5px dashed var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
+.ocr-zone:hover,.ocr-zone.drag{border-color:rgba(96,165,250,0.5);background:rgba(96,165,250,0.04)}
+.ocr-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ocr-icon{font-size:2rem;color:var(--text-faint);margin-bottom:10px}
+.ocr-label{font-size:0.78rem;color:var(--text-dim)}
+.ocr-sub{font-size:0.68rem;color:var(--text-faint);margin-top:4px}
+.progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:4px;height:6px;margin-top:16px;overflow:hidden;display:none}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px;transition:width 0.3s}
+.ocr-status{font-size:0.72rem;color:var(--text-dim);margin-top:8px;min-height:1.2em;text-align:center}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#111;border:1px solid var(--border-strong);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp 0.25s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-full{grid-column:1/-1}
+.form-label{font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:5px;display:block}
+.form-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font-mono);font-size:0.8rem;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:rgba(96,165,250,0.5)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.ocr-preview{width:100%;max-height:180px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin-bottom:12px;display:none}
+.confidence-row{display:flex;align-items:center;gap:8px;font-size:0.72rem;color:var(--text-dim);margin-top:8px}
+.conf-badge{padding:2px 8px;border-radius:4px;font-size:0.65rem;font-weight:500}
+.conf-high{background:rgba(74,222,128,0.15);color:#86efac}
+.conf-med{background:rgba(251,191,36,0.15);color:#fde68a}
+.conf-low{background:rgba(248,113,113,0.15);color:#fca5a5}
+
+@media(max-width:900px){.bottom-grid{grid-template-columns:1fr !important}}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:10px}
+
+/* TOOLTIP */
+.tooltip-wrap{position:relative}
+.tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.68rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:50;color:var(--text-dim)}
+.tooltip-wrap:hover .tooltip{opacity:1}
+
+/* NOTIFICATION */
+.notif{position:fixed;top:20px;right:20px;background:#1a1a1a;border:1px solid var(--border-strong);border-radius:12px;padding:12px 18px;font-size:0.78rem;z-index:200;transform:translateX(110%);transition:transform 0.3s ease;max-width:280px}
+.notif.show{transform:translateX(0)}
+.notif-success{border-color:rgba(74,222,128,0.4);color:#86efac}
+.notif-error{border-color:rgba(248,113,113,0.4);color:#fca5a5}
+.notif-info{border-color:rgba(96,165,250,0.4);color:#93c5fd}
+
+/* MONTH TABS */
+.month-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
+.month-tabs::-webkit-scrollbar{display:none}
+.month-tab{padding:5px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:var(--font-mono);font-size:0.72rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.month-tab.active{background:var(--surface-hover);color:var(--text);border-color:var(--border-strong)}
+.month-tab:hover:not(.active){border-color:var(--border-strong)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-faint)}
+.empty-icon{font-size:2.5rem;margin-bottom:12px;opacity:0.4}
+.empty-text{font-size:0.8rem}
+
+/* REVIEW FLAG */
+.review-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:5px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* BOTTOM STRIP */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:768px){.bottom-grid{grid-template-columns:1fr}}
+.mini-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;backdrop-filter:var(--glass)}
+.mini-stat-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-faint);margin-bottom:6px}
+.mini-stat-val{font-family:var(--font-head);font-weight:700;font-size:1.3rem}
+.mini-stat-change{font-size:0.68rem;margin-top:3px}
+.up{color:var(--green)}.down{color:var(--red)}
+
+/* UNIT PROGRESS */
+.unit-progress-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.unit-dots{display:flex;gap:4px;flex-wrap:wrap}
+.unit-dot{width:11px;height:11px;border-radius:3px;transition:all 0.3s}
+.unit-dot.sold{background:var(--green)}
+.unit-dot.empty{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1)}
+.unit-target-label{font-size:0.68rem;color:var(--text-faint)}
+
+/* TIER INDICATOR */
+.tier-indicator{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.tier-pill{padding:4px 10px;border-radius:6px;font-size:0.68rem;border:1px solid var(--border);color:var(--text-faint);transition:all 0.2s}
+.tier-pill.active{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.4);color:#86efac;font-weight:500}
+.tier-pill.achieved{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.3);color:#93c5fd}
+
+.separator{height:1px;background:var(--border);margin:16px 0}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .kpi-value{font-size:1.4rem}
+  .panel-head{flex-direction:column;align-items:flex-start}
 }
-@media(max-width:800px){
-  .tbl thead th:nth-child(3),.tbl tbody td:nth-child(3),
-  .tbl thead th:nth-child(4),.tbl tbody td:nth-child(4){display:none}
-  .kpi-strip{grid-template-columns:repeat(2,1fr)}.topbar-r .bl{display:none}
-}
-@media(max-width:520px){
-  .tabs{width:100%}.tab{flex:1;justify-content:center;padding:7px 5px;font-size:.71rem}
-  .filter-bar{flex-direction:column}.fld{width:100%}
-}
-.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.text-r{text-align:right}.fw6{font-weight:600}
 </style>
 </head>
 <body>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🏎</div>
+      <div>
+        <div class="logo-text">Valley Honda</div>
+        <div class="logo-sub">Commission Dashboard · Oscar Ivan Mendez</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="month-pill" id="currentDate">—</div>
+      <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Deal</button>
+      <button class="btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+      <button class="btn" onclick="clearAll()" style="color:var(--text-faint)"><i class="fas fa-trash"></i></button>
+    </div>
+  </header>
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid">
+    <div class="kpi kpi-green">
+      <div class="kpi-label">MTD Payout</div>
+      <div class="kpi-value" id="kpi-payout">$0</div>
+      <div class="kpi-sub" id="kpi-payout-sub">0 deals this month</div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div class="kpi-label">Units Delivered</div>
+      <div class="kpi-value" id="kpi-units">0</div>
+      <div class="kpi-sub" id="kpi-tier-sub">No tier reached</div>
+    </div>
+    <div class="kpi kpi-yellow">
+      <div class="kpi-label">Unit Bonus</div>
+      <div class="kpi-value" id="kpi-bonus">$0</div>
+      <div class="kpi-sub" id="kpi-bonus-sub">Based on units delivered</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Gross Profit</div>
+      <div class="kpi-value" id="kpi-gross" style="color:var(--text)">$0</div>
+      <div class="kpi-sub" id="kpi-gross-sub">Sum of profit of sale</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">F&I Bonuses</div>
+      <div class="kpi-value" id="kpi-fi" style="color:var(--text)">$0</div>
+      <div class="kpi-sub">GAP · Finance · Sentinel</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Needs Review</div>
+      <div class="kpi-value" id="kpi-review" style="color:var(--yellow)">0</div>
+      <div class="kpi-sub">Low OCR confidence</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: DEALS TABLE -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><i class="fas fa-file-invoice-dollar"></i> Deal Log</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="month-tabs" id="monthTabs"></div>
+          <button class="btn btn-primary" onclick="document.getElementById('ocr-zone').click()"><i class="fas fa-camera"></i> Scan Deal Sheet</button>
+        </div>
+      </div>
+      <div class="panel-body" style="padding:0;overflow-x:auto">
+        <table class="deals-table">
+          <thead>
+            <tr>
+              <th>Vehicle / Customer</th>
+              <th>Date</th>
+              <th>Commission</th>
+              <th>Aftermarket</th>
+              <th>F&I</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="dealsTableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-text">No deals yet. Scan a deal sheet or add manually.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: PAY PLAN + UPLOAD -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- OCR UPLOAD -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-scanner-image"></i> OCR — Scan Deal Sheet</div>
+        </div>
+        <div class="panel-body">
+          <div class="ocr-zone" id="ocrZone" onclick="triggerFileInput()">
+            <input type="file" id="ocr-zone" accept="image/*,application/pdf" onchange="handleOCRFile(event)"/>
+            <div class="ocr-icon">📷</div>
+            <div class="ocr-label">Drop deal sheet image or tap to upload</div>
+            <div class="ocr-sub">JPEG, PNG supported · Auto-extracts commission fields</div>
+            <div class="progress-bar-wrap" id="ocrProgressWrap">
+              <div class="progress-bar-fill" id="ocrProgressFill" style="width:0%"></div>
+            </div>
+            <div class="ocr-status" id="ocrStatus"></div>
+          </div>
+          <img id="ocrPreview" class="ocr-preview" src="" alt=""/>
+        </div>
+      </div>
+
+      <!-- PAY PLAN SUMMARY -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><i class="fas fa-chart-line"></i> 2026 Pay Plan</div>
+        </div>
+        <div class="panel-body">
+
+          <!-- Unit Progress -->
+          <div class="payplan-section">
+            <div class="pp-head"><i class="fas fa-car"></i> Monthly Units Progress</div>
+            <div class="unit-dots" id="unitDots"></div>
+            <div class="tier-indicator" id="tierIndicator"></div>
+          </div>
+
+          <div class="separator"></div>
+
+          <!-- Unit Bonus Tiers -->
+          <div class="payplan-section">
+            <div class="pp-head"><i class="fas fa-trophy"></i> Unit Bonus Tiers</div>
+            <div id="tierBars"></div>
+          </div>
+
+          <div class="separator"></div>
+
+          <!-- Commission Breakdown -->
+          <div class="payplan-section">
+            <div class="pp-head"><i class="fas fa-calculator"></i> Commission Structure</div>
+            <div style="font-size:0.72rem;color:var(--text-dim);line-height:1.8">
+              <div>New Cars: <span style="color:var(--text)">25%</span> of first $600 above pack</div>
+              <div>New Cars: <span style="color:var(--text)">30%</span> after $601 above pack</div>
+              <div>Pack: <span style="color:var(--text)">$400 lot + $500 pack = $900</span></div>
+              <div>Mini Deals: <span style="color:var(--text)">$75–$100/wk avg</span></div>
+              <div>Accessory Bonus: <span style="color:var(--text)">40%</span> Honda Factory</div>
+              <div>Aftermarket Sublet: <span style="color:var(--text)">25%</span></div>
+            </div>
+          </div>
+
+          <div class="separator"></div>
+
+          <!-- Finance Bonuses -->
+          <div class="payplan-section">
+            <div class="pp-head"><i class="fas fa-dollar-sign"></i> Finance Bonuses</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.7rem">
+              <div style="color:var(--text-dim)">GAP</div><div style="color:var(--text)">$5/each</div>
+              <div style="color:var(--text-dim)">Finance Deal</div><div style="color:var(--text)">$10/each</div>
+              <div style="color:var(--text-dim)">Sentinel</div><div style="color:var(--text)">$5/each</div>
+              <div style="color:var(--text-dim)">Dent & Ding</div><div style="color:var(--text)">$5/each</div>
+              <div style="color:var(--text-dim)">Key Replace</div><div style="color:var(--text)">$5/each</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="bottom-grid">
+    <div class="panel" style="grid-column:1/3">
+      <div class="panel-head">
+        <div class="panel-title"><i class="fas fa-chart-bar"></i> Monthly Earnings Breakdown</div>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap"><canvas id="earningsChart"></canvas></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><i class="fas fa-chart-pie"></i> Commission Mix</div>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap" style="height:200px"><canvas id="mixChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .app -->
+
 <!-- ADD/EDIT MODAL -->
-<div class="overlay" id="ovModal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
- <div class="modal">
-  <div class="mhead">
-   <div><div class="mtitle" id="mtitle">Add Commission Record</div>
-    <div class="msub">Auto-calculates total. Duplicate check on save.</div></div>
-   <button class="mx" id="btnMX" aria-label="Close">&times;</button>
+<div class="modal-overlay" id="dealModal">
+  <div class="modal">
+    <div class="modal-title"><i class="fas fa-file-invoice-dollar" style="color:var(--blue)"></i> <span id="modalTitle">Add Deal</span></div>
+    <img id="modalOcrPreview" class="ocr-preview" src="" alt=""/>
+    <div id="ocrConfidenceRow" class="confidence-row" style="display:none">
+      <span>OCR Confidence:</span>
+      <span class="conf-badge" id="confBadge">—</span>
+      <span id="reviewFlag"></span>
+    </div>
+    <div class="separator" id="ocrSeparator" style="display:none"></div>
+    <div class="form-grid">
+      <div class="form-full">
+        <label class="form-label">Deal # / Stock #</label>
+        <input class="form-input" id="f-deal" placeholder="e.g. 214852 / 93665"/>
+      </div>
+      <div class="form-full">
+        <label class="form-label">Vehicle Model</label>
+        <input class="form-input" id="f-vehicle" placeholder="2026 Honda CR-V Hybrid"/>
+      </div>
+      <div class="form-full">
+        <label class="form-label">Customer Name</label>
+        <input class="form-input" id="f-customer" placeholder="VANESSA DE LA TORRE"/>
+      </div>
+      <div>
+        <label class="form-label">Date</label>
+        <input class="form-input" id="f-date" type="date"/>
+      </div>
+      <div>
+        <label class="form-label">Status</label>
+        <select class="form-input form-select" id="f-status">
+          <option value="Pending">Pending</option>
+          <option value="Paid">Paid</option>
+          <option value="On Hold">On Hold</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Commission No.1 ($)</label>
+        <input class="form-input" id="f-comm1" type="number" step="0.01" placeholder="75.00"/>
+      </div>
+      <div>
+        <label class="form-label">Accessories ($)</label>
+        <input class="form-input" id="f-accessories" type="number" step="0.01" placeholder="12.00"/>
+      </div>
+      <div>
+        <label class="form-label">Aftermarket 1 ($)</label>
+        <input class="form-input" id="f-am1" type="number" step="0.01" placeholder="175.75"/>
+      </div>
+      <div>
+        <label class="form-label">F&I Bonus 1 ($)</label>
+        <input class="form-input" id="f-fi1" type="number" step="0.01" placeholder="40.00"/>
+      </div>
+      <div>
+        <label class="form-label">Profit of Sale ($)</label>
+        <input class="form-input" id="f-profit" type="number" step="0.01" placeholder="-509.89"/>
+      </div>
+      <div>
+        <label class="form-label">Acc./Aftermarket Profit ($)</label>
+        <input class="form-input" id="f-amprofit" type="number" step="0.01" placeholder="733.00"/>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+    <div style="font-size:0.72rem;color:var(--text-dim)">
+      Calculated Total Payout: <span id="calcPreview" style="color:var(--green);font-family:var(--font-head);font-weight:700;font-size:1rem">$0.00</span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveDeal()"><i class="fas fa-check"></i> Save Deal</button>
+    </div>
   </div>
-  <div class="formula-box">&#x1F9EE; <strong>Total = CommissionNo1 + F_Bonus1 + $12.24 (pack) + Adjustments</strong><br/>$12.24 dealer pack is fixed and added automatically.</div>
-  <div class="fg">
-   <div class="frow"><label class="flbl" for="fDate">Date *</label><input class="finp" type="date" id="fDate"/></div>
-   <div class="frow"><label class="flbl" for="fStock">Stock #</label><input class="finp" type="text" id="fStock" placeholder="e.g. 92983"/></div>
-   <div class="frow full"><label class="flbl" for="fClient">Client Last Name *</label><input class="finp" type="text" id="fClient" placeholder="e.g. MARTINEZ" autocomplete="off"/></div>
-   <div class="frow"><label class="flbl" for="fPeriod">Pay Period</label><input class="finp" type="text" id="fPeriod" placeholder="e.g. May 5/9"/></div>
-   <div class="frow"><label class="flbl" for="fStatus">Status</label>
-    <select class="finp" id="fStatus" style="appearance:none;padding-right:28px;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 9px center">
-     <option value="Paid">Paid</option><option value="On Hold">On Hold</option><option value="Pending">Pending</option>
-    </select>
-   </div>
-   <div class="frow"><label class="flbl" for="fComm1">Commission No1 ($)</label><input class="finp" type="number" id="fComm1" step="0.01" min="0" placeholder="75.00"/></div>
-   <div class="frow"><label class="flbl" for="fFBonus">F_Bonus1 / F&amp;I ($)</label><input class="finp" type="number" id="fFBonus" step="0.01" min="0" placeholder="0.00"/></div>
-   <div class="frow"><label class="flbl" for="fAdj">Adjustments ($)</label><input class="finp" type="number" id="fAdj" step="0.01" placeholder="0.00"/></div>
-   <div class="frow"><label class="flbl">Pack (fixed)</label><div class="finp finp-ro">$12.24 (auto)</div></div>
-   <div class="frow full"><label class="flbl">Calculated Total</label>
-    <div class="calc-row"><span class="calc-lbl">Comm1 + F_Bonus + $12.24 + Adj =</span><span class="calc-val" id="calcDisp">$12.24</span></div>
-   </div>
-   <div class="frow full hold-row" id="holdRow"><label class="flbl" for="fHold">Hold Reason</label><input class="finp" type="text" id="fHold" placeholder="e.g. MISSING TITLE"/></div>
-   <div class="frow full"><label class="flbl" for="fNotes">Notes</label><input class="finp" type="text" id="fNotes" placeholder="Split deal, co-salesperson…"/></div>
-   <div class="frow full">
-    <div class="fo-row"><input type="checkbox" id="foToggle"/><label for="foToggle">Force Overwrite — intentionally replace an existing duplicate</label></div>
-   </div>
-  </div>
-  <div class="mfoot">
-   <button class="btn" id="btnMC">Cancel</button>
-   <button class="btn btn-p" id="btnMS">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>Save Record
-   </button>
-  </div>
- </div>
 </div>
-<!-- MAIN APP -->
-<div class="app" id="printArea">
- <header class="topbar">
-  <div class="brand"><span class="brand-eye">Valley Honda &nbsp;&middot;&nbsp; Aurora, IL</span><span class="brand-name">Commission Dashboard</span></div>
-  <div class="topbar-r">
-   <button class="btn btn-p" id="btnAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg><span class="bl">Add Record</span></button>
-   <button class="btn" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 12-4-4m4 4 4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"/></svg><span class="bl">Export PDF</span></button>
-   <button class="tp" id="themePill" aria-label="Toggle theme"><div class="tk"></div></button>
-  </div>
- </header>
- <section class="kpi-strip" id="kpiStrip"></section>
- <div class="tabs-wrap">
-  <nav class="tabs" role="tablist">
-   <button class="tab active" id="tD" role="tab" aria-selected="true"  aria-controls="pDaily">Daily<span class="badge" id="bdgA">0</span></button>
-   <button class="tab"        id="tM" role="tab" aria-selected="false" aria-controls="pMonthly">Monthly</button>
-   <button class="tab"        id="tP" role="tab" aria-selected="false" aria-controls="pPaid">Paid<span class="badge" id="bdgP">0</span></button>
-   <button class="tab"        id="tH" role="tab" aria-selected="false" aria-controls="pHold">On Hold<span class="badge" id="bdgH">0</span></button>
-   <button class="tab"        id="tS" role="tab" aria-selected="false" aria-controls="pScan">
-    <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10v10H7z"/></svg>Scan PDF
-   </button>
-   <button class="tab"        id="tPP" role="tab" aria-selected="false" aria-controls="pPayPlan">
-    <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Pay Plan
-   </button>
-   <button class="tab"        id="tSt" role="tab" aria-selected="false" aria-controls="pSettings">
-    <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Settings
-   </button>
-  </nav>
- </div>
- <div class="filter-bar" id="filterBar">
-  <input class="fld" type="date" id="fltDate" aria-label="Filter by date"/>
-  <input class="fld" type="text" id="fltName" placeholder="Client name…" autocomplete="off"/>
-  <select class="fld" id="fltStatus"><option value="">All Statuses</option><option value="Paid">Paid</option><option value="On Hold">On Hold</option><option value="Pending">Pending</option></select>
-  <select class="fld" id="fltMonth"><option value="">All Months</option></select>
-  <button class="btn btn-sm" id="btnCF">Clear</button>
-  <span class="fi" id="filtInfo" aria-live="polite"></span>
- </div>
- <!-- DAILY -->
- <div class="panel active" id="pDaily" role="tabpanel" aria-labelledby="tD">
-  <div class="tcard">
-   <table class="tbl" aria-label="All commissions"><thead><tr>
-    <th>Date</th><th>Stock #</th><th>Client</th>
-    <th class="r">Comm.No1</th><th class="r">F_Bonus1</th><th class="r">Pack</th><th class="r">Adj.</th>
-    <th class="r">Total</th><th class="r">Status</th><th></th>
-   </tr></thead><tbody id="tbD"></tbody></table>
-   <div id="emD" class="empty" style="display:none"><div class="empty-icon">&#9723;</div><p>No records match current filters.</p></div>
-  </div>
-  <div class="chart-grid">
-   <div class="chart-card"><div class="chart-lbl">Monthly Commission Totals</div><div class="chart-wrap"><canvas id="cBar"></canvas></div></div>
-   <div class="chart-card"><div class="chart-lbl">Status Distribution</div><div class="chart-wrap"><canvas id="cDonut"></canvas></div></div>
-  </div>
- </div>
- <!-- MONTHLY -->
- <div class="panel" id="pMonthly" role="tabpanel" aria-labelledby="tM">
-  <div class="month-nav">
-   <div class="mcenter"><button class="mnav" id="btnPrev">&#8592;</button><div class="mlbl" id="mLbl">&mdash;</div><button class="mnav" id="btnNext">&#8594;</button></div>
-   <div class="tgt-row"><span class="tgt-lbl">Sales target:</span><input class="tgt-inp" type="number" id="tgtInp" min="1" max="999" placeholder="13"/><span class="tgt-lbl">cars</span><button class="btn btn-sm btn-p" id="btnST">Save</button></div>
-  </div>
-  <div class="prog-wrap">
-   <div class="prog-meta"><span class="prog-title" id="progTitle">UNITS vs. TARGET</span><span class="prog-pct" id="progPct">&mdash;</span></div>
-   <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
-  </div>
-  <div class="mkpi" id="mkpi"></div>
-  <div class="tcard">
-   <table class="tbl" aria-label="Monthly"><thead><tr>
-    <th>Date</th><th>Stock #</th><th>Client</th>
-    <th class="r">Comm.No1</th><th class="r">F_Bonus1</th><th class="r">Pack</th><th class="r">Adj.</th>
-    <th class="r">Total</th><th class="r">Status</th><th></th>
-   </tr></thead><tbody id="tbM"></tbody></table>
-   <div id="emM" class="empty" style="display:none"><div class="empty-icon">&#9723;</div><p>No deals this month.</p></div>
-  </div>
-  <div class="chart-grid" style="margin-top:16px">
-   <div class="chart-card"><div class="chart-lbl">Daily Commissions — This Month</div><div class="chart-wrap"><canvas id="cMD"></canvas></div></div>
-   <div class="chart-card"><div class="chart-lbl">Units vs. Target</div><div class="chart-wrap"><canvas id="cTG"></canvas></div></div>
-  </div>
- </div>
- <!-- PAID -->
- <div class="panel" id="pPaid" role="tabpanel" aria-labelledby="tP">
-  <div class="tcard">
-   <table class="tbl" aria-label="Paid"><thead><tr>
-    <th>Pay Period</th><th>Date</th><th>Stock #</th><th>Client</th>
-    <th class="r">Comm.No1</th><th class="r">F_Bonus1</th><th class="r">Total</th><th></th>
-   </tr></thead><tbody id="tbP"></tbody></table>
-   <div id="emP" class="empty" style="display:none"><div class="empty-icon">&#9723;</div><p>No paid records.</p></div>
-  </div>
- </div>
- <!-- ON HOLD -->
- <div class="panel" id="pHold" role="tabpanel" aria-labelledby="tH">
-  <div class="hold-grid" id="holdGrid"></div>
-  <div id="emH" class="empty" style="display:none"><div class="empty-icon">&#9723;</div><p>No deals on hold.</p></div>
- </div>
- <!-- SCAN -->
- <div class="panel" id="pScan" role="tabpanel" aria-labelledby="tS">
-  <div class="scan-panel">
-   <div class="scan-head">
-    <div>
-     <div class="scan-title">Auto-Import Pay Stubs</div>
-     <div class="scan-sub">PDFs e imágenes (JPG, PNG) — se extraen todos los deals y se guardan directo al dashboard.</div>
-    </div>
-    <button class="btn" id="btnCPdf">
-     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-     Elegir archivos
-    </button>
-   </div>
 
-   <!-- DROP ZONE -->
-   <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Drop files or press Enter">
-    <div class="drop-icon">&#8679;</div>
-    <div class="drop-txt">Arrastra PDFs o imágenes de hoja de pago aquí</div>
-    <div class="drop-hint">PDF · JPG · PNG · múltiples archivos &nbsp;&middot;&nbsp; OCR automático en imágenes</div>
-   </div>
-   <input type="file" id="pdfInput" accept=".pdf,application/pdf,.jpg,.jpeg,.png,image/jpeg,image/png" multiple/>
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
 
-   <!-- QUEUE PROGRESS (shown while processing) -->
-   <div id="queueWrap" style="display:none;margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-     <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)">Procesando archivos</span>
-     <span id="queueCounter" style="font-family:var(--fm);font-size:.72rem;color:var(--text-muted)">0 / 0</span>
-    </div>
-    <div style="height:6px;background:var(--surface-3);border-radius:999px;overflow:hidden;border:1px solid var(--border)">
-     <div id="queueBar" style="height:100%;background:var(--text);border-radius:999px;width:0%;transition:width .35s ease"></div>
-    </div>
-    <!-- Current file being processed -->
-    <div id="queueCurrent" style="font-family:var(--fm);font-size:.7rem;color:var(--text-muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-   </div>
-
-   <!-- RESULTS TABLE (shown after processing) -->
-   <div id="importResultsWrap" style="display:none;margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;flex-wrap:wrap;gap:8px">
-     <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)">Resultados del import</span>
-     <div style="display:flex;gap:6px">
-      <span id="rSummAdded"   style="font-family:var(--fm);font-size:.71rem;padding:3px 9px;border-radius:999px;background:var(--surface-3);border:1px solid var(--border);color:var(--text)">0 añadidos</span>
-      <span id="rSummSkipped" style="font-family:var(--fm);font-size:.71rem;padding:3px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted)">0 duplicados</span>
-      <span id="rSummErrors"  style="font-family:var(--fm);font-size:.71rem;padding:3px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-faint)">0 errores</span>
-     </div>
-    </div>
-    <div class="tcard">
-     <table class="tbl" style="font-size:.77rem">
-      <thead><tr>
-       <th>Archivo</th><th>Cliente</th><th class="r">Total</th>
-       <th>Estado</th><th>Resultado</th>
-      </tr></thead>
-      <tbody id="importResultsTbody"></tbody>
-     </table>
-    </div>
-    <div style="margin-top:10px;display:flex;gap:7px;justify-content:flex-end">
-     <button class="btn btn-sm" id="btnClearResults">Limpiar resultados</button>
-     <button class="btn btn-sm btn-p" id="btnGoDaily">Ver en Daily &#8594;</button>
-    </div>
-   </div>
-
-   <!-- PARSE LOG (collapsible, for debugging) -->
-   <div id="plWrap" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;cursor:pointer" id="logToggle">
-     <span class="chart-lbl" style="margin:0">Parse Log (debug)</span>
-     <span id="logArrow" style="font-size:.7rem;color:var(--text-faint)">&#9660;</span>
-    </div>
-    <div class="parse-log" id="parseLog" style="display:none"></div>
-   </div>
-
-   <!-- FALLBACK for image-only PDFs -->
-   <div id="fbWrap" style="display:none;margin-top:12px">
-    <div style="padding:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.78rem;color:var(--text-muted)">
-     <strong style="color:var(--text)">Sin capa de texto</strong> — El PDF parece ser una imagen escaneada. Abre el formulario manual para capturar los datos.<br/>
-     <span style="font-family:var(--fm);font-size:.71rem;margin-top:3px;display:block" id="fbName"></span>
-     <button class="btn btn-sm" id="btnFbManual" style="margin-top:8px">Abrir formulario manual</button>
-    </div>
-   </div>
-
-   <div class="scan-tip" style="margin-top:16px">
-    <div class="scan-tip-lbl">¿Cómo funciona?</div>
-    <div class="scan-tip-body">
-     Sube PDFs o imágenes (JPG/PNG). <strong>PDFs con texto</strong>: extracción directa vía pdf.js. <strong>PDFs escaneados e imágenes</strong>: OCR automático con Tesseract.js (requiere internet la primera vez). El parser detecta todos los deals por archivo — fechas, apellidos, stock, Comm#1, F&amp;I, ajustes, hold reason — y los guarda directo al dashboard. Duplicados se saltan.
-    </div>
-   </div>
-  </div>
- </div>
- <!-- PAY PLAN -->
- <div class="panel" id="pPayPlan" role="tabpanel" aria-labelledby="tPP">
-  <div class="settings-panel">
-
-   <!-- HEADER -->
-   <div style="margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border)">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
-     <div>
-      <div style="font-size:.62rem;font-family:var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Valley Honda &middot; Aurora, IL</div>
-      <div style="font-size:1.08rem;font-weight:700;letter-spacing:-.02em">2026 Pay Plan</div>
-      <div style="font-size:.75rem;color:var(--text-muted);margin-top:3px">Oscar Ivan Mendez &middot; Sales Consultant &middot; Hire Date: 9/29/2025 &middot; Effective: 4/6/2026</div>
-     </div>
-     <!-- Live commission estimator button -->
-     <button class="btn btn-p btn-sm" id="btnToggleCalc">&#x1F9EE; Estimador</button>
-    </div>
-   </div>
-
-   <!-- COMMISSION ESTIMATOR (collapsible) -->
-   <div id="calcWrap" style="display:none;margin-bottom:20px;padding:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);animation:pi 200ms ease">
-    <div style="font-family:var(--fm);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px">Estimador de Comisión — New Car</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-     <div class="frow">
-      <label class="flbl" for="estFEG">Front End Gross ($)</label>
-      <input class="finp" type="number" id="estFEG" step="1" min="0" placeholder="1200" oninput="calcEstimate()"/>
-     </div>
-     <div class="frow">
-      <label class="flbl" for="estFI">F&amp;I / Finance ($)</label>
-      <input class="finp" type="number" id="estFI" step="1" min="0" placeholder="0" oninput="calcEstimate()"/>
-     </div>
-     <div class="frow">
-      <label class="flbl" for="estAcc">Accessories ($)</label>
-      <input class="finp" type="number" id="estAcc" step="1" min="0" placeholder="0" oninput="calcEstimate()"/>
-     </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.79rem">
-     <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Gross ≤ $600 (25%)</div>
-      <div style="font-size:1.1rem;font-weight:700;font-family:var(--fm)" id="est25">$0.00</div>
-     </div>
-     <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Gross &gt; $600 (30%)</div>
-      <div style="font-size:1.1rem;font-weight:700;font-family:var(--fm)" id="est30">$0.00</div>
-     </div>
-    </div>
-    <div style="margin-top:8px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center">
-     <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint)">+ Pack ($12.24) + Finance bonus + Accessories (40%) =</span>
-     <span style="font-family:var(--fm);font-size:1.15rem;font-weight:700" id="estTotal">$12.24</span>
-    </div>
-   </div>
-
-   <!-- SALARY -->
-   <div class="ss">
-    <div class="ss-title">Salary</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;font-size:.8rem">
-     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Base Salary</div>
-      <div style="font-weight:600">$300 bi-weekly</div>
-     </div>
-     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Demo Charge</div>
-      <div style="font-weight:600">$60 weekly</div>
-     </div>
-     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Mini Deals (New/Used/Cert)</div>
-      <div style="font-weight:600">$75–$100 <span style="font-weight:400;color:var(--text-muted)">(based on quarterly accessory &amp; aftermarket avg.)</span></div>
-     </div>
-     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Demo Mini (2500+ mi)</div>
-      <div style="font-weight:600">$200</div>
-     </div>
-    </div>
-   </div>
-
-   <!-- PACKS -->
-   <div class="ss">
-    <div class="ss-title">Packs — Used Cars</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Lot Fee</div>
-      <div style="font-size:1.05rem;font-weight:700;font-family:var(--fm)">$400</div>
-     </div>
-     <div style="padding:10px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Pack</div>
-      <div style="font-size:1.05rem;font-weight:700;font-family:var(--fm)">$500</div>
-     </div>
-     <div style="padding:10px 13px;background:var(--accent);border:1px solid var(--accent);border-radius:var(--radius-sm);text-align:center">
-      <div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);opacity:.7;margin-bottom:4px">Total Pack</div>
-      <div style="font-size:1.05rem;font-weight:700;font-family:var(--fm);color:var(--bg)">$900</div>
-     </div>
-    </div>
-   </div>
-
-   <!-- COMMISSION STRUCTURE -->
-   <div class="ss">
-    <div class="ss-title">Commission Structure</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-     <!-- New Cars -->
-     <div>
-      <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">New Cars</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:.79rem">
-       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>25% of first $600</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
-       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>30% after $601</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
-       <div style="padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs);font-size:.72rem;color:var(--text-muted)">Demo 50% no pack (2500+ miles)</div>
-      </div>
-     </div>
-     <!-- Used Cars -->
-     <div>
-      <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Used Cars</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:.79rem">
-       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>25% of first $600</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
-       <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>30% after $601</span><span style="font-family:var(--fm);font-weight:600">above pack</span></div>
-      </div>
-     </div>
-    </div>
-    <!-- Certified Units -->
-    <div style="margin-top:10px">
-     <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Certified Units</div>
-     <div style="display:flex;flex-direction:column;gap:5px;font-size:.79rem">
-      <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>45–60 days old</span><span style="font-family:var(--fm);font-weight:600">flat 30% above pack</span></div>
-      <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-xs)"><span>60+ days old</span><span style="font-family:var(--fm);font-weight:600">flat 35% above pack</span></div>
-     </div>
-    </div>
-    <!-- Non-Certified Used -->
-    <div style="margin-top:10px;padding:10px 13px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--radius-sm)">
-     <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">⚡ Non-Certified Used Units 50 days or older</div>
-     <div style="font-size:.79rem;font-weight:600">50/50 above pack</div>
-    </div>
-   </div>
-
-   <!-- UNIT BONUS -->
-   <div class="ss">
-    <div class="ss-title">Unit Bonus (MTD — Month to Date)</div>
-    <div style="overflow-x:auto">
-     <table class="tbl" style="font-size:.77rem">
-      <thead><tr>
-       <th>Units Delivered</th>
-       <th class="r">MTD ≥ National &amp; Zone</th>
-       <th class="r">Below National</th>
-      </tr></thead>
-      <tbody>
-       <tr><td class="mono">12</td><td class="r mono">$200</td><td class="r mono">$0</td></tr>
-       <tr><td class="mono">15</td><td class="r mono">$675</td><td class="r mono">$175</td></tr>
-       <tr><td class="mono">18</td><td class="r mono">$900</td><td class="r mono">$400</td></tr>
-       <tr><td class="mono">21</td><td class="r mono">$1,150</td><td class="r mono">$650</td></tr>
-       <tr><td class="mono">24</td><td class="r mono">$1,450</td><td class="r mono">$950</td></tr>
-       <tr><td class="mono">27</td><td class="r mono">$1,750</td><td class="r mono">$1,250</td></tr>
-       <tr><td class="mono">30</td><td class="r mono">$2,000</td><td class="r mono">$1,500</td></tr>
-      </tbody>
-     </table>
-    </div>
-    <div style="margin-top:8px;font-size:.72rem;color:var(--text-muted);line-height:1.6">
-     *Non-Accumulative. Must be above National &amp; Zone YTD Recommend score (not NPS) to receive the higher bonus. Payable monthly.
-    </div>
-   </div>
-
-   <!-- USED CAR UNIT BONUS -->
-   <div class="ss">
-    <div class="ss-title">Used Car Unit Bonus (MTD)</div>
-    <div style="overflow-x:auto">
-     <table class="tbl" style="font-size:.77rem">
-      <thead><tr><th>Units</th><th class="r">Bonus</th></tr></thead>
-      <tbody>
-       <tr><td class="mono">6</td><td class="r mono">$500</td></tr>
-       <tr><td class="mono">9</td><td class="r mono">$900</td></tr>
-       <tr><td class="mono">12</td><td class="r mono">$1,250</td></tr>
-       <tr><td class="mono">15</td><td class="r mono">$2,000</td></tr>
-       <tr><td class="mono">17</td><td class="r mono">$2,500</td></tr>
-       <tr><td class="mono">20</td><td class="r mono">$3,000</td></tr>
-       <tr><td class="mono">25</td><td class="r mono">$3,500</td></tr>
-      </tbody>
-     </table>
-    </div>
-   </div>
-
-   <!-- FINANCE BONUS -->
-   <div class="ss">
-    <div class="ss-title">Finance Bonus (per deal)</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;font-size:.79rem">
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">GAP</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Road Hazard</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Dent &amp; Ding Removal</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Key Replacement</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Extended Warranty</div><div style="font-weight:600;font-family:var(--fm)">$25</div></div>
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Finance (Non-Special APR)</div><div style="font-weight:600;font-family:var(--fm)">$10</div></div>
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Sentinel</div><div style="font-weight:600;font-family:var(--fm)">$5</div></div>
-    </div>
-   </div>
-
-   <!-- ACCESSORY & SURVEY BONUS -->
-   <div class="ss">
-    <div class="ss-title">Accessory &amp; Survey Bonuses</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.79rem">
-     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">Honda Factory Accessories</div>
-      <div style="font-weight:600;font-size:.92rem">40%</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">All Models</div>
-     </div>
-     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">After Market Sublet</div>
-      <div style="font-weight:600;font-size:.92rem">25%</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">All Models</div>
-     </div>
-     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">DTPS Survey Bonus</div>
-      <div style="font-weight:600">$10 per survey</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">Must qualify via DTPS</div>
-     </div>
-     <div style="padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)">
-      <div style="font-family:var(--fm);font-size:.59rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">Online Review Bonus</div>
-      <div style="font-weight:600">$50 Google &middot; $40 Yelp*</div><div style="color:var(--text-muted);font-size:.72rem;margin-top:2px">Max 5 reviews/mo. Min 7-day visibility.</div>
-     </div>
-    </div>
-   </div>
-
-   <!-- PTO -->
-   <div class="ss" style="padding-bottom:0;border-bottom:none">
-    <div class="ss-title">PTO</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.79rem">
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Rate</div><div style="font-weight:600">$20/hr (or $160/day)</div></div>
-     <div style="padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-family:var(--fm);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px">Accrual</div><div style="font-weight:600">Front Loaded</div></div>
-    </div>
-    <div style="margin-top:7px;font-size:.72rem;color:var(--text-muted);line-height:1.6">
-     PTO accrual is equal to the greater of $20/hr or prior YTD total gross wages ÷ 2080. <strong style="color:var(--text)">Salary is reduced for both paid days off and un-paid days off.</strong>
-    </div>
-   </div>
-
-  </div>
- </div>
- <!-- SETTINGS -->
- <div class="panel" id="pSettings" role="tabpanel" aria-labelledby="tSt">
-  <div class="settings-panel">
-   <div class="ss">
-    <div class="ss-title">Merge New Records from JSON</div>
-    <div class="ss-desc">Paste a JSON array of new records. Composite keys are checked — exact duplicates are always skipped. Safe to run multiple times.</div>
-    <textarea class="merge-ta" id="mergeTA" placeholder='[{"date":"2026-06-01","clientLastName":"RAMIREZ","commissionNo1":390,"fBonus1":25,"adjustments":0,"status":"Paid","payPeriod":"June","notes":""}]'></textarea>
-    <div style="display:flex;gap:7px">
-     <button class="btn btn-p btn-sm" id="btnMerge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M8 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2h8z"/></svg>Merge JSON</button>
-     <button class="btn btn-sm" id="btnCM">Clear</button>
-    </div>
-    <div class="merge-result" id="mergeResult"></div>
-   </div>
-   <div class="ss">
-    <div class="ss-title">Scan &amp; Remove Duplicates</div>
-    <div class="ss-desc">Scans all records using the composite key (date_clientname_total). Exact matches are listed and can be purged.</div>
-    <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
-     <button class="btn btn-sm" id="btnSD2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Scan Duplicates</button>
-     <button class="btn btn-sm btn-p" id="btnPD" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Purge Duplicates</button>
-     <span id="dupRes" style="font-family:var(--fm);font-size:.71rem;color:var(--text-muted)"></span>
-    </div>
-    <div id="dupList" style="margin-top:9px;font-family:var(--fm);font-size:.71rem;color:var(--text-muted);line-height:1.7"></div>
-   </div>
-   <div class="ss">
-    <div class="ss-title">Data Management</div>
-    <div class="ss-desc">Export all data as JSON for backup, or reset to seed data.</div>
-    <div style="display:flex;gap:7px;flex-wrap:wrap">
-     <button class="btn btn-sm" id="btnEJ">Export JSON Backup</button>
-     <button class="btn btn-sm" id="btnReset">Reset to Seed Data</button>
-    </div>
-   </div>
-  </div>
- </div>
-</div><!-- /.app -->
 <script>
-/* PDF.JS WORKER — blob approach, CORS-safe on file:// */
-(function(){
-  const CDN='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  try{const b=new Blob([`importScripts('${CDN}');`],{type:'application/javascript'});
-    pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(b);}
-  catch(e){pdfjsLib.GlobalWorkerOptions.workerSrc=CDN;}
-})();
+// ══════════════════════════════════════════
+// STATE & STORAGE
+// ══════════════════════════════════════════
+const SCHEMA_VERSION = 3;
+const STORAGE_KEY = 'vhonda_dashboard_v3';
 
-/* ═══════════════════════════════════════════════════════════════
-   SEED DATA — initial records
-   Formula: Total = commissionNo1 + fBonus1 + 12.24 + adjustments
-   Add new records below the marked line, then use Settings→Merge
-   or the + Add Record button for ongoing daily updates.
-═══════════════════════════════════════════════════════════════ */
-const SEED=[
-  {date:"2026-05-01",clientLastName:"FITSANZO", payPeriod:"May 5/9",  commissionNo1:390.00,fBonus1:25.00, adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-02",clientLastName:"PEREZ",    payPeriod:"May 5/9",  commissionNo1:415.18,fBonus1:0,     adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-06",clientLastName:"ANGELA",   payPeriod:"May 5/9",  commissionNo1:67.75, fBonus1:0,     adjustments:0,status:"Paid",    holdReason:"",notes:"Split — BALTL"},
-  {date:"2026-05-09",clientLastName:"PEREZ",    payPeriod:"May 5/9",  commissionNo1:460.95,fBonus1:0,     adjustments:0,status:"Paid",    holdReason:"",notes:"Split — CONTREBAS"},
-  {date:"2026-05-09",clientLastName:"AGUIRRE",  payPeriod:"May 5/9",  commissionNo1:330.69,fBonus1:0,     adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-11",clientLastName:"NGON",     payPeriod:"May 5/23", commissionNo1:336.60,fBonus1:192.99,adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-16",clientLastName:"MARZANO",  payPeriod:"May 5/23", commissionNo1:343.60,fBonus1:5.00,  adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-16",clientLastName:"BAUER",    payPeriod:"May 5/23", commissionNo1:702.69,fBonus1:5.00,  adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-22",clientLastName:"IMTIAZ",   payPeriod:"May 5/23", commissionNo1:80.00, fBonus1:15.00, adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-22",clientLastName:"GHORST",   payPeriod:"May 5/23", commissionNo1:80.00, fBonus1:0,     adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-22",clientLastName:"PEREZ",    payPeriod:"May 5/23", commissionNo1:75.00, fBonus1:0,     adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-23",clientLastName:"DELATORRE",payPeriod:"May 5/23", commissionNo1:75.00, fBonus1:174.24,adjustments:0,status:"Paid",    holdReason:"",notes:""},
-  {date:"2026-05-09",clientLastName:"ALMED",    payPeriod:"May Hold", commissionNo1:75.00, fBonus1:0,     adjustments:0,status:"On Hold", holdReason:"PASS THE KEYS PENDING",notes:""},
-  {date:"2026-05-09",clientLastName:"ALTIMIRA", payPeriod:"May Hold", commissionNo1:75.00, fBonus1:0,     adjustments:0,status:"On Hold", holdReason:"MISSING TITLE / PASS THE KEYS",notes:""},
-  /* ── ADD NEW RECORDS BELOW ──────────────────────────────────
-  { date:"2026-06-01", clientLastName:"LASTNAME", payPeriod:"June",
-    commissionNo1:0, fBonus1:0, adjustments:0,
-    status:"Paid", holdReason:"", notes:"" },
-  ──────────────────────────────────────────────────────────── */
-];
-
-const PACK=12.24,LS_D='vhd_v3',LS_T='vhd_tgt_v3',LS_TH='vhd_th';
-
-/* UTILS */
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function calcTotal(r){return(+(r.commissionNo1)||0)+(+(r.fBonus1)||0)+PACK+(+(r.adjustments)||0);}
-function cKey(r){
-  const d=(r.date||'').trim();
-  const c=(r.clientLastName||'').trim().toLowerCase().replace(/\s+/g,'');
-  return`${d}_${c}_${calcTotal(r).toFixed(2)}`;
-}
-function diceSim(a,b){
-  if(!a||!b)return 0;if(a===b)return 1;
-  const bg=s=>{const g=new Set();for(let i=0;i<s.length-1;i++)g.add(s.slice(i,i+2));return g;};
-  const A=bg(a),B=bg(b);let x=0;A.forEach(g=>{if(B.has(g))x++;});
-  return(2*x)/(A.size+B.size);
-}
-function fmt(n){return'$'+(+(n)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-function mkey(d){return d?d.slice(0,7):'';}
-function mLabel(k){if(!k)return'—';const[y,m]=k.split('-');return new Date(+y,+m-1,1).toLocaleString('default',{month:'long',year:'numeric'});}
-function derivePP(d){if(!d)return'';const dt=new Date(d);return isNaN(dt)?'':dt.toLocaleString('default',{month:'long'});}
-function allMonths(){const s=new Set(DATA.map(r=>r.month).filter(Boolean));s.add(new Date().toISOString().slice(0,7));return[...s].sort();}
-function pillH(st){const c={Paid:'pill-paid','On Hold':'pill-hold',Pending:'pill-pending'}[st]||'pill-pending';return`<span class="pill ${c}">${st}</span>`;}
-function dz(n){return n?`<span class="mono">${fmt(n)}</span>`:'<span class="fnt">—</span>';}
-function cv(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
-
-/* STORAGE */
-function loadData(){
-  try{const r=localStorage.getItem(LS_D);if(r){const p=JSON.parse(r);if(Array.isArray(p))return p;}}catch(e){console.warn('Storage read:',e);}
-  const d=hydrateSeed(SEED);saveData(d);return d;
-}
-function hydrateSeed(arr){return arr.map(hydrateRec);}
-function hydrateRec(r){
-  return{id:r.id||uid(),date:r.date||'',clientLastName:(r.clientLastName||'').toUpperCase(),
-    stock:r.stock||'—',payPeriod:r.payPeriod||derivePP(r.date),
-    commissionNo1:+(r.commissionNo1||0),fBonus1:+(r.fBonus1||0),pack:PACK,
-    adjustments:+(r.adjustments||0),total:calcTotal(r),status:r.status||'Paid',
-    holdReason:r.holdReason||'',month:(r.date||'').slice(0,7),
-    pdfAttachmentName:r.pdfAttachmentName||'',notes:r.notes||''};
-}
-function saveData(a){try{localStorage.setItem(LS_D,JSON.stringify(a));}catch(e){console.error('Save:',e);}}
-function loadTargets(){try{const r=localStorage.getItem(LS_T);if(r)return JSON.parse(r);}catch(e){}return{};}
-function saveTargets(o){try{localStorage.setItem(LS_T,JSON.stringify(o));}catch(e){}}
-
-let DATA=loadData(),TARGETS=loadTargets();
-let KEYSET=new Set(DATA.map(cKey));
-function rebuildKS(){KEYSET=new Set(DATA.map(cKey));}
-
-/* TOAST */
-let _tt=null;
-function toast(msg,dur=2800){
-  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
-  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),dur);
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const s = JSON.parse(raw);
+    if (s.version !== SCHEMA_VERSION) return migrateState(s);
+    return s;
+  } catch { return defaultState(); }
 }
 
-/* THEME */
-(function(){
-  if(localStorage.getItem(LS_TH)==='dark')document.documentElement.setAttribute('data-theme','dark');
-  document.getElementById('themePill').addEventListener('click',()=>{
-    const d=document.documentElement.getAttribute('data-theme')==='dark';
-    d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem(LS_TH,'light'))
-     :(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem(LS_TH,'dark'));
-    requestAnimationFrame(rebuildGC);
-  });
-})();
-
-/* TABS */
-let activeTab='daily';
-const TB={tD:'daily',tM:'monthly',tP:'paid',tH:'hold',tS:'scan',tPP:'payplan',tSt:'settings'};
-const TP={daily:'pDaily',monthly:'pMonthly',paid:'pPaid',hold:'pHold',scan:'pScan',payplan:'pPayPlan',settings:'pSettings'};
-const HF=['monthly','scan','payplan','settings'];
-Object.entries(TB).forEach(([id,k])=>{
-  document.getElementById(id).addEventListener('click',()=>{
-    activeTab=k;
-    Object.entries(TB).forEach(([bid,bk])=>{const on=bk===k;document.getElementById(bid).classList.toggle('active',on);document.getElementById(bid).setAttribute('aria-selected',on);});
-    Object.values(TP).forEach(pid=>document.getElementById(pid).classList.remove('active'));
-    document.getElementById(TP[activeTab]).classList.add('active');
-    document.getElementById('filterBar').style.display=HF.includes(activeTab)?'none':'';
-    if(activeTab==='monthly')renderMonthly();else render();
-  });
-});
-
-/* FILTERS */
-let _fd=null;
-function getF(){return{date:document.getElementById('fltDate').value.trim(),name:document.getElementById('fltName').value.trim().toLowerCase(),status:document.getElementById('fltStatus').value,month:document.getElementById('fltMonth').value};}
-function applyF(arr){const f=getF();return arr.filter(r=>{if(f.date&&r.date!==f.date)return false;if(f.name&&!r.clientLastName.toLowerCase().includes(f.name))return false;if(f.status&&r.status!==f.status)return false;if(f.month&&r.month!==f.month)return false;return true;});}
-function populateMF(){
-  const s=document.getElementById('fltMonth'),cur=s.value;
-  s.innerHTML='<option value="">All Months</option>';
-  allMonths().forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=mLabel(k);if(k===cur)o.selected=true;s.appendChild(o);});
-}
-['fltDate','fltStatus','fltMonth'].forEach(id=>document.getElementById(id).addEventListener('change',render));
-document.getElementById('fltName').addEventListener('input',()=>{clearTimeout(_fd);_fd=setTimeout(render,180);});
-document.getElementById('btnCF').addEventListener('click',()=>{['fltDate','fltName'].forEach(id=>document.getElementById(id).value='');['fltStatus','fltMonth'].forEach(id=>document.getElementById(id).value='');render();});
-
-/* KPI */
-function renderKPIs(){
-  const paid=DATA.filter(r=>r.status==='Paid'),hold=DATA.filter(r=>r.status==='On Hold');
-  const tA=DATA.reduce((s,r)=>s+calcTotal(r),0),tP=paid.reduce((s,r)=>s+calcTotal(r),0);
-  const tH=hold.reduce((s,r)=>s+calcTotal(r),0),avg=paid.length?tP/paid.length:0;
-  document.getElementById('kpiStrip').innerHTML=[{l:'Total Earned',v:fmt(tA),s:'All records'},{l:'Units Sold',v:DATA.length,s:'New & Used'},{l:'Paid Out',v:fmt(tP),s:'Released'},{l:'On Hold',v:fmt(tH),s:'Pending docs'},{l:'Avg / Deal',v:fmt(avg),s:'Paid deals'}]
-    .map(k=>`<div class="kpi-card"><div class="kpi-lbl">${k.l}</div><div class="kpi-val">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
-  document.getElementById('bdgA').textContent=DATA.length;
-  document.getElementById('bdgP').textContent=paid.length;
-  document.getElementById('bdgH').textContent=hold.length;
+function defaultState() {
+  return {
+    version: SCHEMA_VERSION,
+    deals: [],
+    selectedMonth: new Date().toISOString().slice(0,7),
+    prefs: {}
+  };
 }
 
-/* ROW BUILDER */
-function bRow(r,cells){
-  const tr=document.createElement('tr');tr.dataset.id=r.id;
-  cells.forEach(({v,cls})=>{const td=document.createElement('td');if(cls)td.className=cls;td.innerHTML=v;tr.appendChild(td);});
-  const td=document.createElement('td');
-  td.innerHTML=`<div class="row-acts"><button class="btn btn-xs btn-edit" data-id="${r.id}" title="Edit">&#9998;</button><button class="btn btn-xs btn-del" data-id="${r.id}" title="Delete">&#10005;</button></div>`;
-  tr.appendChild(td);return tr;
+function migrateState(old) {
+  const s = defaultState();
+  if (old.deals) s.deals = old.deals.map(d => ({...d, status: d.status || 'Pending', ocrConfidence: d.ocrConfidence || 100, needsReview: false}));
+  return s;
 }
 
-/* DAILY */
-function renderDaily(){
-  const f=applyF(DATA).sort((a,b)=>a.date.localeCompare(b.date));
-  const tb=document.getElementById('tbD');
-  requestAnimationFrame(()=>{
-    tb.innerHTML='';
-    document.getElementById('emD').style.display=f.length?'none':'block';
-    document.getElementById('filtInfo').textContent=f.length<DATA.length?`${f.length} of ${DATA.length}`:`${DATA.length} records`;
-    f.forEach(r=>tb.appendChild(bRow(r,[{v:`<span class="dim mono">${r.date}</span>`},{v:`<span class="dim mono">${r.stock}</span>`},{v:`<span class="fw6">${r.clientLastName}</span>${r.notes?`<br/><span class="fnt">${r.notes}</span>`:''}`},{v:dz(r.commissionNo1),cls:'r'},{v:dz(r.fBonus1),cls:'r'},{v:`<span class="mono fnt">${fmt(PACK)}</span>`,cls:'r'},{v:dz(r.adjustments),cls:'r'},{v:`<span class="mono bold">${fmt(calcTotal(r))}</span>`,cls:'r'},{v:pillH(r.status),cls:'r'}])));
-  });
-}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-/* PAID */
-function renderPaid(){
-  const f=applyF(DATA.filter(r=>r.status==='Paid')).sort((a,b)=>a.date.localeCompare(b.date));
-  const tb=document.getElementById('tbP');
-  requestAnimationFrame(()=>{
-    tb.innerHTML='';document.getElementById('emP').style.display=f.length?'none':'block';
-    const g={};f.forEach(r=>(g[r.payPeriod]||(g[r.payPeriod]=[])).push(r));
-    Object.entries(g).forEach(([pp,recs])=>{
-      const sub=recs.reduce((s,r)=>s+calcTotal(r),0);
-      const hdr=document.createElement('tr');hdr.style.background='var(--surface-2)';
-      hdr.innerHTML=`<td colspan="9" style="padding:9px 13px;font-family:var(--fm);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);border-bottom:1px solid var(--border)">Pay Period — ${pp} &nbsp;&middot;&nbsp; ${recs.length} deals &nbsp;&middot;&nbsp; ${fmt(sub)}</td>`;
-      tb.appendChild(hdr);
-      recs.forEach(r=>tb.appendChild(bRow(r,[{v:`<span class="fnt mono" style="font-size:.69rem">${r.payPeriod}</span>`},{v:`<span class="dim mono">${r.date}</span>`},{v:`<span class="dim mono">${r.stock}</span>`},{v:`<span class="fw6">${r.clientLastName}</span>`},{v:dz(r.commissionNo1),cls:'r'},{v:dz(r.fBonus1),cls:'r'},{v:`<span class="mono bold">${fmt(calcTotal(r))}</span>`,cls:'r'}])));
-    });
-    const grand=f.reduce((s,r)=>s+calcTotal(r),0);
-    const ft=document.createElement('tr');ft.style.cssText='background:var(--surface-2);font-weight:600';
-    ft.innerHTML=`<td colspan="7" style="padding:10px 13px;font-family:var(--fm);font-size:.61rem;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)">TOTAL PAID</td><td class="r" style="padding:10px 13px;font-family:var(--fm);font-weight:700">${fmt(grand)}</td><td></td>`;
-    tb.appendChild(ft);
-  });
-}
+let state = loadState();
+let editingId = null;
+let pendingOCRData = null;
+let earningsChart = null;
+let mixChart = null;
 
-/* HOLD */
-function renderHold(){
-  const f=applyF(DATA.filter(r=>r.status==='On Hold'));
-  const g=document.getElementById('holdGrid');
-  requestAnimationFrame(()=>{
-    g.innerHTML='';document.getElementById('emH').style.display=f.length?'none':'block';
-    f.forEach(r=>{
-      const tot=calcTotal(r),c=document.createElement('div');c.className='hcard';
-      c.innerHTML=`<div class="hc-top"><div class="hc-name">${r.clientLastName}</div><div style="display:flex;align-items:center;gap:6px"><div class="hc-date">${r.date}</div><button class="btn btn-xs btn-edit" data-id="${r.id}" title="Edit">&#9998;</button><button class="btn btn-xs btn-del" data-id="${r.id}" title="Delete">&#10005;</button></div></div>
-       <div class="hc-r"><span class="hc-rl">Stock #</span><span class="hc-rv">${r.stock}</span></div>
-       <div class="hc-r"><span class="hc-rl">Comm. No1</span><span class="hc-rv">${fmt(r.commissionNo1)}</span></div>
-       ${r.fBonus1?`<div class="hc-r"><span class="hc-rl">F_Bonus1</span><span class="hc-rv">${fmt(r.fBonus1)}</span></div>`:''}
-       ${r.adjustments?`<div class="hc-r"><span class="hc-rl">Adj.</span><span class="hc-rv">${fmt(r.adjustments)}</span></div>`:''}
-       <div class="hc-tot"><span class="hc-tl">Total Held</span><span class="hc-tv">${fmt(tot)}</span></div>
-       ${r.holdReason?`<div class="hc-reason"><div class="hc-rl2">Reason</div>${r.holdReason}</div>`:''}`;
-      c.querySelector('.btn-edit').addEventListener('click',()=>openModal(r));
-      c.querySelector('.btn-del').addEventListener('click',()=>deleteRecord(r.id));
-      g.appendChild(c);
-    });
-  });
-}
+// ══════════════════════════════════════════
+// 2026 PAY PLAN LOGIC
+// ══════════════════════════════════════════
+const PAY_PLAN = {
+  salary: 300, // bi-weekly
+  unitBonusTiers: [
+    {units:12, bonus:200}, {units:15, bonus:675}, {units:18, bonus:900},
+    {units:21, bonus:1150}, {units:24, bonus:1450}, {units:27, bonus:1750},
+    {units:30, bonus:2000}
+  ],
+  newCarCommission: { pack: 900, tier1Rate: 0.25, tier1Cap: 600, tier2Rate: 0.30 },
+  accessoryBonus: { hondaFactory: 0.40, aftermarketSublet: 0.25 },
+  financeBonus: { gap: 5, financeDeal: 10, sentinel: 5, dentDing: 5, keyReplacement: 5 }
+};
 
-/* MONTHLY */
-let viewMonth=new Date().toISOString().slice(0,7),cMD=null,cTG=null;
-document.getElementById('btnPrev').addEventListener('click',()=>{const m=allMonths(),i=m.indexOf(viewMonth);if(i>0){viewMonth=m[i-1];renderMonthly();}});
-document.getElementById('btnNext').addEventListener('click',()=>{const m=allMonths(),i=m.indexOf(viewMonth);if(i<m.length-1){viewMonth=m[i+1];renderMonthly();}});
-document.getElementById('btnST').addEventListener('click',()=>{
-  const v=parseInt(document.getElementById('tgtInp').value);
-  if(!v||v<1){toast('Enter a valid target.');return;}
-  TARGETS[viewMonth]=v;saveTargets(TARGETS);renderMonthly();toast(`Target: ${v} cars for ${mLabel(viewMonth)} ✓`);
-});
-function renderMonthly(){
-  document.getElementById('mLbl').textContent=mLabel(viewMonth);
-  const tgt=TARGETS[viewMonth]||0;document.getElementById('tgtInp').value=tgt||'';
-  const md=DATA.filter(r=>r.month===viewMonth).sort((a,b)=>a.date.localeCompare(b.date));
-  const sold=md.length,tot=md.reduce((s,r)=>s+calcTotal(r),0);
-  const paidC=md.filter(r=>r.status==='Paid').reduce((s,r)=>s+calcTotal(r),0);
-  const pct=tgt?Math.min(100,Math.round((sold/tgt)*100)):0;
-  document.getElementById('progFill').style.width=pct+'%';
-  document.getElementById('progPct').textContent=tgt?`${sold}/${tgt} cars (${pct}%)`:`${sold} cars — no target set`;
-  document.getElementById('progTitle').textContent=tgt?(pct>=100?'✓ TARGET REACHED':`PROGRESS TO ${tgt}-CAR TARGET`):'UNITS SOLD';
-  const mk=document.getElementById('mkpi');
-  mk.innerHTML=[{l:'Units Sold',v:sold,s:'this month'},{l:'Target',v:tgt||'—',s:'cars goal'},{l:'Remaining',v:tgt?Math.max(0,tgt-sold):'—',s:'to target'},{l:'Closure %',v:tgt?pct+'%':'—',s:`${sold}/${tgt||'?'}`},{l:'Commission',v:fmt(tot),s:'total earned'},{l:'Paid',v:fmt(paidC),s:'released'}]
-    .map(k=>`<div class="kpi-card"><div class="kpi-lbl">${k.l}</div><div class="kpi-val" style="font-size:1.18rem">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
-  const tb=document.getElementById('tbM');
-  requestAnimationFrame(()=>{
-    tb.innerHTML='';document.getElementById('emM').style.display=md.length?'none':'block';
-    md.forEach(r=>tb.appendChild(bRow(r,[{v:`<span class="dim mono">${r.date}</span>`},{v:`<span class="dim mono">${r.stock}</span>`},{v:`<span class="fw6">${r.clientLastName}</span>`},{v:dz(r.commissionNo1),cls:'r'},{v:dz(r.fBonus1),cls:'r'},{v:`<span class="mono fnt">${fmt(PACK)}</span>`,cls:'r'},{v:dz(r.adjustments),cls:'r'},{v:`<span class="mono bold">${fmt(calcTotal(r))}</span>`,cls:'r'},{v:pillH(r.status),cls:'r'}])));
-  });
-  buildMCharts(md,tgt,sold);
-}
-function buildMCharts(md,tgt,sold){
-  const tc=cv('--text'),mc=cv('--text-muted'),fc=cv('--text-faint'),bc=cv('--border'),sc=cv('--surface');
-  const dm={};md.forEach(r=>{dm[r.date]=(dm[r.date]||0)+calcTotal(r);});
-  const days=Object.keys(dm).sort();
-  if(cMD)cMD.destroy();
-  cMD=new Chart(document.getElementById('cMD'),{type:'bar',data:{labels:days.map(d=>d.slice(5)),datasets:[{label:'Commission',data:days.map(d=>dm[d]),backgroundColor:'#444',borderRadius:4,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:sc,titleColor:tc,bodyColor:mc,borderColor:bc,borderWidth:1,callbacks:{label:c=>fmt(c.raw)}}},
-      scales:{x:{ticks:{color:fc,font:{family:'monospace',size:9}},grid:{color:bc}},y:{ticks:{color:fc,font:{family:'monospace',size:9},callback:v=>'$'+v},grid:{color:bc}}}}});
-  const rem=tgt?Math.max(0,tgt-sold):0;
-  if(cTG)cTG.destroy();
-  cTG=new Chart(document.getElementById('cTG'),{type:'doughnut',data:{labels:['Sold','Remaining'],datasets:[{data:tgt?[sold,rem]:[sold,0],backgroundColor:['#1a1a1a','#ddd'],borderColor:sc,borderWidth:4,hoverOffset:3}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:mc,font:{family:'monospace',size:10},boxWidth:10,padding:12}},tooltip:{backgroundColor:sc,titleColor:tc,bodyColor:mc,borderColor:bc,borderWidth:1}}},
-    plugins:[{id:'ct',afterDraw(ch){const{ctx,chartArea:{top,bottom,left,right}}=ch;const cx=(left+right)/2,cy=(top+bottom)/2;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=tc;ctx.font=`700 ${Math.min(28,(right-left)/4.5)}px var(--fu,sans-serif)`;ctx.fillText(tgt?`${Math.round(Math.min(100,(sold/(tgt||1))*100))}%`:`${sold}`,cx,cy-7);ctx.fillStyle=mc;ctx.font=`400 ${Math.min(11,(right-left)/14)}px monospace`;ctx.fillText(tgt?'of target':'units',cx,cy+13);ctx.restore();}}]});
-}
-
-/* GLOBAL CHARTS */
-let cBar=null,cDonut=null;
-function rebuildGC(){
-  const tc=cv('--text'),mc=cv('--text-muted'),fc=cv('--text-faint'),bc=cv('--border'),sc=cv('--surface');
-  const GR=['#111','#2e2e2e','#4a4a4a','#666','#858585','#a3a3a3','#c0c0c0'];
-  const mm={};DATA.forEach(r=>{if(r.month)mm[r.month]=(mm[r.month]||0)+calcTotal(r);});
-  const months=Object.keys(mm).sort();
-  if(cBar)cBar.destroy();
-  cBar=new Chart(document.getElementById('cBar'),{type:'bar',data:{labels:months.map(k=>{const[y,m]=k.split('-');return new Date(+y,+m-1,1).toLocaleString('default',{month:'short',year:'2-digit'});}),
-    datasets:[{label:'Commission',data:months.map(k=>mm[k]),backgroundColor:months.map((_,i)=>GR[i%GR.length]),borderRadius:5,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:sc,titleColor:tc,bodyColor:mc,borderColor:bc,borderWidth:1,callbacks:{label:c=>fmt(c.raw)}}},
-      scales:{x:{ticks:{color:fc,font:{family:'monospace',size:9}},grid:{color:bc}},y:{ticks:{color:fc,font:{family:'monospace',size:9},callback:v=>'$'+v},grid:{color:bc}}}}});
-  const sc2={Paid:0,'On Hold':0,Pending:0};DATA.forEach(r=>{if(sc2[r.status]!==undefined)sc2[r.status]++;});
-  if(cDonut)cDonut.destroy();
-  cDonut=new Chart(document.getElementById('cDonut'),{type:'doughnut',data:{labels:['Paid','On Hold','Pending'],datasets:[{data:[sc2.Paid,sc2['On Hold'],sc2.Pending],backgroundColor:['#1a1a1a','#888','#d0d0d0'],borderColor:sc,borderWidth:3,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:mc,font:{family:'monospace',size:10},boxWidth:10,padding:14}},tooltip:{backgroundColor:sc,titleColor:tc,bodyColor:mc,borderColor:bc,borderWidth:1}}}});
-}
-
-/* MODAL */
-let editId=null;
-document.getElementById('btnAdd').addEventListener('click',()=>openModal());
-['btnMX','btnMC'].forEach(id=>document.getElementById(id).addEventListener('click',closeModal));
-document.getElementById('ovModal').addEventListener('click',e=>{if(e.target===document.getElementById('ovModal'))closeModal();});
-document.getElementById('fStatus').addEventListener('change',function(){document.getElementById('holdRow').classList.toggle('vis',this.value==='On Hold');});
-['fComm1','fFBonus','fAdj'].forEach(id=>document.getElementById(id).addEventListener('input',updateCalc));
-function updateCalc(){
-  const c1=parseFloat(document.getElementById('fComm1').value)||0;
-  const fb=parseFloat(document.getElementById('fFBonus').value)||0;
-  const aj=parseFloat(document.getElementById('fAdj').value)||0;
-  document.getElementById('calcDisp').textContent=fmt(c1+fb+PACK+aj);
-}
-function openModal(pre){
-  editId=pre?.id||null;
-  ['fDate','fStock','fClient','fPeriod','fComm1','fFBonus','fAdj','fHold','fNotes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fStatus').value='Paid';document.getElementById('holdRow').classList.remove('vis');
-  document.getElementById('foToggle').checked=false;
-  document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
-  document.getElementById('calcDisp').textContent=fmt(PACK);
-  if(pre){
-    if(pre.date)                          document.getElementById('fDate').value=pre.date;
-    if(pre.stock&&pre.stock!=='—')        document.getElementById('fStock').value=pre.stock;
-    if(pre.clientLastName)                document.getElementById('fClient').value=pre.clientLastName;
-    if(pre.payPeriod)                     document.getElementById('fPeriod').value=pre.payPeriod;
-    if(pre.commissionNo1)                 document.getElementById('fComm1').value=pre.commissionNo1;
-    if(pre.fBonus1)                       document.getElementById('fFBonus').value=pre.fBonus1;
-    if(pre.adjustments)                   document.getElementById('fAdj').value=pre.adjustments;
-    if(pre.holdReason)                    document.getElementById('fHold').value=pre.holdReason;
-    if(pre.notes)                         document.getElementById('fNotes').value=pre.notes;
-    if(pre.status){document.getElementById('fStatus').value=pre.status;document.getElementById('holdRow').classList.toggle('vis',pre.status==='On Hold');}
-    updateCalc();
+function getUnitBonus(units) {
+  let bonus = 0;
+  const tiers = [...PAY_PLAN.unitBonusTiers].reverse();
+  for (const t of tiers) {
+    if (units >= t.units) { bonus = t.bonus; break; }
   }
-  document.getElementById('mtitle').textContent=editId?'Edit Record':'Add Commission Record';
-  document.getElementById('ovModal').classList.add('open');
-  setTimeout(()=>document.getElementById('fClient').focus(),160);
+  return bonus;
 }
-function closeModal(){document.getElementById('ovModal').classList.remove('open');editId=null;}
-document.getElementById('btnMS').addEventListener('click',()=>{
-  const client=document.getElementById('fClient').value.trim();
-  const date=document.getElementById('fDate').value;
-  if(!client){document.getElementById('fClient').classList.add('err');toast('Client Last Name required.');return;}
-  document.getElementById('fClient').classList.remove('err');
-  if(!date){toast('Date required.');return;}
-  const pp=document.getElementById('fPeriod').value.trim()||derivePP(date);
-  const rec={id:editId||uid(),date,clientLastName:client.toUpperCase(),stock:document.getElementById('fStock').value.trim()||'—',
-    payPeriod:pp,commissionNo1:parseFloat(document.getElementById('fComm1').value)||0,
-    fBonus1:parseFloat(document.getElementById('fFBonus').value)||0,pack:PACK,
-    adjustments:parseFloat(document.getElementById('fAdj').value)||0,
-    status:document.getElementById('fStatus').value,
-    holdReason:document.getElementById('fHold').value.trim().toUpperCase(),
-    month:date.slice(0,7),pdfAttachmentName:'',notes:document.getElementById('fNotes').value.trim()};
-  rec.total=calcTotal(rec);
-  const key=cKey(rec),fo=document.getElementById('foToggle').checked;
-  if(!editId&&KEYSET.has(key)&&!fo){
-    toast(`Duplicate found: ${rec.clientLastName} on ${rec.date}. Skipped.`,4000);
-    const row=document.querySelector(`[data-id="${DATA.find(r=>cKey(r)===key)?.id}"]`);
-    if(row){row.classList.add('hl-dup');setTimeout(()=>row.classList.remove('hl-dup'),3500);}
+
+function getCurrentTier(units) {
+  const tiers = [...PAY_PLAN.unitBonusTiers].reverse();
+  for (const t of tiers) {
+    if (units >= t.units) return t;
+  }
+  return null;
+}
+
+function getNextTier(units) {
+  for (const t of PAY_PLAN.unitBonusTiers) {
+    if (units < t.units) return t;
+  }
+  return null;
+}
+
+function calcDealPayout(deal) {
+  const e = deal.extracted || {};
+  const comm1 = parseFloat(e.commissionNo1) || 0;
+  const acc = parseFloat(e.accessories) || 0;
+  const am1 = parseFloat(e.aftermarket1) || 0;
+  const fi1 = parseFloat(e.fBonus1) || 0;
+  return comm1 + acc + am1 + fi1;
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function getMonthDeals(month) {
+  return state.deals.filter(d => d.date && d.date.startsWith(month));
+}
+
+function renderAll() {
+  renderDate();
+  renderMonthTabs();
+  renderKPIs();
+  renderDealsTable();
+  renderPayPlanSidebar();
+  renderCharts();
+}
+
+function renderDate() {
+  const now = new Date();
+  document.getElementById('currentDate').textContent =
+    now.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+}
+
+function renderMonthTabs() {
+  const months = [...new Set(state.deals.map(d => d.date?.slice(0,7)).filter(Boolean))];
+  const currentM = new Date().toISOString().slice(0,7);
+  if (!months.includes(currentM)) months.push(currentM);
+  months.sort().reverse();
+
+  const tabs = document.getElementById('monthTabs');
+  tabs.innerHTML = '';
+  months.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'month-tab' + (m === state.selectedMonth ? ' active' : '');
+    btn.textContent = new Date(m + '-15').toLocaleDateString('en-US', {month:'short', year:'numeric'});
+    btn.onclick = () => { state.selectedMonth = m; saveState(); renderAll(); };
+    tabs.appendChild(btn);
+  });
+}
+
+function renderKPIs() {
+  const deals = getMonthDeals(state.selectedMonth);
+  const totalPayout = deals.reduce((s, d) => s + calcDealPayout(d), 0);
+  const units = deals.length;
+  const unitBonus = getUnitBonus(units);
+  const gross = deals.reduce((s, d) => s + (parseFloat(d.extracted?.profitOfSale) || 0), 0);
+  const fi = deals.reduce((s, d) => s + (parseFloat(d.extracted?.fBonus1) || 0), 0);
+  const needsReview = deals.filter(d => d.needsReview).length;
+  const tier = getCurrentTier(units);
+  const nextTier = getNextTier(units);
+
+  setEl('kpi-payout', fmt(totalPayout + unitBonus));
+  setEl('kpi-payout-sub', `${units} deal${units!==1?'s':''} this month`);
+  setEl('kpi-units', units);
+  setEl('kpi-tier-sub', tier ? `Tier: ${tier.units} units (+${fmt(tier.bonus)})` : nextTier ? `${nextTier.units - units} to next tier` : 'No tier');
+  setEl('kpi-bonus', fmt(unitBonus));
+  setEl('kpi-bonus-sub', tier ? `${tier.units}-unit tier reached` : nextTier ? `Need ${nextTier.units} units for $${nextTier.bonus}` : '—');
+
+  const grossEl = document.getElementById('kpi-gross');
+  grossEl.textContent = fmt(gross);
+  grossEl.style.color = gross >= 0 ? 'var(--green)' : 'var(--red)';
+  setEl('kpi-gross-sub', 'Sum of profit of sale');
+  setEl('kpi-fi', fmt(fi));
+  document.getElementById('kpi-review').textContent = needsReview;
+}
+
+function renderDealsTable() {
+  const deals = getMonthDeals(state.selectedMonth);
+  const tbody = document.getElementById('dealsTableBody');
+  const empty = document.getElementById('emptyState');
+
+  if (deals.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
     return;
   }
-  if(editId){const i=DATA.findIndex(r=>r.id===editId);if(i>=0)DATA[i]=rec;}
-  else{if(fo&&KEYSET.has(key))DATA=DATA.filter(r=>cKey(r)!==key);DATA.push(rec);}
-  saveData(DATA);rebuildKS();closeModal();populateMF();render();rebuildGC();
-  if(activeTab==='monthly')renderMonthly();
-  toast(editId?'Record updated ✓':'Record saved ✓');
-});
+  empty.style.display = 'none';
 
-/* DELETE */
-function deleteRecord(id){
-  if(!confirm('Delete this record? This cannot be undone.'))return;
-  DATA=DATA.filter(r=>r.id!==id);saveData(DATA);rebuildKS();
-  populateMF();render();rebuildGC();if(activeTab==='monthly')renderMonthly();toast('Record deleted.');
-}
-document.getElementById('printArea').addEventListener('click',e=>{
-  const eb=e.target.closest('.btn-edit'),db=e.target.closest('.btn-del');
-  if(eb){const r=DATA.find(x=>x.id===eb.dataset.id);if(r)openModal(r);}
-  if(db)deleteRecord(db.dataset.id);
-});
-
-/* PDF EXPORT */
-document.getElementById('btnExport').addEventListener('click',()=>{
-  const el=document.getElementById('printArea');
-  const opt={margin:[8,8,8,8],filename:`VH_Commission_${new Date().toISOString().slice(0,10)}.pdf`,
-    image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
-    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},pagebreak:{mode:['avoid-all','css']}};
-  const wasDark=document.documentElement.getAttribute('data-theme')==='dark';
-  if(wasDark)document.documentElement.removeAttribute('data-theme');
-  html2pdf().set(opt).from(el).save().then(()=>{if(wasDark)document.documentElement.setAttribute('data-theme','dark');});
-});
-
-/* ══════════════════════════════════════════════════════════════
-   FILE SCAN — MULTI-FILE AUTO-IMPORT ENGINE v5
-   Soporta: PDF (texto) · PDF (imagen/escaneado) · JPG · PNG
-   PDFs con texto → pdf.js directo
-   PDFs imagen + imágenes → Tesseract.js OCR automático
-   Ambos flujos → extractAllDeals → auto-save al dashboard
-══════════════════════════════════════════════════════════════ */
-
-const IMG_TYPES=['image/jpeg','image/jpg','image/png'];
-const IMG_EXTS=['.jpg','.jpeg','.png'];
-function isImage(f){return IMG_TYPES.includes(f.type)||IMG_EXTS.some(e=>f.name.toLowerCase().endsWith(e));}
-function isPdf(f){return f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');}
-function isAccepted(f){return isPdf(f)||isImage(f);}
-
-const DZ=document.getElementById('dropZone');
-DZ.addEventListener('click',()=>document.getElementById('pdfInput').click());
-DZ.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')document.getElementById('pdfInput').click();});
-DZ.addEventListener('dragover',e=>{e.preventDefault();DZ.classList.add('over');});
-DZ.addEventListener('dragleave',()=>DZ.classList.remove('over'));
-DZ.addEventListener('drop',e=>{
-  e.preventDefault();DZ.classList.remove('over');
-  const files=[...e.dataTransfer.files].filter(isAccepted);
-  if(files.length)processQueue(files);else toast('Archivos soportados: PDF, JPG, PNG.');
-});
-document.getElementById('pdfInput').addEventListener('change',e=>{
-  const files=[...e.target.files].filter(isAccepted);
-  if(files.length)processQueue(files);
-  e.target.value='';
-});
-document.getElementById('btnCPdf').addEventListener('click',()=>document.getElementById('pdfInput').click());
-
-/* Log toggle (collapsible) */
-document.getElementById('logToggle').addEventListener('click',()=>{
-  const lg=document.getElementById('parseLog'),ar=document.getElementById('logArrow');
-  const vis=lg.style.display!=='none';
-  lg.style.display=vis?'none':'block';
-  ar.innerHTML=vis?'&#9660;':'&#9650;';
-});
-
-/* Fallback manual entry button */
-document.getElementById('btnFbManual').addEventListener('click',()=>{
-  openModal({pdfAttachmentName:document.getElementById('fbName').textContent});
-});
-
-/* Clear results */
-document.getElementById('btnClearResults').addEventListener('click',()=>{
-  document.getElementById('importResultsWrap').style.display='none';
-  document.getElementById('fbWrap').style.display='none';
-  document.getElementById('pdfInput').value='';
-  clearLog();
-  document.getElementById('plWrap').style.display='none';
-});
-document.getElementById('btnGoDaily').addEventListener('click',()=>{
-  document.getElementById('tD').click();
-});
-
-/* ══════════════════════════════════════════════════════════════
-   IMAGE PRE-PROCESSING ENGINE v2
-   Pipeline: load → grayscale → Otsu binarize → 3×3 median
-             denoise → upscale if small → return Blob for OCR
-══════════════════════════════════════════════════════════════ */
-async function preprocessImage(source){
-  /* source: File | Blob | HTMLCanvasElement */
-  return new Promise((resolve, reject)=>{
-    const img=new Image();
-    const url=(source instanceof HTMLCanvasElement)
-      ?source.toDataURL()
-      :URL.createObjectURL(source);
-    img.onload=()=>{
-      try{
-        let w=img.naturalWidth, h=img.naturalHeight;
-
-        /* ── 1. Upscale if small text likely (< 1200px wide) ── */
-        const scale=(w<1200)?Math.min(3, 1200/w):1;
-        w=Math.round(w*scale); h=Math.round(h*scale);
-
-        const offscreen=document.createElement('canvas');
-        offscreen.width=w; offscreen.height=h;
-        const ctx=offscreen.getContext('2d');
-        ctx.imageSmoothingEnabled=true;
-        ctx.imageSmoothingQuality='high';
-        ctx.drawImage(img,0,0,w,h);
-
-        /* ── 2. Grayscale via luminance ── */
-        const id=ctx.getImageData(0,0,w,h);
-        const d=id.data;
-        for(let i=0;i<d.length;i+=4){
-          const g=Math.round(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2]);
-          d[i]=d[i+1]=d[i+2]=g;
-        }
-        ctx.putImageData(id,0,0);
-
-        /* ── 3. Otsu threshold binarization ── */
-        const gray=new Uint8Array(w*h);
-        for(let i=0;i<w*h;i++) gray[i]=d[i*4];
-
-        /* Build 256-bin histogram */
-        const hist=new Int32Array(256);
-        for(let i=0;i<gray.length;i++) hist[gray[i]]++;
-        const total=gray.length;
-
-        /* Compute Otsu threshold */
-        let sumAll=0;
-        for(let t=0;t<256;t++) sumAll+=t*hist[t];
-        let sumB=0,wB=0,wF=0,maxVar=0,threshold=128;
-        for(let t=0;t<256;t++){
-          wB+=hist[t]; if(!wB) continue;
-          wF=total-wB; if(!wF) break;
-          sumB+=t*hist[t];
-          const mB=sumB/wB, mF=(sumAll-sumB)/wF;
-          const varBetween=wB*wF*(mB-mF)*(mB-mF);
-          if(varBetween>maxVar){maxVar=varBetween;threshold=t;}
-        }
-
-        /* Apply threshold — white text on black bg is rare; keep dark=text */
-        for(let i=0;i<w*h;i++){
-          const v=gray[i]>threshold?255:0;
-          d[i*4]=d[i*4+1]=d[i*4+2]=v;
-        }
-        ctx.putImageData(id,0,0);
-
-        /* ── 4. 3×3 Median filter (denoise salt-and-pepper) ── */
-        const src=ctx.getImageData(0,0,w,h);
-        const dst=ctx.createImageData(w,h);
-        const sd=src.data, dd=dst.data;
-        const neighbors=new Uint8Array(9);
-        for(let y=1;y<h-1;y++){
-          for(let x=1;x<w-1;x++){
-            let n=0;
-            for(let dy=-1;dy<=1;dy++)
-              for(let dx=-1;dx<=1;dx++)
-                neighbors[n++]=sd[((y+dy)*w+(x+dx))*4];
-            neighbors.sort();
-            const med=neighbors[4];
-            const idx=(y*w+x)*4;
-            dd[idx]=dd[idx+1]=dd[idx+2]=med;
-            dd[idx+3]=255;
-          }
-        }
-        /* Copy border pixels unchanged */
-        for(let x=0;x<w;x++){
-          for(const y of [0,h-1]){const i=(y*w+x)*4;dd[i]=dd[i+1]=dd[i+2]=sd[i];dd[i+3]=255;}
-        }
-        for(let y=0;y<h;y++){
-          for(const x of [0,w-1]){const i=(y*w+x)*4;dd[i]=dd[i+1]=dd[i+2]=sd[i];dd[i+3]=255;}
-        }
-        ctx.putImageData(dst,0,0);
-
-        /* ── 5. Return processed Blob ── */
-        offscreen.toBlob(blob=>{
-          if(!(source instanceof HTMLCanvasElement)) URL.revokeObjectURL(url);
-          resolve(blob);
-        },'image/png');
-      } catch(e){ reject(e); }
-    };
-    img.onerror=()=>{ if(!(source instanceof HTMLCanvasElement)) URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
-    img.src=url;
-  });
+  tbody.innerHTML = deals.map(d => {
+    const payout = calcDealPayout(d);
+    const e = d.extracted || {};
+    const statusClass = {Paid:'badge-green', Pending:'badge-yellow', 'On Hold':'badge-red'}[d.status] || 'badge-blue';
+    const reviewDot = d.needsReview ? '<span class="review-dot"></span>' : '';
+    return `<tr>
+      <td>
+        <div class="deal-vehicle">${reviewDot}${esc(d.vehicle?.model || '—')}</div>
+        <div class="deal-customer">${esc(d.customer || '—')} · ${esc(d.vehicle?.stock || '')}</div>
+      </td>
+      <td style="color:var(--text-dim);font-size:0.72rem">${formatDate(d.date)}</td>
+      <td style="font-size:0.78rem">${fmt(parseFloat(e.commissionNo1)||0)}</td>
+      <td style="font-size:0.78rem">${fmt(parseFloat(e.aftermarket1)||0)}</td>
+      <td style="font-size:0.78rem">${fmt(parseFloat(e.fBonus1)||0)}</td>
+      <td><span class="payout-val ${payout>=0?'payout-pos':'payout-neg'}">${fmt(payout)}</span></td>
+      <td><span class="badge ${statusClass}">${d.status}</span></td>
+      <td style="display:flex;gap:2px">
+        <button class="edit-btn tooltip-wrap" onclick="openEditModal('${d.id}')"><i class="fas fa-pen"></i><span class="tooltip">Edit</span></button>
+        <button class="del-btn tooltip-wrap" onclick="deleteDeal('${d.id}')"><i class="fas fa-trash"></i><span class="tooltip">Delete</span></button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-/* ── Tesseract worker (lazy-init, singleton, reused across files) ── */
-let _tWorker=null;
-async function getTesseract(){
-  if(_tWorker) return _tWorker;
-  log('  OCR: inicializando Tesseract (primera vez requiere internet)…');
-  _tWorker=await Tesseract.createWorker('eng',1,{
-    logger:m=>{
-      if(m.status==='recognizing text'){
-        const pct=Math.round((m.progress||0)*100);
-        const cur=document.getElementById('queueCurrent');
-        if(cur) cur.textContent=`OCR ${pct}% — ${cur.textContent.replace(/^OCR \d+% — /,'')}`;
-      }
-    }
-  });
-  /* Tune Tesseract for automotive deal sheet layouts */
-  await _tWorker.setParameters({
-    tessedit_pageseg_mode: 6,   /* PSM 6 = single uniform text block — best for forms */
-    tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,/$-#&():/ \n',
-    preserve_interword_spaces:'1',
-    textord_min_linesize:'2.5', /* help with small printed text */
-  });
-  log('  OCR: listo ✓');
-  return _tWorker;
+function renderPayPlanSidebar() {
+  const deals = getMonthDeals(state.selectedMonth);
+  const units = deals.length;
+  const tiers = PAY_PLAN.unitBonusTiers;
+  const maxUnits = 30;
+
+  // Unit dots
+  const dots = document.getElementById('unitDots');
+  dots.innerHTML = '';
+  for (let i = 1; i <= maxUnits; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'unit-dot ' + (i <= units ? 'sold' : 'empty');
+    dot.title = `Unit ${i}`;
+    dots.appendChild(dot);
+  }
+
+  // Tier pills
+  const tierInd = document.getElementById('tierIndicator');
+  const currentTier = getCurrentTier(units);
+  tierInd.innerHTML = tiers.map(t => {
+    let cls = 'tier-pill';
+    if (currentTier && t.units === currentTier.units) cls += ' active';
+    else if (units >= t.units) cls += ' achieved';
+    return `<span class="${cls}">${t.units}u</span>`;
+  }).join('');
+
+  // Tier bars
+  const tierBars = document.getElementById('tierBars');
+  tierBars.innerHTML = tiers.map(t => {
+    const pct = Math.min(100, (units / t.units) * 100);
+    const color = units >= t.units ? 'var(--green)' : 'var(--blue)';
+    return `<div class="tier-bar">
+      <div class="tier-label">${t.units} units</div>
+      <div class="tier-track"><div class="tier-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="tier-amount" style="color:${units>=t.units?'var(--green)':'var(--text-dim)'}">${fmt(t.bonus)}</div>
+    </div>`;
+  }).join('');
 }
 
-/* ── Image file → preprocessed → OCR text ── */
-async function ocrImage(source, label){
-  log(`  Pre-procesando ${label||'imagen'}…`);
-  let blob;
-  try{
-    blob=await preprocessImage(source);
-    log(`  Pre-proceso OK (${(blob.size/1024).toFixed(0)} KB)`);
-  } catch(e){
-    log(`  Pre-proceso falló (${e.message}) — usando original`);
-    blob=(source instanceof File||source instanceof Blob)?source:null;
-    if(!blob){
-      /* canvas fallback */
-      blob=await new Promise(res=>(source instanceof HTMLCanvasElement?source:document.createElement('canvas')).toBlob(res,'image/png'));
-    }
-  }
-  const worker=await getTesseract();
-  const url=URL.createObjectURL(blob);
-  let text='';
-  try{
-    const result=await worker.recognize(url);
-    text=result.data.text||'';
-  } finally{ URL.revokeObjectURL(url); }
-  log(`  OCR: ${text.length} chars — "${text.slice(0,100).replace(/\n/g,' ')}…"`);
-  return text;
-}
-
-/* ── PDF → text; scanned pages → preprocess+OCR ── */
-async function parsePdfAllDeals(file){
-  const ab=await file.arrayBuffer();
-  const pdf=await pdfjsLib.getDocument({data:ab}).promise;
-  const pages=[];
-  let totalChars=0;
-
-  for(let p=1;p<=pdf.numPages;p++){
-    const pg=await pdf.getPage(p);
-    const ct=await pg.getTextContent();
-    const items=ct.items.slice().sort((a,b)=>{
-      const dy=Math.round((b.transform[5]-a.transform[5])/4)*4;
-      return dy!==0?dy:a.transform[4]-b.transform[4];
-    });
-    const txt=items.map(i=>i.str).join(' ').trim();
-    totalChars+=txt.length;
-    pages.push(txt);
-    log(`  Pág.${p}: ${txt.slice(0,80)||'(sin texto)'}…`);
+function renderCharts() {
+  // Build last 6 months data
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(d.toISOString().slice(0,7));
   }
 
-  /* If text layer is empty/sparse → render each page → preprocess → OCR */
-  if(totalChars<50){
-    log(`  Sin capa de texto — activando OCR por página…`);
-    const ocrPages=[];
-    for(let p=1;p<=pdf.numPages;p++){
-      const pg=await pdf.getPage(p);
-      const vp=pg.getViewport({scale:2.5});    /* higher DPI for small text */
-      const canvas=document.createElement('canvas');
-      canvas.width=Math.round(vp.width);
-      canvas.height=Math.round(vp.height);
-      await pg.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-      const txt=await ocrImage(canvas,`pág.${p}`);
-      ocrPages.push(txt);
-    }
-    return extractAllDeals(ocrPages.join('\n'), file.name);
-  }
+  const labels = months.map(m => new Date(m+'-15').toLocaleDateString('en-US',{month:'short'}));
+  const commData = months.map(m => getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0));
+  const amData = months.map(m => getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
+  const fiData = months.map(m => getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
+  const bonusData = months.map(m => getUnitBonus(getMonthDeals(m).length));
 
-  return extractAllDeals(pages.join('\n'), file.name);
-}
-
-/* ── QUEUE PROCESSOR ── */
-async function processQueue(files){
-  const total=files.length;
-  let gAdded=0,gSkipped=0,gErrors=0;
-  const rows=[];
-  let hasImageOnly=false,lastImageFile='';
-
-  document.getElementById('queueWrap').style.display='block';
-  document.getElementById('importResultsWrap').style.display='none';
-  document.getElementById('fbWrap').style.display='none';
-  document.getElementById('plWrap').style.display='block';
-  document.getElementById('parseLog').style.display='block';
-  document.getElementById('logArrow').innerHTML='&#9650;';
-  clearLog();
-
-  for(let i=0;i<files.length;i++){
-    const file=files[i];
-    document.getElementById('queueCounter').textContent=`${i+1} / ${total}`;
-    document.getElementById('queueBar').style.width=`${Math.round((i/total)*100)}%`;
-    document.getElementById('queueCurrent').textContent=`Procesando: ${file.name}`;
-
-    const ext=isImage(file)?'imagen':'PDF';
-    log(`\n━━ [${i+1}/${total}] ${file.name} (${ext}, ${(file.size/1024).toFixed(1)} KB)`);
-
-    try{
-      let deals=[];
-
-      if(isImage(file)){
-        /* Pure image: preprocess → OCR */
-        const text=await ocrImage(file, file.name);
-        deals=extractAllDeals(text, file.name);
-      } else {
-        /* PDF: try text layer, fall back to OCR if blank */
-        deals=await parsePdfAllDeals(file);
-      }
-
-      if(!deals.length){
-        log(`  ⚠ No se encontraron campos reconocibles. Revisa el Parse Log.`);
-        rows.push({file:file.name,client:'—',total:'—',status:'—',result:'sin datos — abrir manual',err:true});
-        gErrors++;
-        hasImageOnly=true; lastImageFile=file.name;
-        continue;
-      }
-
-      log(`  → ${deals.length} deal(s) encontrado(s)`);
-      for(const d of deals){
-        const key=cKey(d);
-        if(KEYSET.has(key)){
-          gSkipped++;
-          rows.push({file:file.name,client:d.clientLastName||'?',total:fmt(calcTotal(d)),status:d.status,result:'duplicado'});
-          log(`  SKIP: ${d.clientLastName} ${d.date} ${fmt(calcTotal(d))}`);
-        } else {
-          let fuzzyNote='';
-          for(const k of KEYSET){if(diceSim(key,k)>0.85){fuzzyNote=' (~similar)';break;}}
-          const rec=hydrateRec(d);
-          DATA.push(rec); KEYSET.add(key);
-          gAdded++;
-          rows.push({file:file.name,client:d.clientLastName||'?',total:fmt(calcTotal(d)),status:d.status,result:'añadido'+fuzzyNote,added:true});
-          log(`  ADD: ${d.clientLastName} ${d.date} ${fmt(calcTotal(d))}${fuzzyNote}`);
-        }
-      }
-    } catch(err){
-      log(`  ERROR: ${err.message}`);
-      rows.push({file:file.name,client:'—',total:'—',status:'—',result:`Error: ${err.message}`,err:true});
-      gErrors++;
-    }
-  }
-
-  document.getElementById('queueBar').style.width='100%';
-  document.getElementById('queueCounter').textContent=`${total} / ${total} ✓`;
-  document.getElementById('queueCurrent').textContent='Listo.';
-
-  saveData(DATA); rebuildKS(); populateMF(); render(); rebuildGC();
-  if(activeTab==='monthly') renderMonthly();
-
-  if(hasImageOnly){
-    document.getElementById('fbName').textContent=lastImageFile;
-    document.getElementById('fbWrap').style.display='block';
-  }
-
-  setTimeout(()=>{
-    document.getElementById('queueWrap').style.display='none';
-    showImportResults(rows,gAdded,gSkipped,gErrors);
-  },500);
-
-  toast(`Import completo: ${gAdded} añadidos, ${gSkipped} duplicados, ${gErrors} errores.`,4500);
-}
-
-/* ══════════════════════════════════════════════════════════════
-   VALLEY HONDA DEAL SHEET EXTRACTOR v3
-   ─────────────────────────────────────────────────────────────
-   Exact field names from real Valley Honda DMS deal sheets:
-     Stock#  Deal #  Customer  Salesperson 1
-     Commission No. 1/Accessories   F & I Bonus 1
-     Over-Allowance  Under-Allowance  Profit of Sale
-     (no date on deal sheet itself — falls back to today)
-══════════════════════════════════════════════════════════════ */
-
-/* OCR text normalizer — fixes common Tesseract mistakes on
-   printed forms: spacing, punctuation, digit confusion.      */
-function normalizeOCR(raw){
-  return raw
-    /* Join lines that were split mid-word by OCR column detection */
-    .replace(/([a-z])-\n([a-z])/g,'$1$2')
-    /* Standardize common field label mangling */
-    .replace(/Comm(?:ission)?\s*No\.?\s*[1Il]\s*[\/\-]?\s*Acc?es?s?ories?/gi,'Commission No. 1/Accessories')
-    .replace(/Comm(?:ission)?\s*No\.?\s*[1Il]/gi,'Commission No. 1')
-    .replace(/F\s*[&8]\s*I\s+Bonus\s*[1Il]/gi,'F & I Bonus 1')
-    .replace(/F\s*[&8]\s*I\s+Bonus\s*[2Z]/gi,'F & I Bonus 2')
-    .replace(/Sal[ae]sp[eo]rs[eo]n\s*[1Il]/gi,'Salesperson 1')
-    .replace(/Sal[ae]sp[eo]rs[eo]n\s*[2Z]/gi,'Salesperson 2')
-    .replace(/Over[\s\-]?All[oa]w[ae]nce/gi,'Over-Allowance')
-    .replace(/Under[\s\-]?All[oa]w[ae]nce/gi,'Under-Allowance')
-    .replace(/Pr[io]f[il]t\s+of\s+Sal[ae]/gi,'Profit of Sale')
-    /* Fix digit/letter OCR swaps inside numbers */
-    .replace(/(?<=\d)O(?=\d|\.)/g,'0')
-    .replace(/(?<=\s|^)[Ii](?=\d)/gm,'1')
-    /* N/A variants */
-    .replace(/\bN\s*[\/\\]\s*A\b/gi,'N/A')
-    /* Remove stray underscores from form blank lines */
-    .replace(/_{3,}/g,' ');
-}
-
-/* Extract a dollar amount from text immediately following a label.
-   Handles:  "Label   75.00"  "Label: $75.00"  "Label\n75.00"
-   Skips N/A, blank, and negative values unless allowNeg=true.  */
-function amountAfterLabel(text, labelRx, allowNeg=false){
-  const m=text.match(new RegExp(
-    labelRx.source+'[\\s:$]*(-?[\\d,]+\\.\\d{1,2})',
-    labelRx.flags+'i'
-  ));
-  if(!m) return 0;
-  const v=parseFloat(m[1].replace(/,/g,''));
-  if(isNaN(v)) return 0;
-  if(!allowNeg&&v<0) return 0;
-  return v;
-}
-
-/* ── MULTI-DEAL EXTRACTOR ────────────────────────────────────
-   Split strategy: Valley Honda pay stubs can have multiple
-   deal blocks separated by "Stock#" or "Deal #" headers.
-   Each block is parsed independently.
-─────────────────────────────────────────────────────────────── */
-function extractAllDeals(rawText, filename){
-  const text=normalizeOCR(rawText);
-  const deals=[];
-
-  /* Strategy A: split on "Stock#" or "Deal #" block headers
-     These appear at the start of every deal block on pay stubs */
-  const blockRx=/(?=(?:Stock\s*#|Deal\s*#)\s*\d{3,})/gi;
-  let blocks=text.split(blockRx).filter(s=>s.trim().length>40);
-
-  /* Strategy B: one block per "Customer" label (pay stub lists customers) */
-  if(blocks.length<=1){
-    const custRx=/(?=Customer\s+[A-Z])/gi;
-    const cb=text.split(custRx).filter(s=>s.trim().length>20);
-    if(cb.length>1){ blocks=cb; log(`  Split por Customer: ${cb.length} bloques`); }
-  }
-
-  /* Strategy C: entire text is one deal */
-  if(blocks.length<=1){
-    const single=extractOneDeal(text, filename);
-    if(single.clientLastName||single.commissionNo1>0) deals.push(single);
-    return deals;
-  }
-
-  log(`  ${blocks.length} bloque(s) detectado(s)`);
-  const seenInFile=new Set();
-  for(const block of blocks){
-    const d=extractOneDeal(block, filename);
-    if(!d.clientLastName&&!d.commissionNo1) continue;
-    const key=`${d.clientLastName}_${calcTotal(d).toFixed(2)}`;
-    if(seenInFile.has(key)) continue;
-    seenInFile.add(key);
-    deals.push(d);
-  }
-
-  /* Fallback if blocks yielded nothing */
-  if(!deals.length){
-    const single=extractOneDeal(text, filename);
-    if(single.clientLastName||single.commissionNo1>0) deals.push(single);
-  }
-  return deals;
-}
-
-/* ── SINGLE DEAL PARSER — Valley Honda DMS format ────────────
-   Field layout (from real deal sheet photo):
-   ┌─────────────────────────────────────────────────────────┐
-   │ Stock# 92667    Description 2026 HONDA CR-V             │
-   │ Deal # 214901                                           │
-   │ Customer ANGI OSPINA FLOREZ    Mgr. TYLER A DAVIS       │
-   │ Salesperson 1 OSCAR IVAN MENDEZ                         │
-   │ Salesperson 2 ___                                       │
-   │                                                         │
-   │ Commission No. 1/Accessories    75.00         N/A       │
-   │ Aftermarket 1                   N/A                     │
-   │ F & I Bonus 1                   5.00                    │
-   │ Commission No. 2/Accessories    N/A           N/A       │
-   │ F & I Bonus 2                   N/A                     │
-   │ Over-Allowance                  1500.00                 │
-   │ Under-Allowance                 N/A                     │
-   │ Profit of Sale                  -1245.54                │
-   └─────────────────────────────────────────────────────────┘
-─────────────────────────────────────────────────────────────── */
-function extractOneDeal(text, filename){
-  const r={
-    date:       '',
-    clientLastName:'',
-    stock:      '',
-    payPeriod:  '',
-    commissionNo1: 0,
-    fBonus1:    0,
-    adjustments: 0,
-    status:     'Paid',
-    holdReason: '',
-    pdfAttachmentName: filename||'',
-    notes:      '',
+  const chartDefaults = {
+    plugins:{legend:{labels:{color:'rgba(255,255,255,0.5)',font:{family:'DM Mono',size:11}}}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.4)',font:{family:'DM Mono',size:10}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.4)',font:{family:'DM Mono',size:10},callback:v=>'$'+v}}
+    },
+    responsive:true, maintainAspectRatio:false,
+    animation:{duration:600}
   };
 
-  /* ── Stock # ── "Stock# 92667" or "Stock # 92667" */
-  const stockM=text.match(/Stock\s*#\s*(\d{3,7})/i);
-  if(stockM) r.stock=stockM[1];
+  if (earningsChart) earningsChart.destroy();
+  earningsChart = new Chart(document.getElementById('earningsChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {label:'Commission',data:commData,backgroundColor:'rgba(96,165,250,0.7)',borderRadius:6},
+        {label:'Aftermarket',data:amData,backgroundColor:'rgba(74,222,128,0.6)',borderRadius:6},
+        {label:'F&I',data:fiData,backgroundColor:'rgba(251,191,36,0.6)',borderRadius:6},
+        {label:'Unit Bonus',data:bonusData,backgroundColor:'rgba(167,139,250,0.6)',borderRadius:6}
+      ]
+    },
+    options: {...chartDefaults, plugins:{...chartDefaults.plugins, tooltip:{callbacks:{label:c=>`${c.dataset.label}: $${c.raw.toFixed(2)}`}}}}
+  });
 
-  /* ── Deal # (store in notes for reference) ── */
-  const dealM=text.match(/Deal\s*#\s*(\d{3,8})/i);
-  if(dealM) r.notes=`Deal#${dealM[1]}`;
+  // Mix donut — current month
+  const curDeals = getMonthDeals(state.selectedMonth);
+  const totComm = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0);
+  const totAM = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0);
+  const totFI = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
+  const totAcc = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.accessories)||0),0);
+  const totBonus = getUnitBonus(curDeals.length);
 
-  /* ── Customer name ──
-     Format: "Customer ANGI OSPINA FLOREZ   Mgr."
-     We capture everything between "Customer" and next label keyword.
-     Last name = last ALL-CAPS word before a comma OR the last word. */
-  const custM=text.match(
-    /Customer\s+([A-Z][A-Z\s]+?)(?:\s{2,}Mgr\.|\s+Mgr\b|\n)/i
-  )||text.match(
-    /Customer\s+([A-Z][A-Z\s]{2,35})/i
-  );
-  if(custM){
-    const fullName=custM[1].trim().replace(/\s+/g,' ');
-    /* Last word of full name is typically last name in American format
-       but Valley Honda shows "FIRST MIDDLE LAST" — take the last token */
-    const parts=fullName.split(' ').filter(Boolean);
-    r.clientLastName=parts[parts.length-1]||fullName;
-    r.notes=(r.notes?r.notes+' · ':'')+`Customer: ${fullName}`;
+  if (mixChart) mixChart.destroy();
+  mixChart = new Chart(document.getElementById('mixChart'), {
+    type:'doughnut',
+    data:{
+      labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
+      datasets:[{data:[totComm,totAM,totFI,totAcc,totBonus],backgroundColor:['rgba(96,165,250,0.8)','rgba(74,222,128,0.8)','rgba(251,191,36,0.8)','rgba(248,113,113,0.8)','rgba(167,139,250,0.8)'],borderWidth:0,hoverOffset:8}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      cutout:'65%',
+      plugins:{legend:{position:'bottom',labels:{color:'rgba(255,255,255,0.5)',font:{family:'DM Mono',size:10},boxWidth:10}}},
+      animation:{duration:600}
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// OCR ENGINE — file:// safe via createObjectURL
+// ══════════════════════════════════════════
+function triggerFileInput() { /* handled by ocr-zone input */ }
+
+// Dynamically load Tesseract from CDN only when needed, using createObjectURL
+// to avoid file:// CORS restrictions on workers.
+let _tesseractReady = null;
+function loadTesseract() {
+  if (_tesseractReady) return _tesseractReady;
+  _tesseractReady = new Promise((resolve, reject) => {
+    if (window.Tesseract) { resolve(window.Tesseract); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
+    s.onload = () => resolve(window.Tesseract);
+    s.onerror = () => reject(new Error('Tesseract CDN load failed'));
+    document.head.appendChild(s);
+  });
+  return _tesseractReady;
+}
+
+function handleOCRFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.stopPropagation();
+
+  const wrap = document.getElementById('ocrProgressWrap');
+  const fill = document.getElementById('ocrProgressFill');
+  const status = document.getElementById('ocrStatus');
+  const preview = document.getElementById('ocrPreview');
+
+  // Read as base64 DataURL — avoids all file:// worker origin issues
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const dataUrl = e.target.result;
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+
+    wrap.style.display = 'block';
+    fill.style.width = '5%';
+    status.textContent = 'Loading OCR engine…';
+    notify('info', 'Scanning deal sheet…');
+
+    try {
+      const Tesseract = await loadTesseract();
+      fill.style.width = '15%';
+      status.textContent = 'Initializing worker…';
+
+      // Use createScheduler for file:// compat; pass dataUrl directly (no blob URL)
+      const worker = await Tesseract.createWorker('eng', 1, {
+        workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
+        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+        corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core-simd-lstm.wasm.js',
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            const pct = 15 + Math.round(m.progress * 80);
+            fill.style.width = pct + '%';
+            status.textContent = `Recognizing text… ${pct}%`;
+          } else if (m.status === 'loading tesseract core') {
+            status.textContent = 'Loading OCR core…';
+          } else if (m.status === 'initializing tesseract') {
+            status.textContent = 'Initializing…';
+          } else if (m.status === 'loading language traineddata') {
+            status.textContent = 'Loading language data…';
+          }
+        }
+      });
+
+      const { data } = await worker.recognize(dataUrl);
+      await worker.terminate();
+
+      fill.style.width = '100%';
+      status.textContent = '✓ OCR complete — review extracted fields';
+      const extracted = parseOCRText(data.text, data.confidence);
+      pendingOCRData = {
+        ...extracted,
+        ocrConfidence: Math.round(data.confidence),
+        rawText: data.text,
+        sourceFile: file.name,
+        previewSrc: dataUrl
+      };
+      openAddModal(pendingOCRData);
+      notify('success', `OCR done (${Math.round(data.confidence)}% confidence)`);
+
+    } catch (err) {
+      fill.style.width = '0%';
+      status.textContent = '✗ OCR failed — check internet connection';
+      notify('error', 'OCR failed. Requires internet to load engine.');
+      console.error('OCR error:', err);
+    }
+  };
+  reader.onerror = () => {
+    status.textContent = '✗ Could not read file';
+    notify('error', 'File read error');
+  };
+  reader.readAsDataURL(file);
+
+  // Reset input so same file can be re-scanned
+  event.target.value = '';
+}
+
+function parseOCRText(text, confidence) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const result = {
+    dealNo: '', stockNo: '', model: '', customer: '',
+    commissionNo1: 0, accessories: 0, aftermarket1: 0, fBonus1: 0,
+    profitOfSale: 0, amProfit: 0
+  };
+
+  const find = (pattern) => {
+    for (const line of lines) {
+      const m = line.match(pattern);
+      if (m) return m;
+    }
+    return null;
+  };
+
+  const toNum = s => parseFloat((s||'0').replace(/[^0-9.\-]/g,'')) || 0;
+
+  // Deal # and Stock #
+  const dealM = find(/Deal\s*#?\s*([0-9]+)/i);
+  if (dealM) result.dealNo = dealM[1];
+
+  const stockM = find(/Stock\s*#?\s*([0-9]+)/i);
+  if (stockM) result.stockNo = stockM[1];
+
+  // Vehicle model
+  const modelM = find(/Description\s+(.+)/i) || find(/(20\d\d\s+HONDA\s+\S+[^\n]+)/i);
+  if (modelM) result.model = modelM[1].trim();
+
+  // Customer
+  const custM = find(/Customer\s+([A-Z][A-Z\s]+?)(?:\s{2,}|Mgr\.?|$)/i);
+  if (custM) result.customer = custM[1].trim();
+
+  // Commission No.1 — look for "Commission No" line then grab first dollar amount
+  const commLineIdx = lines.findIndex(l => /Commission\s*No\.?\s*1/i.test(l));
+  if (commLineIdx >= 0) {
+    const nums = lines[commLineIdx].match(/[\-]?\d+\.\d{2}/g);
+    if (nums && nums.length > 0) result.commissionNo1 = toNum(nums[0]);
+    if (nums && nums.length > 1) result.accessories = toNum(nums[1]);
   }
 
-  /* ── Date ──
-     Deal sheets often lack a date; parse if present.
-     Formats: MM/DD/YYYY  MM/DD/YY  YYYY-MM-DD  */
-  const dateM=text.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-  if(dateM){
-    const yr=dateM[3].length===2?'20'+dateM[3]:dateM[3];
-    r.date=`${yr}-${dateM[1].padStart(2,'0')}-${dateM[2].padStart(2,'0')}`;
+  // Aftermarket 1
+  const amIdx = lines.findIndex(l => /Aftermarket\s*1/i.test(l));
+  if (amIdx >= 0) {
+    const nums = lines[amIdx].match(/[\-]?\d+\.\d{2}/g);
+    if (nums) result.aftermarket1 = toNum(nums[0]);
+  }
+
+  // F & I Bonus 1
+  const fiIdx = lines.findIndex(l => /F\s*[&\+]\s*I\s*Bonus\s*1/i.test(l));
+  if (fiIdx >= 0) {
+    const nums = lines[fiIdx].match(/[\-]?\d+\.\d{2}/g);
+    if (nums) result.fBonus1 = toNum(nums[0]);
+  }
+
+  // Profit of Sale
+  const profIdx = lines.findIndex(l => /Profit\s+of\s+Sale/i.test(l));
+  if (profIdx >= 0) {
+    const nums = lines[profIdx].match(/[\-]?\d+\.\d{2}/g);
+    if (nums) result.profitOfSale = toNum(nums[0]);
+  }
+
+  // Accessory/Aftermarket Profit
+  const accProfIdx = lines.findIndex(l => /Accessory.Aftermarket\s+Profit/i.test(l));
+  if (accProfIdx >= 0) {
+    const nums = lines[accProfIdx].match(/[\-]?\d+\.\d{2}/g);
+    if (nums) result.amProfit = toNum(nums[0]);
+  }
+
+  return result;
+}
+
+// ══════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════
+function openAddModal(ocrData) {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = ocrData ? '📷 Review OCR — Verify Fields' : 'Add Deal';
+  clearForm();
+
+  if (ocrData) {
+    setField('f-deal', [ocrData.dealNo, ocrData.stockNo].filter(Boolean).join(' / '));
+    setField('f-vehicle', ocrData.model || '');
+    setField('f-customer', ocrData.customer || '');
+    setField('f-comm1', ocrData.commissionNo1 || '');
+    setField('f-accessories', ocrData.accessories || '');
+    setField('f-am1', ocrData.aftermarket1 || '');
+    setField('f-fi1', ocrData.fBonus1 || '');
+    setField('f-profit', ocrData.profitOfSale || '');
+    setField('f-amprofit', ocrData.amProfit || '');
+
+    const conf = ocrData.ocrConfidence || 0;
+    const confRow = document.getElementById('ocrConfidenceRow');
+    const confBadge = document.getElementById('confBadge');
+    const sepOcr = document.getElementById('ocrSeparator');
+    confRow.style.display = 'flex';
+    sepOcr.style.display = 'block';
+    confBadge.textContent = conf + '%';
+    confBadge.className = 'conf-badge ' + (conf >= 80 ? 'conf-high' : conf >= 60 ? 'conf-med' : 'conf-low');
+    document.getElementById('reviewFlag').innerHTML = conf < 70 ? '<span class="review-dot"></span> Needs review' : '';
+
+    if (ocrData.previewSrc) {
+      const prev = document.getElementById('modalOcrPreview');
+      prev.src = ocrData.previewSrc;
+      prev.style.display = 'block';
+    }
   } else {
-    /* Use today as fallback — deal sheets are processed same day */
-    r.date=new Date().toISOString().slice(0,10);
-  }
-  r.month=r.date.slice(0,7);
-  r.payPeriod=derivePP(r.date);
-
-  /* ── Commission No. 1/Accessories ──
-     Label: "Commission No. 1/Accessories"
-     Value on same line or immediately after, ignoring N/A        */
-  const comm1M=text.match(
-    /Commission\s+No\.\s*1\s*(?:\/\s*Accessories?)?\s+([\d,]+\.\d{2})/i
-  )||text.match(
-    /Comm(?:ission)?\s+No\.?\s*1[^\n]{0,30}?([\d,]+\.\d{2})/i
-  );
-  if(comm1M) r.commissionNo1=parseFloat(comm1M[1].replace(/,/g,''))||0;
-
-  /* Fallback: any number $50–$2000 that isn't clearly a vehicle price */
-  if(!r.commissionNo1){
-    const allNums=[...text.matchAll(/(?<![\d,])(\d{2,4}\.\d{2})(?![\d,])/g)]
-      .map(m=>parseFloat(m[1]))
-      .filter(n=>n>=50&&n<=2000&&n!==75.00||n===75.00); /* $75 mini is valid */
-    if(allNums.length) r.commissionNo1=allNums[0];
+    document.getElementById('ocrConfidenceRow').style.display = 'none';
+    document.getElementById('ocrSeparator').style.display = 'none';
+    document.getElementById('modalOcrPreview').style.display = 'none';
   }
 
-  /* ── F & I Bonus 1 ──
-     Label: "F & I Bonus 1"  value on same line, skip N/A        */
-  const fi1M=text.match(
-    /F\s*[&8]\s*I\s+Bonus\s*1\s+([\d,]+\.\d{2})/i
-  )||text.match(
-    /F\s*[&8]\s*I\s+Bonus\s*[1Il]\s+([\d,]+\.\d{2})/i
-  );
-  if(fi1M) r.fBonus1=parseFloat(fi1M[1].replace(/,/g,''))||0;
-
-  /* ── Aftermarket 1 (counts toward fBonus if no F&I found) ── */
-  if(!r.fBonus1){
-    const aftM=text.match(/Aftermarket\s*1\s+([\d,]+\.\d{2})/i);
-    if(aftM) r.fBonus1=parseFloat(aftM[1].replace(/,/g,''))||0;
-  }
-
-  /* ── Adjustments ──
-     "Profit of Sale" negative = chargeback on this deal.
-     We do NOT map Over-Allowance to adjustments — it's a trade
-     field that affects gross but not directly the salesperson's
-     commission line. Only map explicit chargeback/adjustment fields. */
-  const profM=text.match(/Profit\s+of\s+Sale\s+(-[\d,]+\.\d{2})/i);
-  if(profM){
-    /* Store profit as a note, don't auto-apply as commission adjustment */
-    r.notes=(r.notes?r.notes+' · ':'')+`Profit: ${profM[1]}`;
-  }
-
-  const adjM=text.match(/(?:Chargeback|Adjustment|Adj\.)\s*:?\s*(-?[\d,]+\.\d{2})/i);
-  if(adjM) r.adjustments=parseFloat(adjM[1].replace(/,/g,''))||0;
-
-  /* ── Hold / On Hold detection ── */
-  if(/\b(?:on\s*hold|hold\s*pending|missing\s*title|pass\s*the\s*keys|missing\s*docs)\b/i.test(text)){
-    r.status='On Hold';
-    const hrM=text.match(/(?:Reason|Hold)[:\s]+([^\n\r]{5,80})/i)
-             ||text.match(/(MISSING\s+TITLE[^\n\r]{0,40})/i)
-             ||text.match(/(PASS\s+THE\s+KEYS[^\n\r]{0,40})/i);
-    if(hrM) r.holdReason=hrM[1].trim();
-  }
-
-  /* Log what was found */
-  log(`  Extraído → Stock:${r.stock||'?'} Cliente:${r.clientLastName||'?'} Comm1:${fmt(r.commissionNo1)} FI:${fmt(r.fBonus1)} Adj:${fmt(r.adjustments)}`);
-  return r;
+  // Set today's date
+  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  updateCalcPreview();
+  document.getElementById('dealModal').classList.add('open');
 }
 
-/* ── RESULTS TABLE ────────────────────────────────────────────── */
-function showImportResults(rows, added, skipped, errors){
-  document.getElementById('rSummAdded').textContent=`${added} añadidos`;
-  document.getElementById('rSummSkipped').textContent=`${skipped} duplicados`;
-  document.getElementById('rSummErrors').textContent=`${errors} errores`;
-  const tb=document.getElementById('importResultsTbody');
-  tb.innerHTML='';
-  rows.forEach(row=>{
-    const tr=document.createElement('tr');
-    const icon=row.added?'✓':row.err?'✕':'↷';
-    const style=row.added?'font-weight:600;color:var(--text)'
-      :row.err?'color:var(--text-faint)'
-      :'color:var(--text-muted)';
-    const stPill=row.status&&row.status!=='—'
-      ?`<span class="pill pill-${row.status==='Paid'?'paid':row.status==='On Hold'?'hold':'pending'}">${row.status}</span>`
-      :'—';
-    tr.innerHTML=`<td><span class="fnt mono" style="font-size:.67rem">${row.file}</span></td>
-      <td><span class="fw6">${row.client}</span></td>
-      <td class="r"><span class="mono">${row.total}</span></td>
-      <td>${stPill}</td>
-      <td><span style="${style}">${icon} ${row.result}</span></td>`;
-    tb.appendChild(tr);
+function openEditModal(id) {
+  const deal = state.deals.find(d => d.id === id);
+  if (!deal) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Deal';
+  document.getElementById('ocrConfidenceRow').style.display = 'none';
+  document.getElementById('ocrSeparator').style.display = 'none';
+  document.getElementById('modalOcrPreview').style.display = 'none';
+
+  const e = deal.extracted || {};
+  setField('f-deal', deal.vehicle?.stock || deal.dealNo || '');
+  setField('f-vehicle', deal.vehicle?.model || '');
+  setField('f-customer', deal.customer || '');
+  setField('f-date', deal.date || '');
+  document.getElementById('f-status').value = deal.status || 'Pending';
+  setField('f-comm1', e.commissionNo1 || '');
+  setField('f-accessories', e.accessories || '');
+  setField('f-am1', e.aftermarket1 || '');
+  setField('f-fi1', e.fBonus1 || '');
+  setField('f-profit', e.profitOfSale || '');
+  setField('f-amprofit', e.amProfit || '');
+  updateCalcPreview();
+  document.getElementById('dealModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('dealModal').classList.remove('open');
+  pendingOCRData = null;
+}
+
+function saveDeal() {
+  const ocrConf = pendingOCRData?.ocrConfidence ?? 100;
+  const extracted = {
+    commissionNo1: parseFloat(document.getElementById('f-comm1').value) || 0,
+    accessories: parseFloat(document.getElementById('f-accessories').value) || 0,
+    aftermarket1: parseFloat(document.getElementById('f-am1').value) || 0,
+    fBonus1: parseFloat(document.getElementById('f-fi1').value) || 0,
+    profitOfSale: parseFloat(document.getElementById('f-profit').value) || 0,
+    amProfit: parseFloat(document.getElementById('f-amprofit').value) || 0
+  };
+  const dealStr = document.getElementById('f-deal').value.trim();
+  const stockMatch = dealStr.match(/(\d{5,})/g) || [];
+
+  const deal = {
+    id: editingId || crypto.randomUUID(),
+    date: document.getElementById('f-date').value,
+    vehicle: { stock: stockMatch[1] || stockMatch[0] || dealStr, model: document.getElementById('f-vehicle').value.trim() },
+    customer: document.getElementById('f-customer').value.trim(),
+    extracted,
+    calculated: { totalCommission: calcDealPayout({extracted}) },
+    status: document.getElementById('f-status').value,
+    ocrConfidence: ocrConf,
+    needsReview: ocrConf < 70,
+    sourceFile: pendingOCRData?.sourceFile || ''
+  };
+
+  if (editingId) {
+    const idx = state.deals.findIndex(d => d.id === editingId);
+    if (idx >= 0) state.deals[idx] = deal;
+    notify('success', 'Deal updated');
+  } else {
+    state.deals.unshift(deal);
+    notify('success', 'Deal saved!');
+  }
+
+  // Update selected month to match deal date
+  if (deal.date) state.selectedMonth = deal.date.slice(0,7);
+
+  saveState();
+  closeModal();
+  renderAll();
+}
+
+function deleteDeal(id) {
+  if (!confirm('Delete this deal?')) return;
+  state.deals = state.deals.filter(d => d.id !== id);
+  saveState();
+  renderAll();
+  notify('info', 'Deal deleted');
+}
+
+function clearAll() {
+  if (!confirm('Delete ALL deals? This cannot be undone.')) return;
+  state.deals = [];
+  saveState();
+  renderAll();
+  notify('info', 'All deals cleared');
+}
+
+// Live preview of calc
+document.addEventListener('input', e => {
+  if (['f-comm1','f-accessories','f-am1','f-fi1'].includes(e.target.id)) updateCalcPreview();
+});
+
+function updateCalcPreview() {
+  const total = (parseFloat(document.getElementById('f-comm1')?.value)||0)
+              + (parseFloat(document.getElementById('f-accessories')?.value)||0)
+              + (parseFloat(document.getElementById('f-am1')?.value)||0)
+              + (parseFloat(document.getElementById('f-fi1')?.value)||0);
+  const el = document.getElementById('calcPreview');
+  if (el) { el.textContent = fmt(total); el.style.color = total >= 0 ? 'var(--green)' : 'var(--red)'; }
+}
+
+// ══════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════
+function fmt(n) { return '$' + (parseFloat(n)||0).toFixed(2); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setEl(id, v) { const e = document.getElementById(id); if(e) e.textContent = v; }
+function setField(id, v) { const e = document.getElementById(id); if(e) e.value = v; }
+function clearForm() {
+  ['f-deal','f-vehicle','f-customer','f-comm1','f-accessories','f-am1','f-fi1','f-profit','f-amprofit'].forEach(id => setField(id,''));
+  document.getElementById('f-status').value = 'Pending';
+  document.getElementById('modalOcrPreview').style.display = 'none';
+}
+function formatDate(d) {
+  if (!d) return '—';
+  try { return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+  catch { return d; }
+}
+
+let notifTimer;
+function notify(type, msg) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = `notif notif-${type} show`;
+  clearTimeout(notifTimer);
+  notifTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function exportCSV() {
+  const deals = getMonthDeals(state.selectedMonth);
+  if (!deals.length) { notify('info', 'No deals to export'); return; }
+  const headers = ['Date','Customer','Vehicle','Stock','Commission','Aftermarket','F&I','Accessories','Total','Status'];
+  const rows = deals.map(d => {
+    const e = d.extracted || {};
+    return [d.date, d.customer, d.vehicle?.model, d.vehicle?.stock,
+      e.commissionNo1, e.aftermarket1, e.fBonus1, e.accessories,
+      calcDealPayout(d).toFixed(2), d.status].map(v => `"${v||''}"`).join(',');
   });
-  document.getElementById('importResultsWrap').style.display='block';
-}
-function log(m){const el=document.getElementById('parseLog');el.textContent+=m+'\n';el.scrollTop=el.scrollHeight;}
-function clearLog(){document.getElementById('parseLog').textContent='';}
-
-/* SETTINGS — MERGE */
-document.getElementById('btnMerge').addEventListener('click',()=>{
-  const ra=document.getElementById('mergeResult'),raw=document.getElementById('mergeTA').value.trim();
-  if(!raw){toast('Paste a JSON array first.');return;}
-  let parsed;try{parsed=JSON.parse(raw);}catch(e){toast('Invalid JSON — '+e.message);return;}
-  if(!Array.isArray(parsed)){toast('JSON must be an array.');return;}
-  let added=0,skipped=0,errors=0;const logArr=[];
-  parsed.forEach((item,i)=>{
-    try{
-      if(!item.date||!item.clientLastName)throw new Error('Missing date or clientLastName');
-      const rec=hydrateRec(item);const key=cKey(rec);
-      if(KEYSET.has(key)){skipped++;logArr.push(`SKIP (dup): ${rec.clientLastName} ${rec.date}`);}
-      else{DATA.push(rec);KEYSET.add(key);added++;logArr.push(`ADD: ${rec.clientLastName} ${rec.date}`);}
-    }catch(e){errors++;logArr.push(`ERR row ${i}: ${e.message}`);}
-  });
-  saveData(DATA);populateMF();render();rebuildGC();
-  ra.style.display='block';ra.textContent=`Added: ${added} | Skipped: ${skipped} | Errors: ${errors}\n\n${logArr.join('\n')}`;
-  toast(`Merge: ${added} added, ${skipped} skipped.`);
-});
-document.getElementById('btnCM').addEventListener('click',()=>{document.getElementById('mergeTA').value='';document.getElementById('mergeResult').style.display='none';});
-
-/* SETTINGS — DUPLICATES */
-let dupsFound=[];
-document.getElementById('btnSD2').addEventListener('click',()=>{
-  const seen=new Map();dupsFound=[];
-  DATA.forEach((r,i)=>{const k=cKey(r);if(seen.has(k))dupsFound.push({idx:i,r});else seen.set(k,i);});
-  const btn=document.getElementById('btnPD'),res=document.getElementById('dupRes'),list=document.getElementById('dupList');
-  if(!dupsFound.length){btn.style.display='none';res.textContent='✓ No duplicates found.';list.innerHTML='';}
-  else{btn.style.display='';res.textContent=`${dupsFound.length} duplicate(s) found.`;
-    list.innerHTML=dupsFound.map(({r})=>`${r.date} — ${r.clientLastName} — ${fmt(calcTotal(r))}`).join('\n');}
-});
-document.getElementById('btnPD').addEventListener('click',()=>{
-  if(!dupsFound.length)return;
-  if(!confirm(`Permanently delete ${dupsFound.length} duplicate(s)?`))return;
-  const toRm=new Set(dupsFound.map(({r})=>r.id));
-  DATA=DATA.filter(r=>!toRm.has(r.id));saveData(DATA);rebuildKS();dupsFound=[];
-  populateMF();render();rebuildGC();
-  document.getElementById('btnPD').style.display='none';
-  document.getElementById('dupRes').textContent='Duplicates purged.';
-  document.getElementById('dupList').innerHTML='';
-  toast(`Purged ${toRm.size} duplicate(s).`);
-});
-
-/* SETTINGS — DATA MANAGEMENT */
-document.getElementById('btnEJ').addEventListener('click',()=>{
-  const b=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download=`VH_Backup_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);
-  toast('JSON backup downloaded.');
-});
-document.getElementById('btnReset').addEventListener('click',()=>{
-  if(!confirm('Reset ALL data to seed? Deletes all manual entries.'))return;
-  DATA=hydrateSeed(SEED);saveData(DATA);rebuildKS();populateMF();render();rebuildGC();
-  if(activeTab==='monthly')renderMonthly();toast('Data reset to seed.');
-});
-
-/* PAY PLAN — estimator */
-document.getElementById('btnToggleCalc').addEventListener('click',()=>{
-  const w=document.getElementById('calcWrap');
-  w.style.display=w.style.display==='none'?'block':'none';
-});
-function calcEstimate(){
-  const feg=parseFloat(document.getElementById('estFEG').value)||0;
-  const fi =parseFloat(document.getElementById('estFI').value)||0;
-  const acc=parseFloat(document.getElementById('estAcc').value)||0;
-  /* New Car: 25% of first $600 above pack, 30% above $601 */
-  let comm25=0,comm30=0;
-  if(feg>0&&feg<=600){comm25=feg*0.25;}
-  else if(feg>600){comm25=600*0.25;comm30=(feg-600)*0.30;}
-  const accBonus=acc*0.40;
-  const total25=comm25+fi+acc*0.40+PACK;
-  const total30=comm25+comm30+fi+accBonus+PACK;
-  document.getElementById('est25').textContent=fmt(total25);
-  document.getElementById('est30').textContent=fmt(total30);
-  document.getElementById('estTotal').textContent=fmt(total30||total25);
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `honda_deals_${state.selectedMonth}.csv`;
+  a.click();
+  notify('success', 'CSV exported');
 }
 
-/* MASTER RENDER */
-function render(){renderKPIs();renderDaily();renderPaid();renderHold();}
+// Close modal on overlay click
+document.getElementById('dealModal').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
 
-/* SELF-TEST */
-(function(){
-  const ok=(d,v)=>{if(!v)console.warn('SELF-TEST FAIL:',d);};
-  ok('formula basic',Math.abs(calcTotal({commissionNo1:390,fBonus1:25,adjustments:0})-(390+25+12.24))<.001);
-  ok('formula neg',Math.abs(calcTotal({commissionNo1:75,fBonus1:0,adjustments:-10})-(75+12.24-10))<.001);
-  ok('formula zero',calcTotal({}===PACK||calcTotal({})==PACK));
-  const r1={date:'2026-05-01',clientLastName:'TEST',commissionNo1:100,fBonus1:0,adjustments:0};
-  const r2={date:'2026-05-01',clientLastName:'test ',commissionNo1:100,fBonus1:0,adjustments:0};
-  ok('cKey normalises',cKey(r1)===cKey(r2));
-  ok('dice exact',diceSim('hello','hello')===1);
-  ok('dice dissim',diceSim('abc','xyz')<0.3);
-  DATA.forEach(r=>ok(`id+date ${r.id}`,r.id&&r.date));
-})();
+// Drag & drop
+const ocrZone = document.getElementById('ocrZone');
+ocrZone.addEventListener('dragover', e => { e.preventDefault(); ocrZone.classList.add('drag'); });
+ocrZone.addEventListener('dragleave', () => ocrZone.classList.remove('drag'));
+ocrZone.addEventListener('drop', e => {
+  e.preventDefault();
+  ocrZone.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const fakeEvt = { target: { files: [file], value: '' }, stopPropagation: ()=>{} };
+    handleOCRFile(fakeEvt);
+  }
+});
 
-/* INIT */
-(function(){
-  populateMF();render();
-  requestAnimationFrame(()=>{rebuildGC();renderMonthly();});
-})();
+// ══════════════════════════════════════════
+// SEED DEMO DEAL (from deal sheet in image)
+// ══════════════════════════════════════════
+function seedDemoIfEmpty() {
+  if (state.deals.length === 0) {
+    const today = new Date().toISOString().slice(0,10);
+    state.deals.push({
+      id: crypto.randomUUID(),
+      date: today,
+      vehicle: { stock: '93665', model: '2026 Honda CR-V Hybrid' },
+      customer: 'VANESSA DE LA TORRE',
+      extracted: {
+        commissionNo1: 75.00,
+        accessories: 12.00,
+        aftermarket1: 175.75,
+        fBonus1: 40.00,
+        profitOfSale: -509.89,
+        amProfit: 733.00
+      },
+      calculated: { totalCommission: 302.75 },
+      status: 'Pending',
+      ocrConfidence: 95,
+      needsReview: false,
+      sourceFile: 'WhatsApp_Image_2026-06-02.jpeg'
+    });
+    saveState();
+  }
+}
+
+// INIT
+seedDemoIfEmpty();
+renderAll();
 </script>
-<!--
-╔══════════════════════════════════════════════════════════════════════╗
-║  TESTING & USAGE GUIDE — Valley Honda Commission Dashboard v3.0     ║
-╠══════════════════════════════════════════════════════════════════════╣
-║                                                                      ║
-║  1. DAILY JSON UPDATES & SAFE MERGE                                  ║
-║  • Click Settings tab → Merge New Records from JSON panel.           ║
-║  • Paste a JSON array → click Merge JSON.                            ║
-║  • The engine computes a composite key for every record and appends  ║
-║    only those not already stored. Exact duplicates are always        ║
-║    skipped. Safe to run multiple times.                              ║
-║  • Alternatively: add objects to the SEED array in the script block  ║
-║    and use Settings → Reset to Seed Data to reload (destructive).    ║
-║                                                                      ║
-║  2. ANTI-DUPLICATION ENGINE                                          ║
-║  • Composite key = `date_clientlastname_total` (normalised).         ║
-║  • O(1) lookup via a Set rebuilt after every mutation.               ║
-║  • On manual save: exact match → blocked with toast + row highlight. ║
-║    Check "Force Overwrite" to intentionally replace a duplicate.     ║
-║  • On PDF scan import: exact match → red banner warning.             ║
-║    Fuzzy match >85% (Dice bigram similarity) → "Potential duplicate" ║
-║    warning shown; user still controls whether to import.             ║
-║  • Settings → Scan & Remove Duplicates: lists all exact matches,     ║
-║    confirms before purging. Logs count in the UI.                    ║
-║                                                                      ║
-║  3. PDF UPLOAD & AUTO-SCAN                                           ║
-║  • Scan PDF tab → drag-and-drop or "Choose PDF".                     ║
-║  • pdf.js (blob worker — works on file://) extracts text from every  ║
-║    page. Regex heuristics pull dates, names, amounts, hold reasons.  ║
-║  • Extracted fields shown in a review card before any save.          ║
-║  • Click "Import to Form" → modal pre-filled → verify → Save.       ║
-║  • FALLBACK: Image-only PDFs (no text layer) trigger a warning and   ║
-║    open the form for manual entry with the filename as reference.    ║
-║                                                                      ║
-║  4. FILTERS & MONTHLY TARGETS                                        ║
-║  • Filter bar (Daily/Paid/Hold): date picker, debounced name search, ║
-║    status dropdown, month dropdown. "Clear" resets all.              ║
-║  • Monthly View: navigate months ← → · set target (e.g. 13 cars)    ║
-║    → Save. Each month stores its own target in localStorage.         ║
-║  • Progress bar, closure %, and doughnut chart update instantly.     ║
-║                                                                      ║
-║  5. DAY/NIGHT TOGGLE                                                 ║
-║  • Click the pill toggle top-right. Preference saved in localStorage.║
-║  • All colors derive from CSS variables — zero hardcoded hex colors. ║
-║                                                                      ║
-║  6. PDF EXPORT (strict B&W)                                          ║
-║  • Click "Export PDF". html2pdf.js renders the Daily panel to A4     ║
-║    landscape at 2x resolution. @media print CSS hides buttons,       ║
-║    filters, charts, and theme UI. Dark mode is temporarily removed   ║
-║    before capture to prevent dark-background bleed.                  ║
-║                                                                      ║
-╚══════════════════════════════════════════════════════════════════════╝
--->
 </body>
 </html>
