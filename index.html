@@ -1,222 +1,396 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Valley Honda · Commission Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
+/* ─── LIGHT THEME ─── */
 :root {
-  --bg: #0a0a0a;
-  --surface: rgba(255,255,255,0.06);
-  --surface-hover: rgba(255,255,255,0.10);
-  --text: #ffffff;
-  --text-dim: rgba(255,255,255,0.5);
-  --text-faint: rgba(255,255,255,0.25);
-  --border: rgba(255,255,255,0.12);
-  --border-strong: rgba(255,255,255,0.25);
-  --accent: #e8f0fe;
-  --green: #4ade80;
-  --red: #f87171;
-  --yellow: #fbbf24;
-  --blue: #60a5fa;
-  --glass: blur(16px) saturate(180%);
-  --radius: 16px;
-  --font-head: 'Syne', sans-serif;
-  --font-mono: 'DM Mono', monospace;
+  --bg:             #f0eeeb;
+  --bg-grad:        linear-gradient(135deg, #f0eeeb 0%, #e8e5e0 100%);
+  --noise:          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  --glass-bg:       rgba(255,255,255,0.55);
+  --glass-bg-hover: rgba(255,255,255,0.72);
+  --glass-border:   rgba(255,255,255,0.8);
+  --glass-border2:  rgba(0,0,0,0.08);
+  --glass-shadow:   0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.05);
+  --glass-shadow-hover: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  --panel-head-bg:  rgba(255,255,255,0.35);
+  --blur:           blur(18px) saturate(180%);
+  --text:           #0e0e0e;
+  --text-dim:       #5a5a5a;
+  --text-faint:     #aaaaaa;
+  --ink:            #0e0e0e;
+  --ink-inv:        #ffffff;
+  --surface-mute:   rgba(0,0,0,0.04);
+  --surface-row:    rgba(0,0,0,0.025);
+  --border-line:    rgba(0,0,0,0.1);
+  --sep:            rgba(0,0,0,0.07);
+  --modal-overlay:  rgba(20,20,20,0.35);
+  --modal-bg:       rgba(255,255,255,0.82);
+  --notif-bg:       rgba(255,255,255,0.9);
+  --input-bg:       rgba(255,255,255,0.7);
+  --scrollbar:      rgba(0,0,0,0.15);
+  --month-tab-bg:   rgba(0,0,0,0.06);
+  --ocr-dash:       rgba(0,0,0,0.25);
+  --progress-bg:    rgba(0,0,0,0.08);
+  --chart-tick:     #888;
+  --chart-grid:     rgba(0,0,0,0.06);
+  --chart-legend:   #555;
+  --radius:         14px;
+  --font-head:      'Syne', sans-serif;
+  --font-mono:      'DM Mono', monospace;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:15px;scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh;overflow-x:hidden}
 
-/* GRID NOISE BACKGROUND */
+/* ─── DARK THEME ─── */
+[data-theme="dark"] {
+  --bg:             #0c0c0e;
+  --bg-grad:        linear-gradient(135deg, #0c0c0e 0%, #131318 100%);
+  --glass-bg:       rgba(255,255,255,0.055);
+  --glass-bg-hover: rgba(255,255,255,0.09);
+  --glass-border:   rgba(255,255,255,0.12);
+  --glass-border2:  rgba(255,255,255,0.06);
+  --glass-shadow:   0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
+  --glass-shadow-hover: 0 8px 36px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3);
+  --panel-head-bg:  rgba(255,255,255,0.04);
+  --text:           #f0f0f0;
+  --text-dim:       rgba(255,255,255,0.5);
+  --text-faint:     rgba(255,255,255,0.22);
+  --ink:            #ffffff;
+  --ink-inv:        #0c0c0e;
+  --surface-mute:   rgba(255,255,255,0.04);
+  --surface-row:    rgba(255,255,255,0.025);
+  --border-line:    rgba(255,255,255,0.08);
+  --sep:            rgba(255,255,255,0.07);
+  --modal-overlay:  rgba(0,0,0,0.65);
+  --modal-bg:       rgba(18,18,22,0.88);
+  --notif-bg:       rgba(22,22,28,0.92);
+  --input-bg:       rgba(255,255,255,0.06);
+  --scrollbar:      rgba(255,255,255,0.12);
+  --month-tab-bg:   rgba(255,255,255,0.06);
+  --ocr-dash:       rgba(255,255,255,0.22);
+  --progress-bg:    rgba(255,255,255,0.08);
+  --chart-tick:     rgba(255,255,255,0.35);
+  --chart-grid:     rgba(255,255,255,0.05);
+  --chart-legend:   rgba(255,255,255,0.45);
+}
+
+/* ─── BASE ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{
+  background:var(--bg-grad);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:var(--font-mono);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background 0.35s ease, color 0.35s ease;
+}
+
+/* subtle noise overlay */
 body::before{
   content:'';position:fixed;inset:0;
+  background-image:var(--noise);
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* dark mode ambient glow */
+[data-theme="dark"] body::after{
+  content:'';position:fixed;inset:0;
   background:
-    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(96,165,250,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(74,222,128,0.05) 0%, transparent 50%);
+    radial-gradient(ellipse 70% 50% at 15% 0%,   rgba(180,180,255,0.04) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 100%,  rgba(200,255,220,0.03) 0%,transparent 55%);
   pointer-events:none;z-index:0;
 }
 
-/* LAYOUT */
-.app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:24px 20px}
+.app{position:relative;z-index:1;max-width:1420px;margin:0 auto;padding:24px 20px}
 
-/* HEADER */
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+/* ─── GLASS CARD ─── */
+.glass{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-bottom-color:var(--glass-border2);
+  border-right-color:var(--glass-border2);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  box-shadow:var(--glass-shadow);
+  border-radius:var(--radius);
+  transition:box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.glass:hover{
+  box-shadow:var(--glass-shadow-hover);
+  background:var(--glass-bg-hover);
+}
+
+/* ─── HEADER ─── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;flex-wrap:wrap;gap:12px;
+  padding:16px 20px;
+}
 .logo{display:flex;align-items:center;gap:12px}
-.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,rgba(96,165,250,0.3),rgba(74,222,128,0.2));border:1px solid var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.logo-text{font-family:var(--font-head);font-weight:800;font-size:1.2rem;letter-spacing:-0.02em}
-.logo-sub{font-size:0.7rem;color:var(--text-dim);font-weight:300;letter-spacing:0.08em;text-transform:uppercase}
-.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.month-pill{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:0.75rem;color:var(--text-dim)}
-.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-mono);font-size:0.78rem;cursor:pointer;transition:all 0.2s ease;backdrop-filter:var(--glass)}
-.btn:hover{background:var(--surface-hover);border-color:var(--border-strong);transform:translateY(-1px)}
-.btn-primary{background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.4);color:#93c5fd}
-.btn-primary:hover{background:rgba(96,165,250,0.25);border-color:rgba(96,165,250,0.6)}
-.btn-green{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.35);color:#86efac}
-.btn-green:hover{background:rgba(74,222,128,0.22)}
+.logo-icon{
+  width:40px;height:40px;
+  background:var(--ink);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  flex-shrink:0;
+}
+.logo-text{font-family:var(--font-head);font-weight:800;font-size:1.15rem;letter-spacing:-0.02em}
+.logo-sub{font-size:0.62rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.month-pill{
+  background:var(--month-tab-bg);
+  border:1px solid var(--glass-border);
+  border-radius:6px;padding:5px 12px;
+  font-size:0.7rem;color:var(--text-dim);
+}
 
-/* KPI GRID */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;backdrop-filter:var(--glass);transition:all 0.2s ease;position:relative;overflow:hidden}
-.kpi:hover{border-color:var(--border-strong);transform:translateY(-2px)}
-.kpi::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.02) 0%,transparent 60%);pointer-events:none}
-.kpi-label{font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
-.kpi-value{font-family:var(--font-head);font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:4px}
-.kpi-sub{font-size:0.7rem;color:var(--text-faint)}
-.kpi-green .kpi-value{color:var(--green)}
-.kpi-blue .kpi-value{color:var(--blue)}
-.kpi-yellow .kpi-value{color:var(--yellow)}
+/* ─── BUTTONS ─── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:9px;
+  border:1px solid var(--glass-border);
+  background:var(--glass-bg);
+  color:var(--text);
+  font-family:var(--font-mono);font-size:0.74rem;
+  cursor:pointer;
+  backdrop-filter:var(--blur);
+  transition:all 0.15s ease;
+  white-space:nowrap;
+}
+.btn:hover{background:var(--glass-bg-hover);border-color:var(--ink);color:var(--ink)}
+.btn-primary{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
+.btn-primary:hover{opacity:0.85;color:var(--ink-inv)}
+.btn-icon{padding:7px 10px}
 
-/* MAIN 2-COL */
-.main-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-bottom:16px}
-@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+/* theme toggle */
+.theme-toggle{
+  width:36px;height:20px;border-radius:10px;
+  background:var(--month-tab-bg);border:1px solid var(--glass-border);
+  cursor:pointer;position:relative;transition:background 0.2s;
+  flex-shrink:0;
+}
+.theme-toggle::after{
+  content:'';position:absolute;
+  top:3px;left:3px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--ink);
+  transition:transform 0.25s cubic-bezier(.4,0,.2,1), background 0.2s;
+}
+[data-theme="dark"] .theme-toggle::after{transform:translateX(16px)}
+.toggle-wrap{display:flex;align-items:center;gap:7px;font-size:0.68rem;color:var(--text-dim)}
 
-/* PANELS */
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:var(--glass);overflow:hidden}
-.panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
-.panel-title{font-family:var(--font-head);font-weight:700;font-size:0.9rem;display:flex;align-items:center;gap:8px}
-.panel-title i{color:var(--text-dim);font-size:0.85rem}
-.panel-body{padding:20px}
+/* ─── KPI GRID ─── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin-bottom:18px}
+.kpi{padding:18px 20px;position:relative;overflow:hidden}
+.kpi::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.08) 0%,transparent 60%);
+  pointer-events:none;border-radius:inherit;
+}
+.kpi-label{font-size:0.6rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.13em;margin-bottom:7px}
+.kpi-value{font-family:var(--font-head);font-size:1.65rem;font-weight:800;line-height:1;margin-bottom:3px}
+.kpi-sub{font-size:0.63rem;color:var(--text-faint)}
+.kpi-accent .kpi-value{position:relative;display:inline-block}
+.kpi-accent .kpi-value::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--ink);border-radius:1px}
 
-/* TABLE */
-.deals-table{width:100%;border-collapse:collapse;font-size:0.75rem}
-.deals-table th{color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;font-size:0.65rem;padding:0 10px 12px;text-align:left;font-weight:400;border-bottom:1px solid var(--border)}
-.deals-table td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+/* ─── MAIN GRID ─── */
+.main-grid{display:grid;grid-template-columns:1fr 336px;gap:12px;margin-bottom:12px}
+@media(max-width:920px){.main-grid{grid-template-columns:1fr}}
+
+/* ─── PANELS ─── */
+.panel{overflow:hidden}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;
+  border-bottom:1px solid var(--sep);
+  gap:10px;flex-wrap:wrap;
+  background:var(--panel-head-bg);
+  backdrop-filter:var(--blur);
+}
+.panel-title{font-family:var(--font-head);font-weight:700;font-size:0.82rem;display:flex;align-items:center;gap:7px}
+.panel-title i{font-size:0.75rem;color:var(--text-faint)}
+.panel-body{padding:16px 18px}
+
+/* ─── DEALS TABLE ─── */
+.deals-table{width:100%;border-collapse:collapse;font-size:0.71rem}
+.deals-table th{
+  color:var(--text-faint);text-transform:uppercase;
+  letter-spacing:0.08em;font-size:0.58rem;
+  padding:0 9px 10px;text-align:left;font-weight:500;
+  border-bottom:1.5px solid var(--ink);
+}
+.deals-table td{padding:10px 9px;border-bottom:1px solid var(--sep);vertical-align:middle}
 .deals-table tr:last-child td{border-bottom:none}
-.deals-table tr:hover td{background:rgba(255,255,255,0.03)}
-.deal-vehicle{font-weight:500;font-family:var(--font-head)}
-.deal-customer{color:var(--text-dim);font-size:0.7rem;margin-top:2px}
-.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:0.65rem;font-weight:500;letter-spacing:0.05em}
-.badge-green{background:rgba(74,222,128,0.15);color:#86efac;border:1px solid rgba(74,222,128,0.25)}
-.badge-yellow{background:rgba(251,191,36,0.15);color:#fde68a;border:1px solid rgba(251,191,36,0.25)}
-.badge-red{background:rgba(248,113,113,0.15);color:#fca5a5;border:1px solid rgba(248,113,113,0.25)}
-.badge-blue{background:rgba(96,165,250,0.15);color:#93c5fd;border:1px solid rgba(96,165,250,0.25)}
-.payout-val{font-family:var(--font-head);font-weight:700;font-size:0.95rem}
-.payout-pos{color:var(--green)}
-.payout-neg{color:var(--red)}
-.del-btn{background:transparent;border:none;color:var(--text-faint);cursor:pointer;padding:4px 6px;border-radius:5px;transition:all 0.15s;font-size:0.8rem}
-.del-btn:hover{color:var(--red);background:rgba(248,113,113,0.1)}
-.edit-btn{background:transparent;border:none;color:var(--text-faint);cursor:pointer;padding:4px 6px;border-radius:5px;transition:all 0.15s;font-size:0.8rem}
-.edit-btn:hover{color:var(--blue);background:rgba(96,165,250,0.1)}
+.deals-table tr:hover td{background:var(--surface-row)}
+.deal-vehicle{font-weight:600;font-family:var(--font-head);font-size:0.76rem}
+.deal-customer{color:var(--text-dim);font-size:0.63rem;margin-top:1px}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:0.58rem;font-weight:600;letter-spacing:0.05em}
+.badge-paid{background:var(--ink);color:var(--ink-inv)}
+.badge-pending{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.badge-hold{background:var(--surface-mute);color:var(--text-dim);border:1px solid var(--glass-border)}
+.payout-val{font-family:var(--font-head);font-weight:700;font-size:0.88rem}
+.payout-pos{color:var(--ink)}
+.payout-neg{color:var(--text-faint);text-decoration:line-through}
+.del-btn,.edit-btn{background:transparent;border:none;color:var(--text-faint);cursor:pointer;padding:3px 5px;border-radius:4px;transition:all 0.12s;font-size:0.73rem}
+.del-btn:hover{color:#e03;background:rgba(220,0,30,0.08)}
+.edit-btn:hover{color:var(--ink);background:var(--surface-mute)}
+.total-row td{font-family:var(--font-head);font-weight:700;border-top:2px solid var(--ink)!important;border-bottom:none!important;background:var(--surface-mute);font-size:0.72rem}
 
-/* CHART */
-.chart-wrap{position:relative;height:220px}
+/* ─── PAY PLAN SIDEBAR ─── */
+.pp-head{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.13em;color:var(--text-faint);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.tier-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tier-label{font-size:0.64rem;color:var(--text-dim);width:54px;flex-shrink:0}
+.tier-track{flex:1;height:4px;background:var(--progress-bg);border-radius:2px;overflow:hidden}
+.tier-fill{height:100%;border-radius:2px;background:var(--ink);transition:width 0.55s ease}
+.tier-amount{font-size:0.65rem;font-family:var(--font-head);font-weight:600;width:46px;text-align:right;flex-shrink:0;color:var(--text-dim)}
+.tier-amount.done{color:var(--ink)}
+.sep{height:1px;background:var(--sep);margin:13px 0}
+.unit-dots{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:9px}
+.unit-dot{width:10px;height:10px;border-radius:2px;transition:all 0.2s}
+.unit-dot.sold{background:var(--ink)}
+.unit-dot.empty{background:var(--progress-bg);border:1px solid var(--border-line)}
+.tier-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.tier-pill{padding:3px 8px;border-radius:4px;font-size:0.6rem;border:1px solid var(--glass-border);color:var(--text-faint);transition:all 0.15s;background:transparent}
+.tier-pill.active{background:var(--ink);border-color:var(--ink);color:var(--ink-inv);font-weight:600}
+.tier-pill.achieved{background:var(--surface-mute);color:var(--text-dim)}
 
-/* PAY PLAN SIDEBAR */
-.payplan-section{margin-bottom:16px}
-.payplan-section:last-child{margin-bottom:0}
-.pp-head{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.tier-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.tier-label{font-size:0.7rem;color:var(--text-dim);width:60px;flex-shrink:0}
-.tier-track{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
-.tier-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
-.tier-amount{font-size:0.7rem;font-family:var(--font-head);font-weight:600;width:50px;text-align:right;flex-shrink:0}
-.progress-ring{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0}
-.ring-label{font-size:0.7rem;color:var(--text-dim)}
-.ring-val{font-family:var(--font-head);font-weight:800;font-size:1.4rem}
-.ring-sub{font-size:0.65rem;color:var(--text-faint)}
+/* ─── OCR ZONE ─── */
+.ocr-zone{
+  border:1.5px dashed var(--ocr-dash);
+  border-radius:var(--radius);
+  padding:26px 14px;
+  text-align:center;cursor:pointer;
+  transition:all 0.18s;position:relative;
+  background:transparent;
+}
+.ocr-zone:hover,.ocr-zone.drag{
+  border-color:var(--ink);
+  background:var(--surface-mute);
+}
+.ocr-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ocr-icon{font-size:1.5rem;color:var(--text-faint);margin-bottom:7px}
+.ocr-label{font-size:0.73rem;color:var(--text-dim);font-weight:500}
+.ocr-sub{font-size:0.62rem;color:var(--text-faint);margin-top:3px;line-height:1.5}
+.progress-bar-wrap{background:var(--progress-bg);border-radius:3px;height:4px;margin-top:13px;overflow:hidden;display:none}
+.progress-bar-fill{height:100%;background:var(--ink);border-radius:3px;transition:width 0.3s}
+.ocr-status{font-size:0.66rem;color:var(--text-dim);margin-top:6px;min-height:1em;text-align:center}
+.ocr-prev-img{width:100%;max-height:150px;object-fit:contain;border-radius:8px;border:1px solid var(--glass-border);margin-bottom:10px;display:none}
 
-/* OCR UPLOAD */
-.ocr-zone{border:1.5px dashed var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
-.ocr-zone:hover,.ocr-zone.drag{border-color:rgba(96,165,250,0.5);background:rgba(96,165,250,0.04)}
-.ocr-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.ocr-icon{font-size:2rem;color:var(--text-faint);margin-bottom:10px}
-.ocr-label{font-size:0.78rem;color:var(--text-dim)}
-.ocr-sub{font-size:0.68rem;color:var(--text-faint);margin-top:4px}
-.progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:4px;height:6px;margin-top:16px;overflow:hidden;display:none}
-.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px;transition:width 0.3s}
-.ocr-status{font-size:0.72rem;color:var(--text-dim);margin-top:8px;min-height:1.2em;text-align:center}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+/* ─── MODAL ─── */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:var(--modal-overlay);
+  backdrop-filter:blur(10px);
+  z-index:100;display:none;
+  align-items:center;justify-content:center;padding:20px;
+}
 .modal-overlay.open{display:flex}
-.modal{background:#111;border:1px solid var(--border-strong);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp 0.25s ease}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.modal-title{font-family:var(--font-head);font-weight:800;font-size:1.1rem;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal{
+  background:var(--modal-bg);
+  backdrop-filter:blur(28px) saturate(200%);
+  -webkit-backdrop-filter:blur(28px) saturate(200%);
+  border:1px solid var(--glass-border);
+  border-bottom-color:var(--glass-border2);
+  box-shadow:0 24px 64px rgba(0,0,0,0.22), 0 2px 12px rgba(0,0,0,0.1);
+  border-radius:18px;
+  padding:26px;
+  width:100%;max-width:510px;
+  max-height:90vh;overflow-y:auto;
+  animation:slideUp 0.22s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-title{
+  font-family:var(--font-head);font-weight:800;font-size:1rem;
+  margin-bottom:17px;display:flex;align-items:center;gap:8px;
+  padding-bottom:13px;border-bottom:1px solid var(--sep);
+}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .form-full{grid-column:1/-1}
-.form-label{font-size:0.67rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:5px;display:block}
-.form-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font-mono);font-size:0.8rem;outline:none;transition:border-color 0.2s}
-.form-input:focus{border-color:rgba(96,165,250,0.5)}
-.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
-.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
-.ocr-preview{width:100%;max-height:180px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin-bottom:12px;display:none}
-.confidence-row{display:flex;align-items:center;gap:8px;font-size:0.72rem;color:var(--text-dim);margin-top:8px}
-.conf-badge{padding:2px 8px;border-radius:4px;font-size:0.65rem;font-weight:500}
-.conf-high{background:rgba(74,222,128,0.15);color:#86efac}
-.conf-med{background:rgba(251,191,36,0.15);color:#fde68a}
-.conf-low{background:rgba(248,113,113,0.15);color:#fca5a5}
+.form-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--text-dim);margin-bottom:4px;display:block}
+.form-input{
+  width:100%;
+  background:var(--input-bg);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--glass-border);
+  border-bottom-color:var(--glass-border2);
+  border-radius:8px;padding:8px 10px;
+  color:var(--text);
+  font-family:var(--font-mono);font-size:0.76rem;
+  outline:none;transition:border-color 0.15s,box-shadow 0.15s;
+}
+.form-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(100,100,100,0.12)}
+.form-select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;
+}
+.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.conf-row{display:flex;align-items:center;gap:7px;font-size:0.66rem;color:var(--text-dim);margin-top:6px}
+.conf-badge{padding:2px 7px;border-radius:4px;font-size:0.6rem;font-weight:600;border:1px solid}
+.conf-hi{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
+.conf-med{background:var(--surface-mute);color:var(--text);border-color:var(--glass-border)}
+.conf-lo{color:#e03;border-color:#e03;background:transparent}
 
-@media(max-width:900px){.bottom-grid{grid-template-columns:1fr !important}}
+/* ─── CHART ─── */
+.chart-wrap{position:relative;height:210px}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:10px}
-
-/* TOOLTIP */
-.tooltip-wrap{position:relative}
-.tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.68rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:50;color:var(--text-dim)}
-.tooltip-wrap:hover .tooltip{opacity:1}
-
-/* NOTIFICATION */
-.notif{position:fixed;top:20px;right:20px;background:#1a1a1a;border:1px solid var(--border-strong);border-radius:12px;padding:12px 18px;font-size:0.78rem;z-index:200;transform:translateX(110%);transition:transform 0.3s ease;max-width:280px}
-.notif.show{transform:translateX(0)}
-.notif-success{border-color:rgba(74,222,128,0.4);color:#86efac}
-.notif-error{border-color:rgba(248,113,113,0.4);color:#fca5a5}
-.notif-info{border-color:rgba(96,165,250,0.4);color:#93c5fd}
-
-/* MONTH TABS */
-.month-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
-.month-tabs::-webkit-scrollbar{display:none}
-.month-tab{padding:5px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:var(--font-mono);font-size:0.72rem;cursor:pointer;white-space:nowrap;transition:all 0.15s}
-.month-tab.active{background:var(--surface-hover);color:var(--text);border-color:var(--border-strong)}
-.month-tab:hover:not(.active){border-color:var(--border-strong)}
-
-/* EMPTY STATE */
-.empty-state{text-align:center;padding:48px 20px;color:var(--text-faint)}
-.empty-icon{font-size:2.5rem;margin-bottom:12px;opacity:0.4}
-.empty-text{font-size:0.8rem}
-
-/* REVIEW FLAG */
-.review-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:5px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-
-/* BOTTOM STRIP */
-.bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
+/* ─── BOTTOM GRID ─── */
+.bottom-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}
 @media(max-width:768px){.bottom-grid{grid-template-columns:1fr}}
-.mini-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;backdrop-filter:var(--glass)}
-.mini-stat-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-faint);margin-bottom:6px}
-.mini-stat-val{font-family:var(--font-head);font-weight:700;font-size:1.3rem}
-.mini-stat-change{font-size:0.68rem;margin-top:3px}
-.up{color:var(--green)}.down{color:var(--red)}
 
-/* UNIT PROGRESS */
-.unit-progress-row{display:flex;align-items:center;gap:10px;margin-top:12px}
-.unit-dots{display:flex;gap:4px;flex-wrap:wrap}
-.unit-dot{width:11px;height:11px;border-radius:3px;transition:all 0.3s}
-.unit-dot.sold{background:var(--green)}
-.unit-dot.empty{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1)}
-.unit-target-label{font-size:0.68rem;color:var(--text-faint)}
+/* ─── MONTH TABS ─── */
+.month-tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.month-tabs::-webkit-scrollbar{display:none}
+.month-tab{
+  padding:4px 11px;border-radius:6px;
+  border:1px solid var(--glass-border);
+  background:var(--month-tab-bg);
+  color:var(--text-dim);
+  font-family:var(--font-mono);font-size:0.66rem;
+  cursor:pointer;white-space:nowrap;transition:all 0.12s;
+}
+.month-tab.active{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
+.month-tab:hover:not(.active){border-color:var(--ink);color:var(--ink)}
 
-/* TIER INDICATOR */
-.tier-indicator{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
-.tier-pill{padding:4px 10px;border-radius:6px;font-size:0.68rem;border:1px solid var(--border);color:var(--text-faint);transition:all 0.2s}
-.tier-pill.active{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.4);color:#86efac;font-weight:500}
-.tier-pill.achieved{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.3);color:#93c5fd}
+/* ─── NOTIFICATION ─── */
+.notif{
+  position:fixed;top:18px;right:18px;
+  background:var(--notif-bg);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);
+  box-shadow:0 8px 24px rgba(0,0,0,0.15);
+  border-radius:10px;padding:10px 16px;
+  font-size:0.73rem;z-index:200;
+  transform:translateX(120%);
+  transition:transform 0.28s cubic-bezier(.4,0,.2,1);
+  max-width:260px;
+}
+.notif.show{transform:translateX(0)}
 
-.separator{height:1px;background:var(--border);margin:16px 0}
+/* ─── EMPTY STATE ─── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-faint)}
+.empty-icon{font-size:1.8rem;margin-bottom:9px;opacity:0.3}
+.empty-text{font-size:0.75rem}
+.rdot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);display:inline-block;margin-right:4px;vertical-align:middle}
 
-/* RESPONSIVE */
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:10px}
+
+/* ─── RESPONSIVE ─── */
 @media(max-width:600px){
   .kpi-grid{grid-template-columns:1fr 1fr}
   .form-grid{grid-template-columns:1fr}
-  .kpi-value{font-size:1.4rem}
-  .panel-head{flex-direction:column;align-items:flex-start}
+  .kpi-value{font-size:1.3rem}
+  header{padding:12px 14px}
 }
 </style>
 </head>
@@ -224,7 +398,7 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 <div class="app">
 
   <!-- HEADER -->
-  <header>
+  <header class="glass">
     <div class="logo">
       <div class="logo-icon">🏎</div>
       <div>
@@ -234,42 +408,47 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     </div>
     <div class="header-right">
       <div class="month-pill" id="currentDate">—</div>
+      <label class="toggle-wrap" title="Toggle dark/light mode">
+        <i class="fas fa-sun" style="font-size:0.72rem;color:var(--text-faint)"></i>
+        <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></div>
+        <i class="fas fa-moon" style="font-size:0.72rem;color:var(--text-faint)"></i>
+      </label>
       <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Deal</button>
       <button class="btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
-      <button class="btn" onclick="clearAll()" style="color:var(--text-faint)"><i class="fas fa-trash"></i></button>
+      <button class="btn btn-icon" onclick="clearAll()" title="Clear all" style="color:var(--text-faint)"><i class="fas fa-trash"></i></button>
     </div>
   </header>
 
   <!-- KPI ROW -->
   <div class="kpi-grid">
-    <div class="kpi kpi-green">
+    <div class="glass kpi kpi-accent">
       <div class="kpi-label">MTD Payout</div>
       <div class="kpi-value" id="kpi-payout">$0</div>
       <div class="kpi-sub" id="kpi-payout-sub">0 deals this month</div>
     </div>
-    <div class="kpi kpi-blue">
+    <div class="glass kpi">
       <div class="kpi-label">Units Delivered</div>
       <div class="kpi-value" id="kpi-units">0</div>
       <div class="kpi-sub" id="kpi-tier-sub">No tier reached</div>
     </div>
-    <div class="kpi kpi-yellow">
+    <div class="glass kpi">
       <div class="kpi-label">Unit Bonus</div>
       <div class="kpi-value" id="kpi-bonus">$0</div>
-      <div class="kpi-sub" id="kpi-bonus-sub">Based on units delivered</div>
+      <div class="kpi-sub" id="kpi-bonus-sub">Based on units</div>
     </div>
-    <div class="kpi">
+    <div class="glass kpi">
       <div class="kpi-label">Gross Profit</div>
-      <div class="kpi-value" id="kpi-gross" style="color:var(--text)">$0</div>
-      <div class="kpi-sub" id="kpi-gross-sub">Sum of profit of sale</div>
+      <div class="kpi-value" id="kpi-gross">$0</div>
+      <div class="kpi-sub">Sum of profit of sale</div>
     </div>
-    <div class="kpi">
+    <div class="glass kpi">
       <div class="kpi-label">F&I Bonuses</div>
-      <div class="kpi-value" id="kpi-fi" style="color:var(--text)">$0</div>
+      <div class="kpi-value" id="kpi-fi">$0</div>
       <div class="kpi-sub">GAP · Finance · Sentinel</div>
     </div>
-    <div class="kpi">
+    <div class="glass kpi">
       <div class="kpi-label">Needs Review</div>
-      <div class="kpi-value" id="kpi-review" style="color:var(--yellow)">0</div>
+      <div class="kpi-value" id="kpi-review">0</div>
       <div class="kpi-sub">Low OCR confidence</div>
     </div>
   </div>
@@ -277,24 +456,27 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   <!-- MAIN GRID -->
   <div class="main-grid">
 
-    <!-- LEFT: DEALS TABLE -->
-    <div class="panel">
+    <!-- DEALS TABLE -->
+    <div class="glass panel">
       <div class="panel-head">
         <div class="panel-title"><i class="fas fa-file-invoice-dollar"></i> Deal Log</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
           <div class="month-tabs" id="monthTabs"></div>
-          <button class="btn btn-primary" onclick="document.getElementById('ocr-zone').click()"><i class="fas fa-camera"></i> Scan Deal Sheet</button>
+          <button class="btn btn-primary" onclick="document.getElementById('ocr-top-input').click()"><i class="fas fa-camera"></i> Scan</button>
+          <input type="file" id="ocr-top-input" accept="image/*,application/pdf" style="display:none" onchange="handleOCRFile(event)"/>
         </div>
       </div>
-      <div class="panel-body" style="padding:0;overflow-x:auto">
+      <div style="overflow-x:auto">
         <table class="deals-table">
           <thead>
             <tr>
+              <th>#</th>
               <th>Vehicle / Customer</th>
-              <th>Date</th>
-              <th>Commission</th>
-              <th>Aftermarket</th>
+              <th>Stock</th>
+              <th>Comm.</th>
+              <th>Aftermkt</th>
               <th>F&I</th>
+              <th>Acc.</th>
               <th>Total</th>
               <th>Status</th>
               <th></th>
@@ -309,126 +491,96 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       </div>
     </div>
 
-    <!-- RIGHT: PAY PLAN + UPLOAD -->
-    <div style="display:flex;flex-direction:column;gap:16px">
+    <!-- RIGHT SIDEBAR -->
+    <div style="display:flex;flex-direction:column;gap:12px">
 
-      <!-- OCR UPLOAD -->
-      <div class="panel">
+      <!-- OCR PANEL -->
+      <div class="glass panel">
         <div class="panel-head">
-          <div class="panel-title"><i class="fas fa-scanner-image"></i> OCR — Scan Deal Sheet</div>
+          <div class="panel-title"><i class="fas fa-camera"></i> Scan Deal Sheet</div>
         </div>
         <div class="panel-body">
-          <div class="ocr-zone" id="ocrZone" onclick="triggerFileInput()">
-            <input type="file" id="ocr-zone" accept="image/*,application/pdf" onchange="handleOCRFile(event)"/>
-            <div class="ocr-icon">📷</div>
-            <div class="ocr-label">Drop deal sheet image or tap to upload</div>
-            <div class="ocr-sub">JPEG, PNG supported · Auto-extracts commission fields</div>
+          <div class="ocr-zone" id="ocrZone">
+            <input type="file" id="ocr-drop-input" accept="image/*,application/pdf" onchange="handleOCRFile(event)"/>
+            <div class="ocr-icon">📄</div>
+            <div class="ocr-label">Drop file or tap to upload</div>
+            <div class="ocr-sub">JPEG · PNG · PDF<br>Auto-extracts commission fields</div>
             <div class="progress-bar-wrap" id="ocrProgressWrap">
               <div class="progress-bar-fill" id="ocrProgressFill" style="width:0%"></div>
             </div>
             <div class="ocr-status" id="ocrStatus"></div>
           </div>
-          <img id="ocrPreview" class="ocr-preview" src="" alt=""/>
+          <img id="ocrPreview" class="ocr-prev-img" src="" alt=""/>
         </div>
       </div>
 
-      <!-- PAY PLAN SUMMARY -->
-      <div class="panel">
+      <!-- PAY PLAN -->
+      <div class="glass panel">
         <div class="panel-head">
           <div class="panel-title"><i class="fas fa-chart-line"></i> 2026 Pay Plan</div>
         </div>
         <div class="panel-body">
-
-          <!-- Unit Progress -->
-          <div class="payplan-section">
-            <div class="pp-head"><i class="fas fa-car"></i> Monthly Units Progress</div>
-            <div class="unit-dots" id="unitDots"></div>
-            <div class="tier-indicator" id="tierIndicator"></div>
+          <div class="pp-head"><i class="fas fa-car"></i> Units Progress</div>
+          <div class="unit-dots" id="unitDots"></div>
+          <div class="tier-pills" id="tierPills"></div>
+          <div class="sep"></div>
+          <div class="pp-head"><i class="fas fa-trophy"></i> Unit Bonus Tiers</div>
+          <div id="tierBars"></div>
+          <div class="sep"></div>
+          <div class="pp-head"><i class="fas fa-calculator"></i> Commission</div>
+          <div style="font-size:0.66rem;color:var(--text-dim);line-height:1.95">
+            <div>New Cars: <b style="color:var(--ink)">25%</b> of first $600 above pack</div>
+            <div>New Cars: <b style="color:var(--ink)">30%</b> after $601 above pack</div>
+            <div>Pack: <b style="color:var(--ink)">$400 lot + $500 = $900</b></div>
+            <div>Acc. Bonus (Honda): <b style="color:var(--ink)">40%</b></div>
+            <div>Aftermarket Sublet: <b style="color:var(--ink)">25%</b></div>
           </div>
-
-          <div class="separator"></div>
-
-          <!-- Unit Bonus Tiers -->
-          <div class="payplan-section">
-            <div class="pp-head"><i class="fas fa-trophy"></i> Unit Bonus Tiers</div>
-            <div id="tierBars"></div>
+          <div class="sep"></div>
+          <div class="pp-head"><i class="fas fa-dollar-sign"></i> Finance Bonuses</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:0.65rem">
+            <span style="color:var(--text-dim)">GAP</span><span style="font-weight:600">$5</span>
+            <span style="color:var(--text-dim)">Finance Deal</span><span style="font-weight:600">$10</span>
+            <span style="color:var(--text-dim)">Sentinel</span><span style="font-weight:600">$5</span>
+            <span style="color:var(--text-dim)">Dent &amp; Ding</span><span style="font-weight:600">$5</span>
+            <span style="color:var(--text-dim)">Key Replacement</span><span style="font-weight:600">$5</span>
           </div>
-
-          <div class="separator"></div>
-
-          <!-- Commission Breakdown -->
-          <div class="payplan-section">
-            <div class="pp-head"><i class="fas fa-calculator"></i> Commission Structure</div>
-            <div style="font-size:0.72rem;color:var(--text-dim);line-height:1.8">
-              <div>New Cars: <span style="color:var(--text)">25%</span> of first $600 above pack</div>
-              <div>New Cars: <span style="color:var(--text)">30%</span> after $601 above pack</div>
-              <div>Pack: <span style="color:var(--text)">$400 lot + $500 pack = $900</span></div>
-              <div>Mini Deals: <span style="color:var(--text)">$75–$100/wk avg</span></div>
-              <div>Accessory Bonus: <span style="color:var(--text)">40%</span> Honda Factory</div>
-              <div>Aftermarket Sublet: <span style="color:var(--text)">25%</span></div>
-            </div>
-          </div>
-
-          <div class="separator"></div>
-
-          <!-- Finance Bonuses -->
-          <div class="payplan-section">
-            <div class="pp-head"><i class="fas fa-dollar-sign"></i> Finance Bonuses</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.7rem">
-              <div style="color:var(--text-dim)">GAP</div><div style="color:var(--text)">$5/each</div>
-              <div style="color:var(--text-dim)">Finance Deal</div><div style="color:var(--text)">$10/each</div>
-              <div style="color:var(--text-dim)">Sentinel</div><div style="color:var(--text)">$5/each</div>
-              <div style="color:var(--text-dim)">Dent & Ding</div><div style="color:var(--text)">$5/each</div>
-              <div style="color:var(--text-dim)">Key Replace</div><div style="color:var(--text)">$5/each</div>
-            </div>
-          </div>
-
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- CHARTS ROW -->
+  <!-- CHARTS -->
   <div class="bottom-grid">
-    <div class="panel" style="grid-column:1/3">
-      <div class="panel-head">
-        <div class="panel-title"><i class="fas fa-chart-bar"></i> Monthly Earnings Breakdown</div>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap"><canvas id="earningsChart"></canvas></div>
-      </div>
+    <div class="glass panel">
+      <div class="panel-head"><div class="panel-title"><i class="fas fa-chart-bar"></i> Monthly Earnings Breakdown</div></div>
+      <div class="panel-body"><div class="chart-wrap"><canvas id="earningsChart"></canvas></div></div>
     </div>
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-title"><i class="fas fa-chart-pie"></i> Commission Mix</div>
-      </div>
-      <div class="panel-body">
-        <div class="chart-wrap" style="height:200px"><canvas id="mixChart"></canvas></div>
-      </div>
+    <div class="glass panel">
+      <div class="panel-head"><div class="panel-title"><i class="fas fa-chart-pie"></i> Commission Mix</div></div>
+      <div class="panel-body"><div class="chart-wrap" style="height:190px"><canvas id="mixChart"></canvas></div></div>
     </div>
   </div>
 
-</div><!-- end .app -->
+</div><!-- .app -->
 
-<!-- ADD/EDIT MODAL -->
+<!-- MODAL -->
 <div class="modal-overlay" id="dealModal">
   <div class="modal">
-    <div class="modal-title"><i class="fas fa-file-invoice-dollar" style="color:var(--blue)"></i> <span id="modalTitle">Add Deal</span></div>
-    <img id="modalOcrPreview" class="ocr-preview" src="" alt=""/>
-    <div id="ocrConfidenceRow" class="confidence-row" style="display:none">
+    <div class="modal-title"><span id="modalTitle">Add Deal</span></div>
+    <img id="modalOcrPreview" class="ocr-prev-img" src="" alt="" style="display:none"/>
+    <div class="conf-row" id="confRow" style="display:none">
       <span>OCR Confidence:</span>
       <span class="conf-badge" id="confBadge">—</span>
-      <span id="reviewFlag"></span>
+      <span id="reviewFlag" style="color:#e03;font-size:0.63rem"></span>
     </div>
-    <div class="separator" id="ocrSeparator" style="display:none"></div>
-    <div class="form-grid">
+    <div class="form-grid" style="margin-top:14px">
       <div class="form-full">
         <label class="form-label">Deal # / Stock #</label>
         <input class="form-input" id="f-deal" placeholder="e.g. 214852 / 93665"/>
       </div>
       <div class="form-full">
-        <label class="form-label">Vehicle Model</label>
+        <label class="form-label">Vehicle Description</label>
         <input class="form-input" id="f-vehicle" placeholder="2026 Honda CR-V Hybrid"/>
       </div>
       <div class="form-full">
@@ -449,38 +601,35 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
       </div>
       <div>
         <label class="form-label">Commission No.1 ($)</label>
-        <input class="form-input" id="f-comm1" type="number" step="0.01" placeholder="75.00"/>
+        <input class="form-input" id="f-comm1" type="number" step="0.01" placeholder="75.00" oninput="updateCalcPreview()"/>
       </div>
       <div>
         <label class="form-label">Accessories ($)</label>
-        <input class="form-input" id="f-accessories" type="number" step="0.01" placeholder="12.00"/>
+        <input class="form-input" id="f-accessories" type="number" step="0.01" placeholder="12.00" oninput="updateCalcPreview()"/>
       </div>
       <div>
         <label class="form-label">Aftermarket 1 ($)</label>
-        <input class="form-input" id="f-am1" type="number" step="0.01" placeholder="175.75"/>
+        <input class="form-input" id="f-am1" type="number" step="0.01" placeholder="175.75" oninput="updateCalcPreview()"/>
       </div>
       <div>
         <label class="form-label">F&I Bonus 1 ($)</label>
-        <input class="form-input" id="f-fi1" type="number" step="0.01" placeholder="40.00"/>
+        <input class="form-input" id="f-fi1" type="number" step="0.01" placeholder="40.00" oninput="updateCalcPreview()"/>
       </div>
       <div>
         <label class="form-label">Profit of Sale ($)</label>
         <input class="form-input" id="f-profit" type="number" step="0.01" placeholder="-509.89"/>
       </div>
       <div>
-        <label class="form-label">Acc./Aftermarket Profit ($)</label>
+        <label class="form-label">Acc./AM Profit ($)</label>
         <input class="form-input" id="f-amprofit" type="number" step="0.01" placeholder="733.00"/>
       </div>
     </div>
-
-    <div class="separator"></div>
-    <div style="font-size:0.72rem;color:var(--text-dim)">
-      Calculated Total Payout: <span id="calcPreview" style="color:var(--green);font-family:var(--font-head);font-weight:700;font-size:1rem">$0.00</span>
+    <div style="margin-top:13px;padding-top:11px;border-top:1px solid var(--sep);font-size:0.68rem;color:var(--text-dim)">
+      Calculated Payout: <span id="calcPreview" style="font-family:var(--font-head);font-weight:800;font-size:0.98rem">$0.00</span>
     </div>
-
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-green" onclick="saveDeal()"><i class="fas fa-check"></i> Save Deal</button>
+      <button class="btn btn-primary" onclick="saveDeal()"><i class="fas fa-check"></i> Save Deal</button>
     </div>
   </div>
 </div>
@@ -489,712 +638,527 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 <div class="notif" id="notif"></div>
 
 <script>
-// ══════════════════════════════════════════
+// ══════════════════════════════════
+// THEME
+// ══════════════════════════════════
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('vhonda_theme', next);
+  renderCharts(); // redraw with new colors
+}
+(function initTheme() {
+  const saved = localStorage.getItem('vhonda_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+
+// ══════════════════════════════════
 // STATE & STORAGE
-// ══════════════════════════════════════════
-const SCHEMA_VERSION = 3;
-const STORAGE_KEY = 'vhonda_dashboard_v3';
+// ══════════════════════════════════
+const SCHEMA_V = 5;
+const SK = 'vhonda_v5';
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultState();
-    const s = JSON.parse(raw);
-    if (s.version !== SCHEMA_VERSION) return migrateState(s);
+    const r = localStorage.getItem(SK);
+    if (!r) return defaultState();
+    const s = JSON.parse(r);
+    if (s.version !== SCHEMA_V) return migrate(s);
     return s;
   } catch { return defaultState(); }
 }
-
 function defaultState() {
-  return {
-    version: SCHEMA_VERSION,
-    deals: [],
-    selectedMonth: new Date().toISOString().slice(0,7),
-    prefs: {}
-  };
+  return { version: SCHEMA_V, deals: [], selectedMonth: new Date().toISOString().slice(0,7) };
 }
-
-function migrateState(old) {
+function migrate(old) {
   const s = defaultState();
-  if (old.deals) s.deals = old.deals.map(d => ({...d, status: d.status || 'Pending', ocrConfidence: d.ocrConfidence || 100, needsReview: false}));
+  if (old.deals) s.deals = old.deals.map(d => ({
+    ...d, status: d.status||'Pending',
+    ocrConfidence: d.ocrConfidence||100, needsReview: false
+  }));
   return s;
 }
-
-function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function saveState() { localStorage.setItem(SK, JSON.stringify(state)); }
 
 let state = loadState();
 let editingId = null;
-let pendingOCRData = null;
+let pendingOCR = null;
 let earningsChart = null;
 let mixChart = null;
 
-// ══════════════════════════════════════════
-// 2026 PAY PLAN LOGIC
-// ══════════════════════════════════════════
-const PAY_PLAN = {
-  salary: 300, // bi-weekly
-  unitBonusTiers: [
-    {units:12, bonus:200}, {units:15, bonus:675}, {units:18, bonus:900},
-    {units:21, bonus:1150}, {units:24, bonus:1450}, {units:27, bonus:1750},
-    {units:30, bonus:2000}
-  ],
-  newCarCommission: { pack: 900, tier1Rate: 0.25, tier1Cap: 600, tier2Rate: 0.30 },
-  accessoryBonus: { hondaFactory: 0.40, aftermarketSublet: 0.25 },
-  financeBonus: { gap: 5, financeDeal: 10, sentinel: 5, dentDing: 5, keyReplacement: 5 }
+// ══════════════════════════════════
+// PAY PLAN
+// ══════════════════════════════════
+const PP = {
+  unitTiers:[{u:12,b:200},{u:15,b:675},{u:18,b:900},{u:21,b:1150},{u:24,b:1450},{u:27,b:1750},{u:30,b:2000}]
+};
+const getUB = n => { let b=0; for(const t of[...PP.unitTiers].reverse()){if(n>=t.u){b=t.b;break;}} return b; };
+const getCT = n => { for(const t of[...PP.unitTiers].reverse()) if(n>=t.u) return t; return null; };
+const getNT = n => { for(const t of PP.unitTiers) if(n<t.u) return t; return null; };
+const calcPayout = d => {
+  const e=d.extracted||{};
+  return (parseFloat(e.commissionNo1)||0)+(parseFloat(e.accessories)||0)+(parseFloat(e.aftermarket1)||0)+(parseFloat(e.fBonus1)||0);
 };
 
-function getUnitBonus(units) {
-  let bonus = 0;
-  const tiers = [...PAY_PLAN.unitBonusTiers].reverse();
-  for (const t of tiers) {
-    if (units >= t.units) { bonus = t.bonus; break; }
-  }
-  return bonus;
+// ══════════════════════════════════
+// HELPERS
+// ══════════════════════════════════
+const fmt  = n => '$'+(parseFloat(n)||0).toFixed(2);
+const fmtC = v => { const n=parseFloat(v)||0; return n?`<span style="font-size:0.75rem">${fmt(n)}</span>`:`<span style="color:var(--text-faint);font-size:0.64rem">—</span>`; };
+const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const setEl= (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+const setF = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
+const getMonthDeals = m => state.deals.filter(d=>d.date&&d.date.startsWith(m));
+
+function isDark() { return document.documentElement.getAttribute('data-theme')==='dark'; }
+function chartColors() {
+  return isDark()
+    ? { c1:'rgba(255,255,255,0.82)', c2:'rgba(255,255,255,0.55)', c3:'rgba(255,255,255,0.32)', c4:'rgba(255,255,255,0.16)', tick:'rgba(255,255,255,0.35)', grid:'rgba(255,255,255,0.05)', legend:'rgba(255,255,255,0.45)' }
+    : { c1:'rgba(0,0,0,0.8)', c2:'rgba(0,0,0,0.5)', c3:'rgba(0,0,0,0.28)', c4:'rgba(0,0,0,0.12)', tick:'#888', grid:'rgba(0,0,0,0.06)', legend:'#555' };
 }
 
-function getCurrentTier(units) {
-  const tiers = [...PAY_PLAN.unitBonusTiers].reverse();
-  for (const t of tiers) {
-    if (units >= t.units) return t;
-  }
-  return null;
-}
-
-function getNextTier(units) {
-  for (const t of PAY_PLAN.unitBonusTiers) {
-    if (units < t.units) return t;
-  }
-  return null;
-}
-
-function calcDealPayout(deal) {
-  const e = deal.extracted || {};
-  const comm1 = parseFloat(e.commissionNo1) || 0;
-  const acc = parseFloat(e.accessories) || 0;
-  const am1 = parseFloat(e.aftermarket1) || 0;
-  const fi1 = parseFloat(e.fBonus1) || 0;
-  return comm1 + acc + am1 + fi1;
-}
-
-// ══════════════════════════════════════════
+// ══════════════════════════════════
 // RENDER
-// ══════════════════════════════════════════
-function getMonthDeals(month) {
-  return state.deals.filter(d => d.date && d.date.startsWith(month));
-}
-
-function renderAll() {
-  renderDate();
-  renderMonthTabs();
-  renderKPIs();
-  renderDealsTable();
-  renderPayPlanSidebar();
-  renderCharts();
-}
+// ══════════════════════════════════
+function renderAll() { renderDate(); renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderCharts(); }
 
 function renderDate() {
-  const now = new Date();
-  document.getElementById('currentDate').textContent =
-    now.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+  setEl('currentDate', new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'}));
 }
 
 function renderMonthTabs() {
-  const months = [...new Set(state.deals.map(d => d.date?.slice(0,7)).filter(Boolean))];
-  const currentM = new Date().toISOString().slice(0,7);
-  if (!months.includes(currentM)) months.push(currentM);
+  const months = [...new Set(state.deals.map(d=>d.date?.slice(0,7)).filter(Boolean))];
+  const cur = new Date().toISOString().slice(0,7);
+  if (!months.includes(cur)) months.push(cur);
   months.sort().reverse();
-
-  const tabs = document.getElementById('monthTabs');
-  tabs.innerHTML = '';
-  months.forEach(m => {
-    const btn = document.createElement('button');
-    btn.className = 'month-tab' + (m === state.selectedMonth ? ' active' : '');
-    btn.textContent = new Date(m + '-15').toLocaleDateString('en-US', {month:'short', year:'numeric'});
-    btn.onclick = () => { state.selectedMonth = m; saveState(); renderAll(); };
-    tabs.appendChild(btn);
-  });
+  document.getElementById('monthTabs').innerHTML = months.map(m =>
+    `<button class="month-tab${m===state.selectedMonth?' active':''}" onclick="selectMonth('${m}')">
+      ${new Date(m+'-15').toLocaleDateString('en-US',{month:'short',year:'2-digit'})}
+    </button>`
+  ).join('');
 }
+function selectMonth(m){ state.selectedMonth=m; saveState(); renderAll(); }
 
 function renderKPIs() {
   const deals = getMonthDeals(state.selectedMonth);
-  const totalPayout = deals.reduce((s, d) => s + calcDealPayout(d), 0);
+  const total = deals.reduce((s,d)=>s+calcPayout(d),0);
   const units = deals.length;
-  const unitBonus = getUnitBonus(units);
-  const gross = deals.reduce((s, d) => s + (parseFloat(d.extracted?.profitOfSale) || 0), 0);
-  const fi = deals.reduce((s, d) => s + (parseFloat(d.extracted?.fBonus1) || 0), 0);
-  const needsReview = deals.filter(d => d.needsReview).length;
-  const tier = getCurrentTier(units);
-  const nextTier = getNextTier(units);
+  const bonus = getUB(units);
+  const gross = deals.reduce((s,d)=>s+(parseFloat(d.extracted?.profitOfSale)||0),0);
+  const fi    = deals.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
+  const rev   = deals.filter(d=>d.needsReview).length;
+  const tier  = getCT(units), next = getNT(units);
 
-  setEl('kpi-payout', fmt(totalPayout + unitBonus));
-  setEl('kpi-payout-sub', `${units} deal${units!==1?'s':''} this month`);
+  setEl('kpi-payout', fmt(total+bonus));
+  setEl('kpi-payout-sub', `${units} deal${units!==1?'s':''} · +${fmt(bonus)} bonus`);
   setEl('kpi-units', units);
-  setEl('kpi-tier-sub', tier ? `Tier: ${tier.units} units (+${fmt(tier.bonus)})` : nextTier ? `${nextTier.units - units} to next tier` : 'No tier');
-  setEl('kpi-bonus', fmt(unitBonus));
-  setEl('kpi-bonus-sub', tier ? `${tier.units}-unit tier reached` : nextTier ? `Need ${nextTier.units} units for $${nextTier.bonus}` : '—');
-
-  const grossEl = document.getElementById('kpi-gross');
-  grossEl.textContent = fmt(gross);
-  grossEl.style.color = gross >= 0 ? 'var(--green)' : 'var(--red)';
-  setEl('kpi-gross-sub', 'Sum of profit of sale');
+  setEl('kpi-tier-sub', tier?`Tier ${tier.u}u reached`:next?`${next.u-units} to next tier`:'—');
+  setEl('kpi-bonus', fmt(bonus));
+  setEl('kpi-bonus-sub', tier?`${tier.u}-unit tier`:next?`Next: ${next.u}u = $${next.b}`:'No tier');
+  setEl('kpi-gross', fmt(gross));
   setEl('kpi-fi', fmt(fi));
-  document.getElementById('kpi-review').textContent = needsReview;
+  setEl('kpi-review', rev);
 }
 
-function renderDealsTable() {
+function renderTable() {
   const deals = getMonthDeals(state.selectedMonth);
   const tbody = document.getElementById('dealsTableBody');
   const empty = document.getElementById('emptyState');
+  if (!deals.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  const sorted = [...deals].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  let tc=0,ta=0,tf=0,tac=0,tp=0;
+  sorted.forEach(d=>{ const e=d.extracted||{};
+    tc+=parseFloat(e.commissionNo1)||0; ta+=parseFloat(e.aftermarket1)||0;
+    tf+=parseFloat(e.fBonus1)||0; tac+=parseFloat(e.accessories)||0; tp+=calcPayout(d); });
 
-  if (deals.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-
-  tbody.innerHTML = deals.map(d => {
-    const payout = calcDealPayout(d);
-    const e = d.extracted || {};
-    const statusClass = {Paid:'badge-green', Pending:'badge-yellow', 'On Hold':'badge-red'}[d.status] || 'badge-blue';
-    const reviewDot = d.needsReview ? '<span class="review-dot"></span>' : '';
+  tbody.innerHTML = sorted.map((d,i)=>{
+    const e=d.extracted||{}, pay=calcPayout(d);
+    const sc={Paid:'badge-paid',Pending:'badge-pending','On Hold':'badge-hold'}[d.status]||'badge-pending';
+    const dot=d.needsReview?'<span class="rdot"></span>':'';
     return `<tr>
-      <td>
-        <div class="deal-vehicle">${reviewDot}${esc(d.vehicle?.model || '—')}</div>
-        <div class="deal-customer">${esc(d.customer || '—')} · ${esc(d.vehicle?.stock || '')}</div>
-      </td>
-      <td style="color:var(--text-dim);font-size:0.72rem">${formatDate(d.date)}</td>
-      <td style="font-size:0.78rem">${fmt(parseFloat(e.commissionNo1)||0)}</td>
-      <td style="font-size:0.78rem">${fmt(parseFloat(e.aftermarket1)||0)}</td>
-      <td style="font-size:0.78rem">${fmt(parseFloat(e.fBonus1)||0)}</td>
-      <td><span class="payout-val ${payout>=0?'payout-pos':'payout-neg'}">${fmt(payout)}</span></td>
-      <td><span class="badge ${statusClass}">${d.status}</span></td>
-      <td style="display:flex;gap:2px">
-        <button class="edit-btn tooltip-wrap" onclick="openEditModal('${d.id}')"><i class="fas fa-pen"></i><span class="tooltip">Edit</span></button>
-        <button class="del-btn tooltip-wrap" onclick="deleteDeal('${d.id}')"><i class="fas fa-trash"></i><span class="tooltip">Delete</span></button>
+      <td style="color:var(--text-faint);font-size:0.63rem">${i+1}</td>
+      <td><div class="deal-vehicle">${dot}${esc(d.vehicle?.model||'—')}</div><div class="deal-customer">${esc(d.customer||'—')}</div></td>
+      <td style="font-size:0.64rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</td>
+      <td>${fmtC(e.commissionNo1)}</td><td>${fmtC(e.aftermarket1)}</td>
+      <td>${fmtC(e.fBonus1)}</td><td>${fmtC(e.accessories)}</td>
+      <td><span class="payout-val ${pay>=0?'payout-pos':'payout-neg'}">${fmt(pay)}</span></td>
+      <td><span class="badge ${sc}">${d.status}</span></td>
+      <td style="display:flex;gap:2px;white-space:nowrap">
+        <button class="edit-btn" onclick="openEditModal('${d.id}')"><i class="fas fa-pen"></i></button>
+        <button class="del-btn" onclick="deleteDeal('${d.id}')"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
-  }).join('');
+  }).join('') +
+  `<tr class="total-row">
+    <td></td><td style="font-size:0.7rem">TOTALS (${deals.length} deals)</td><td></td>
+    <td>${fmt(tc)}</td><td>${fmt(ta)}</td><td>${fmt(tf)}</td><td>${fmt(tac)}</td>
+    <td>${fmt(tp)}</td><td></td><td></td>
+  </tr>`;
 }
 
-function renderPayPlanSidebar() {
-  const deals = getMonthDeals(state.selectedMonth);
-  const units = deals.length;
-  const tiers = PAY_PLAN.unitBonusTiers;
-  const maxUnits = 30;
-
-  // Unit dots
-  const dots = document.getElementById('unitDots');
-  dots.innerHTML = '';
-  for (let i = 1; i <= maxUnits; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'unit-dot ' + (i <= units ? 'sold' : 'empty');
-    dot.title = `Unit ${i}`;
-    dots.appendChild(dot);
-  }
-
-  // Tier pills
-  const tierInd = document.getElementById('tierIndicator');
-  const currentTier = getCurrentTier(units);
-  tierInd.innerHTML = tiers.map(t => {
-    let cls = 'tier-pill';
-    if (currentTier && t.units === currentTier.units) cls += ' active';
-    else if (units >= t.units) cls += ' achieved';
-    return `<span class="${cls}">${t.units}u</span>`;
+function renderSidebar() {
+  const units = getMonthDeals(state.selectedMonth).length;
+  document.getElementById('unitDots').innerHTML =
+    Array.from({length:30},(_,i)=>`<div class="unit-dot ${i<units?'sold':'empty'}"></div>`).join('');
+  const cur=getCT(units);
+  document.getElementById('tierPills').innerHTML = PP.unitTiers.map(t=>{
+    let c='tier-pill';
+    if(cur&&t.u===cur.u) c+=' active'; else if(units>=t.u) c+=' achieved';
+    return `<span class="${c}">${t.u}u</span>`;
   }).join('');
-
-  // Tier bars
-  const tierBars = document.getElementById('tierBars');
-  tierBars.innerHTML = tiers.map(t => {
-    const pct = Math.min(100, (units / t.units) * 100);
-    const color = units >= t.units ? 'var(--green)' : 'var(--blue)';
+  document.getElementById('tierBars').innerHTML = PP.unitTiers.map(t=>{
+    const pct=Math.min(100,(units/t.u)*100), done=units>=t.u;
     return `<div class="tier-bar">
-      <div class="tier-label">${t.units} units</div>
-      <div class="tier-track"><div class="tier-fill" style="width:${pct}%;background:${color}"></div></div>
-      <div class="tier-amount" style="color:${units>=t.units?'var(--green)':'var(--text-dim)'}">${fmt(t.bonus)}</div>
+      <div class="tier-label">${t.u} units</div>
+      <div class="tier-track"><div class="tier-fill" style="width:${pct}%"></div></div>
+      <div class="tier-amount${done?' done':''}">${fmt(t.b)}</div>
     </div>`;
   }).join('');
 }
 
 function renderCharts() {
-  // Build last 6 months data
-  const months = [];
-  const now = new Date();
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(d.toISOString().slice(0,7));
-  }
-
-  const labels = months.map(m => new Date(m+'-15').toLocaleDateString('en-US',{month:'short'}));
-  const commData = months.map(m => getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0));
-  const amData = months.map(m => getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
-  const fiData = months.map(m => getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
-  const bonusData = months.map(m => getUnitBonus(getMonthDeals(m).length));
-
-  const chartDefaults = {
-    plugins:{legend:{labels:{color:'rgba(255,255,255,0.5)',font:{family:'DM Mono',size:11}}}},
+  const cc = chartColors();
+  const months=[], now=new Date();
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push(d.toISOString().slice(0,7));}
+  const labels=months.map(m=>new Date(m+'-15').toLocaleDateString('en-US',{month:'short'}));
+  const cD=months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0));
+  const aD=months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
+  const fD=months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
+  const bD=months.map(m=>getUB(getMonthDeals(m).length));
+  const base={
+    plugins:{legend:{labels:{color:cc.legend,font:{family:'DM Mono',size:10}}}},
     scales:{
-      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.4)',font:{family:'DM Mono',size:10}}},
-      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.4)',font:{family:'DM Mono',size:10},callback:v=>'$'+v}}
+      x:{grid:{color:cc.grid},ticks:{color:cc.tick,font:{family:'DM Mono',size:10}}},
+      y:{grid:{color:cc.grid},ticks:{color:cc.tick,font:{family:'DM Mono',size:10},callback:v=>'$'+v}}
     },
-    responsive:true, maintainAspectRatio:false,
-    animation:{duration:600}
+    responsive:true,maintainAspectRatio:false,animation:{duration:450}
   };
-
-  if (earningsChart) earningsChart.destroy();
-  earningsChart = new Chart(document.getElementById('earningsChart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {label:'Commission',data:commData,backgroundColor:'rgba(96,165,250,0.7)',borderRadius:6},
-        {label:'Aftermarket',data:amData,backgroundColor:'rgba(74,222,128,0.6)',borderRadius:6},
-        {label:'F&I',data:fiData,backgroundColor:'rgba(251,191,36,0.6)',borderRadius:6},
-        {label:'Unit Bonus',data:bonusData,backgroundColor:'rgba(167,139,250,0.6)',borderRadius:6}
-      ]
-    },
-    options: {...chartDefaults, plugins:{...chartDefaults.plugins, tooltip:{callbacks:{label:c=>`${c.dataset.label}: $${c.raw.toFixed(2)}`}}}}
+  if(earningsChart) earningsChart.destroy();
+  earningsChart=new Chart(document.getElementById('earningsChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Commission',data:cD,backgroundColor:cc.c1,borderRadius:5},
+      {label:'Aftermarket',data:aD,backgroundColor:cc.c2,borderRadius:5},
+      {label:'F&I',data:fD,backgroundColor:cc.c3,borderRadius:5},
+      {label:'Unit Bonus',data:bD,backgroundColor:cc.c4,borderRadius:5}
+    ]},
+    options:{...base,plugins:{...base.plugins,tooltip:{callbacks:{label:c=>`${c.dataset.label}: $${c.raw.toFixed(2)}`}}}}
   });
-
-  // Mix donut — current month
-  const curDeals = getMonthDeals(state.selectedMonth);
-  const totComm = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0);
-  const totAM = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0);
-  const totFI = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
-  const totAcc = curDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.accessories)||0),0);
-  const totBonus = getUnitBonus(curDeals.length);
-
-  if (mixChart) mixChart.destroy();
-  mixChart = new Chart(document.getElementById('mixChart'), {
+  const cur=getMonthDeals(state.selectedMonth);
+  const tc=cur.reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0);
+  const ta=cur.reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0);
+  const tf=cur.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
+  const tac=cur.reduce((s,d)=>s+(parseFloat(d.extracted?.accessories)||0),0);
+  const tb=getUB(cur.length);
+  if(mixChart) mixChart.destroy();
+  mixChart=new Chart(document.getElementById('mixChart'),{
     type:'doughnut',
-    data:{
-      labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
-      datasets:[{data:[totComm,totAM,totFI,totAcc,totBonus],backgroundColor:['rgba(96,165,250,0.8)','rgba(74,222,128,0.8)','rgba(251,191,36,0.8)','rgba(248,113,113,0.8)','rgba(167,139,250,0.8)'],borderWidth:0,hoverOffset:8}]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      cutout:'65%',
-      plugins:{legend:{position:'bottom',labels:{color:'rgba(255,255,255,0.5)',font:{family:'DM Mono',size:10},boxWidth:10}}},
-      animation:{duration:600}
-    }
+    data:{labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
+      datasets:[{data:[tc,ta,tf,tac,tb],
+        backgroundColor:[cc.c1,cc.c2,cc.c3,cc.c4,isDark()?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)'],
+        borderColor:isDark()?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.7)',
+        borderWidth:2,hoverOffset:7}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{color:cc.legend,font:{family:'DM Mono',size:10},boxWidth:10}}},
+      animation:{duration:450}}
   });
 }
 
-// ══════════════════════════════════════════
-// OCR ENGINE — file:// safe via createObjectURL
-// ══════════════════════════════════════════
-function triggerFileInput() { /* handled by ocr-zone input */ }
-
-// Dynamically load Tesseract from CDN only when needed, using createObjectURL
-// to avoid file:// CORS restrictions on workers.
-let _tesseractReady = null;
-function loadTesseract() {
-  if (_tesseractReady) return _tesseractReady;
-  _tesseractReady = new Promise((resolve, reject) => {
-    if (window.Tesseract) { resolve(window.Tesseract); return; }
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
-    s.onload = () => resolve(window.Tesseract);
-    s.onerror = () => reject(new Error('Tesseract CDN load failed'));
+// ══════════════════════════════════
+// OCR — PDF + Image, GitHub Pages safe
+// ══════════════════════════════════
+let _tessReady=null;
+function loadTesseract(){
+  if(_tessReady) return _tessReady;
+  _tessReady=new Promise((res,rej)=>{
+    if(window.Tesseract){res(window.Tesseract);return;}
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
+    s.onload=()=>res(window.Tesseract);
+    s.onerror=()=>rej(new Error('Tesseract CDN failed'));
     document.head.appendChild(s);
   });
-  return _tesseractReady;
+  return _tessReady;
+}
+
+// PDF: render page to canvas via PDF.js, then OCR the canvas image
+let _pdfjsReady=null;
+function loadPDFJS(){
+  if(_pdfjsReady) return _pdfjsReady;
+  _pdfjsReady=new Promise((res,rej)=>{
+    if(window.pdfjsLib){res(window.pdfjsLib);return;}
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    s.onload=()=>{
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc=
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      res(window.pdfjsLib);
+    };
+    s.onerror=()=>rej(new Error('PDF.js CDN failed'));
+    document.head.appendChild(s);
+  });
+  return _pdfjsReady;
+}
+
+async function pdfToDataUrl(arrayBuffer, pageNum) {
+  const pdfjsLib = await loadPDFJS();
+  const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+  const page = await pdf.getPage(pageNum);
+  const viewport = page.getViewport({scale: 2.0}); // 2x for OCR quality
+  const canvas = document.createElement('canvas');
+  canvas.width  = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
+  return canvas.toDataURL('image/jpeg', 0.92);
+}
+
+async function runTesseractOnDataUrl(dataUrl, onProgress) {
+  const Tesseract = await loadTesseract();
+  const worker = await Tesseract.createWorker('eng', 1, {
+    workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
+    langPath:   'https://tessdata.projectnaptha.com/4.0.0',
+    corePath:   'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core-simd-lstm.wasm.js',
+    logger: m => { if(m.status==='recognizing text') onProgress(m.progress); }
+  });
+  const { data } = await worker.recognize(dataUrl);
+  await worker.terminate();
+  return data;
 }
 
 function handleOCRFile(event) {
   const file = event.target.files[0];
   if (!file) return;
-  event.stopPropagation();
-
-  const wrap = document.getElementById('ocrProgressWrap');
-  const fill = document.getElementById('ocrProgressFill');
+  event.stopPropagation && event.stopPropagation();
+  const wrap   = document.getElementById('ocrProgressWrap');
+  const fill   = document.getElementById('ocrProgressFill');
   const status = document.getElementById('ocrStatus');
-  const preview = document.getElementById('ocrPreview');
+  const prev   = document.getElementById('ocrPreview');
+  const isPDF  = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 
-  // Read as base64 DataURL — avoids all file:// worker origin issues
+  wrap.style.display='block'; fill.style.width='5%';
+  status.textContent = isPDF ? 'Reading PDF…' : 'Loading OCR engine…';
+  notify('Scanning…');
+
   const reader = new FileReader();
-  reader.onload = async (e) => {
-    const dataUrl = e.target.result;
-    preview.src = dataUrl;
-    preview.style.display = 'block';
-
-    wrap.style.display = 'block';
-    fill.style.width = '5%';
-    status.textContent = 'Loading OCR engine…';
-    notify('info', 'Scanning deal sheet…');
-
+  reader.onload = async ev => {
     try {
-      const Tesseract = await loadTesseract();
-      fill.style.width = '15%';
-      status.textContent = 'Initializing worker…';
+      let dataUrl;
+      if (isPDF) {
+        status.textContent = 'Rendering PDF page…';
+        fill.style.width = '12%';
+        // Render first page by default; user can adjust deal # after
+        dataUrl = await pdfToDataUrl(ev.target.result, 1);
+      } else {
+        dataUrl = ev.target.result;
+      }
 
-      // Use createScheduler for file:// compat; pass dataUrl directly (no blob URL)
-      const worker = await Tesseract.createWorker('eng', 1, {
-        workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
-        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
-        corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core-simd-lstm.wasm.js',
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            const pct = 15 + Math.round(m.progress * 80);
-            fill.style.width = pct + '%';
-            status.textContent = `Recognizing text… ${pct}%`;
-          } else if (m.status === 'loading tesseract core') {
-            status.textContent = 'Loading OCR core…';
-          } else if (m.status === 'initializing tesseract') {
-            status.textContent = 'Initializing…';
-          } else if (m.status === 'loading language traineddata') {
-            status.textContent = 'Loading language data…';
-          }
-        }
+      prev.src = dataUrl; prev.style.display = 'block';
+      fill.style.width = '18%';
+      status.textContent = 'Initializing OCR…';
+
+      const data = await runTesseractOnDataUrl(dataUrl, p => {
+        fill.style.width = (18 + Math.round(p * 77)) + '%';
+        status.textContent = `Recognizing… ${18 + Math.round(p * 77)}%`;
       });
 
-      const { data } = await worker.recognize(dataUrl);
-      await worker.terminate();
-
       fill.style.width = '100%';
-      status.textContent = '✓ OCR complete — review extracted fields';
-      const extracted = parseOCRText(data.text, data.confidence);
-      pendingOCRData = {
-        ...extracted,
-        ocrConfidence: Math.round(data.confidence),
-        rawText: data.text,
-        sourceFile: file.name,
-        previewSrc: dataUrl
-      };
-      openAddModal(pendingOCRData);
-      notify('success', `OCR done (${Math.round(data.confidence)}% confidence)`);
-
-    } catch (err) {
+      status.textContent = '✓ Done — review fields below';
+      const extracted = parseOCRText(data.text);
+      pendingOCR = { ...extracted, ocrConfidence: Math.round(data.confidence), sourceFile: file.name, previewSrc: dataUrl };
+      openAddModal(pendingOCR);
+      notify(`OCR complete — ${Math.round(data.confidence)}% confidence`);
+    } catch(err) {
       fill.style.width = '0%';
-      status.textContent = '✗ OCR failed — check internet connection';
-      notify('error', 'OCR failed. Requires internet to load engine.');
-      console.error('OCR error:', err);
+      status.textContent = '✗ Failed — check internet connection';
+      notify('OCR failed');
+      console.error(err);
     }
   };
-  reader.onerror = () => {
-    status.textContent = '✗ Could not read file';
-    notify('error', 'File read error');
-  };
-  reader.readAsDataURL(file);
-
-  // Reset input so same file can be re-scanned
+  reader.onerror = () => { status.textContent='✗ File read error'; notify('File read error'); };
+  isPDF ? reader.readAsArrayBuffer(file) : reader.readAsDataURL(file);
   event.target.value = '';
 }
 
-function parseOCRText(text, confidence) {
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  const result = {
-    dealNo: '', stockNo: '', model: '', customer: '',
-    commissionNo1: 0, accessories: 0, aftermarket1: 0, fBonus1: 0,
-    profitOfSale: 0, amProfit: 0
-  };
-
-  const find = (pattern) => {
-    for (const line of lines) {
-      const m = line.match(pattern);
-      if (m) return m;
-    }
-    return null;
-  };
-
-  const toNum = s => parseFloat((s||'0').replace(/[^0-9.\-]/g,'')) || 0;
-
-  // Deal # and Stock #
-  const dealM = find(/Deal\s*#?\s*([0-9]+)/i);
-  if (dealM) result.dealNo = dealM[1];
-
-  const stockM = find(/Stock\s*#?\s*([0-9]+)/i);
-  if (stockM) result.stockNo = stockM[1];
-
-  // Vehicle model
-  const modelM = find(/Description\s+(.+)/i) || find(/(20\d\d\s+HONDA\s+\S+[^\n]+)/i);
-  if (modelM) result.model = modelM[1].trim();
-
-  // Customer
-  const custM = find(/Customer\s+([A-Z][A-Z\s]+?)(?:\s{2,}|Mgr\.?|$)/i);
-  if (custM) result.customer = custM[1].trim();
-
-  // Commission No.1 — look for "Commission No" line then grab first dollar amount
-  const commLineIdx = lines.findIndex(l => /Commission\s*No\.?\s*1/i.test(l));
-  if (commLineIdx >= 0) {
-    const nums = lines[commLineIdx].match(/[\-]?\d+\.\d{2}/g);
-    if (nums && nums.length > 0) result.commissionNo1 = toNum(nums[0]);
-    if (nums && nums.length > 1) result.accessories = toNum(nums[1]);
-  }
-
-  // Aftermarket 1
-  const amIdx = lines.findIndex(l => /Aftermarket\s*1/i.test(l));
-  if (amIdx >= 0) {
-    const nums = lines[amIdx].match(/[\-]?\d+\.\d{2}/g);
-    if (nums) result.aftermarket1 = toNum(nums[0]);
-  }
-
-  // F & I Bonus 1
-  const fiIdx = lines.findIndex(l => /F\s*[&\+]\s*I\s*Bonus\s*1/i.test(l));
-  if (fiIdx >= 0) {
-    const nums = lines[fiIdx].match(/[\-]?\d+\.\d{2}/g);
-    if (nums) result.fBonus1 = toNum(nums[0]);
-  }
-
-  // Profit of Sale
-  const profIdx = lines.findIndex(l => /Profit\s+of\s+Sale/i.test(l));
-  if (profIdx >= 0) {
-    const nums = lines[profIdx].match(/[\-]?\d+\.\d{2}/g);
-    if (nums) result.profitOfSale = toNum(nums[0]);
-  }
-
-  // Accessory/Aftermarket Profit
-  const accProfIdx = lines.findIndex(l => /Accessory.Aftermarket\s+Profit/i.test(l));
-  if (accProfIdx >= 0) {
-    const nums = lines[accProfIdx].match(/[\-]?\d+\.\d{2}/g);
-    if (nums) result.amProfit = toNum(nums[0]);
-  }
-
-  return result;
+function parseOCRText(text) {
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const r={dealNo:'',stockNo:'',model:'',customer:'',commissionNo1:0,accessories:0,aftermarket1:0,fBonus1:0,profitOfSale:0,amProfit:0};
+  const find=p=>{for(const l of lines){const m=l.match(p);if(m)return m;}return null;};
+  const num=s=>parseFloat((s||'0').replace(/[^0-9.\-]/g,''))||0;
+  const dm=find(/Deal\s*#?\s*([0-9]+)/i);if(dm)r.dealNo=dm[1];
+  const sm=find(/Stock\s*#?\s*([0-9]+)/i);if(sm)r.stockNo=sm[1];
+  const mm=find(/Description\s+(.+)/i)||find(/(20\d\d\s+HONDA\s+\S+[^\n]+)/i);if(mm)r.model=mm[1].trim();
+  const cm=find(/Customer\s+([A-Z][A-Z\s]+?)(?:\s{2,}|Mgr|$)/i);if(cm)r.customer=cm[1].trim();
+  const ci=lines.findIndex(l=>/Commission\s*No\.?\s*1/i.test(l));
+  if(ci>=0){const ns=lines[ci].match(/[\-]?\d+\.\d{2}/g)||[];if(ns[0])r.commissionNo1=num(ns[0]);if(ns[1])r.accessories=num(ns[1]);}
+  const ai=lines.findIndex(l=>/Aftermarket\s*1/i.test(l));
+  if(ai>=0){const ns=lines[ai].match(/[\-]?\d+\.\d{2}/g)||[];if(ns[0])r.aftermarket1=num(ns[0]);}
+  const fi=lines.findIndex(l=>/F\s*[&+]\s*I\s*Bonus\s*1/i.test(l));
+  if(fi>=0){const ns=lines[fi].match(/[\-]?\d+\.\d{2}/g)||[];if(ns[0])r.fBonus1=num(ns[0]);}
+  const pi=lines.findIndex(l=>/Profit\s+of\s+Sale/i.test(l));
+  if(pi>=0){const ns=lines[pi].match(/[\-]?\d+\.\d{2}/g)||[];if(ns[0])r.profitOfSale=num(ns[0]);}
+  const api=lines.findIndex(l=>/Accessory.Aftermarket\s+Profit/i.test(l));
+  if(api>=0){const ns=lines[api].match(/[\-]?\d+\.\d{2}/g)||[];if(ns[0])r.amProfit=num(ns[0]);}
+  return r;
 }
 
-// ══════════════════════════════════════════
+// Drag & drop
+const oz=document.getElementById('ocrZone');
+oz.addEventListener('dragover',e=>{e.preventDefault();oz.classList.add('drag');});
+oz.addEventListener('dragleave',()=>oz.classList.remove('drag'));
+oz.addEventListener('drop',e=>{
+  e.preventDefault();oz.classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f) handleOCRFile({target:{files:[f],value:''},stopPropagation:()=>{}});
+});
+
+// ══════════════════════════════════
 // MODAL
-// ══════════════════════════════════════════
-function openAddModal(ocrData) {
-  editingId = null;
-  document.getElementById('modalTitle').textContent = ocrData ? '📷 Review OCR — Verify Fields' : 'Add Deal';
-  clearForm();
-
-  if (ocrData) {
-    setField('f-deal', [ocrData.dealNo, ocrData.stockNo].filter(Boolean).join(' / '));
-    setField('f-vehicle', ocrData.model || '');
-    setField('f-customer', ocrData.customer || '');
-    setField('f-comm1', ocrData.commissionNo1 || '');
-    setField('f-accessories', ocrData.accessories || '');
-    setField('f-am1', ocrData.aftermarket1 || '');
-    setField('f-fi1', ocrData.fBonus1 || '');
-    setField('f-profit', ocrData.profitOfSale || '');
-    setField('f-amprofit', ocrData.amProfit || '');
-
-    const conf = ocrData.ocrConfidence || 0;
-    const confRow = document.getElementById('ocrConfidenceRow');
-    const confBadge = document.getElementById('confBadge');
-    const sepOcr = document.getElementById('ocrSeparator');
-    confRow.style.display = 'flex';
-    sepOcr.style.display = 'block';
-    confBadge.textContent = conf + '%';
-    confBadge.className = 'conf-badge ' + (conf >= 80 ? 'conf-high' : conf >= 60 ? 'conf-med' : 'conf-low');
-    document.getElementById('reviewFlag').innerHTML = conf < 70 ? '<span class="review-dot"></span> Needs review' : '';
-
-    if (ocrData.previewSrc) {
-      const prev = document.getElementById('modalOcrPreview');
-      prev.src = ocrData.previewSrc;
-      prev.style.display = 'block';
-    }
+// ══════════════════════════════════
+function openAddModal(ocr) {
+  editingId=null; clearForm();
+  setEl('modalTitle', ocr?'📷 Review OCR Fields':'Add Deal');
+  if(ocr){
+    setF('f-deal',[ocr.dealNo,ocr.stockNo].filter(Boolean).join(' / '));
+    setF('f-vehicle',ocr.model||''); setF('f-customer',ocr.customer||'');
+    setF('f-comm1',ocr.commissionNo1||''); setF('f-accessories',ocr.accessories||'');
+    setF('f-am1',ocr.aftermarket1||''); setF('f-fi1',ocr.fBonus1||'');
+    setF('f-profit',ocr.profitOfSale||''); setF('f-amprofit',ocr.amProfit||'');
+    const conf=ocr.ocrConfidence||0;
+    const cr=document.getElementById('confRow'); cr.style.display='flex';
+    const cb=document.getElementById('confBadge');
+    cb.textContent=conf+'%'; cb.className='conf-badge '+(conf>=80?'conf-hi':conf>=60?'conf-med':'conf-lo');
+    setEl('reviewFlag', conf<70?' ⚠ Needs review':'');
+    if(ocr.previewSrc){document.getElementById('modalOcrPreview').src=ocr.previewSrc;document.getElementById('modalOcrPreview').style.display='block';}
   } else {
-    document.getElementById('ocrConfidenceRow').style.display = 'none';
-    document.getElementById('ocrSeparator').style.display = 'none';
-    document.getElementById('modalOcrPreview').style.display = 'none';
+    document.getElementById('confRow').style.display='none';
+    document.getElementById('modalOcrPreview').style.display='none';
   }
-
-  // Set today's date
-  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  setF('f-date', new Date().toISOString().slice(0,10));
   updateCalcPreview();
   document.getElementById('dealModal').classList.add('open');
 }
 
 function openEditModal(id) {
-  const deal = state.deals.find(d => d.id === id);
-  if (!deal) return;
-  editingId = id;
-  document.getElementById('modalTitle').textContent = 'Edit Deal';
-  document.getElementById('ocrConfidenceRow').style.display = 'none';
-  document.getElementById('ocrSeparator').style.display = 'none';
-  document.getElementById('modalOcrPreview').style.display = 'none';
-
-  const e = deal.extracted || {};
-  setField('f-deal', deal.vehicle?.stock || deal.dealNo || '');
-  setField('f-vehicle', deal.vehicle?.model || '');
-  setField('f-customer', deal.customer || '');
-  setField('f-date', deal.date || '');
-  document.getElementById('f-status').value = deal.status || 'Pending';
-  setField('f-comm1', e.commissionNo1 || '');
-  setField('f-accessories', e.accessories || '');
-  setField('f-am1', e.aftermarket1 || '');
-  setField('f-fi1', e.fBonus1 || '');
-  setField('f-profit', e.profitOfSale || '');
-  setField('f-amprofit', e.amProfit || '');
+  const deal=state.deals.find(d=>d.id===id);if(!deal)return;
+  editingId=id; clearForm();
+  setEl('modalTitle','Edit Deal');
+  document.getElementById('confRow').style.display='none';
+  document.getElementById('modalOcrPreview').style.display='none';
+  const e=deal.extracted||{};
+  setF('f-deal',deal.vehicle?.stock||''); setF('f-vehicle',deal.vehicle?.model||'');
+  setF('f-customer',deal.customer||''); setF('f-date',deal.date||'');
+  document.getElementById('f-status').value=deal.status||'Pending';
+  setF('f-comm1',e.commissionNo1||''); setF('f-accessories',e.accessories||'');
+  setF('f-am1',e.aftermarket1||''); setF('f-fi1',e.fBonus1||'');
+  setF('f-profit',e.profitOfSale||''); setF('f-amprofit',e.amProfit||'');
   updateCalcPreview();
   document.getElementById('dealModal').classList.add('open');
 }
 
-function closeModal() {
-  document.getElementById('dealModal').classList.remove('open');
-  pendingOCRData = null;
-}
+function closeModal(){ document.getElementById('dealModal').classList.remove('open'); pendingOCR=null; }
 
-function saveDeal() {
-  const ocrConf = pendingOCRData?.ocrConfidence ?? 100;
-  const extracted = {
-    commissionNo1: parseFloat(document.getElementById('f-comm1').value) || 0,
-    accessories: parseFloat(document.getElementById('f-accessories').value) || 0,
-    aftermarket1: parseFloat(document.getElementById('f-am1').value) || 0,
-    fBonus1: parseFloat(document.getElementById('f-fi1').value) || 0,
-    profitOfSale: parseFloat(document.getElementById('f-profit').value) || 0,
-    amProfit: parseFloat(document.getElementById('f-amprofit').value) || 0
+function saveDeal(){
+  const e={
+    commissionNo1:parseFloat(document.getElementById('f-comm1').value)||0,
+    accessories:parseFloat(document.getElementById('f-accessories').value)||0,
+    aftermarket1:parseFloat(document.getElementById('f-am1').value)||0,
+    fBonus1:parseFloat(document.getElementById('f-fi1').value)||0,
+    profitOfSale:parseFloat(document.getElementById('f-profit').value)||0,
+    amProfit:parseFloat(document.getElementById('f-amprofit').value)||0
   };
-  const dealStr = document.getElementById('f-deal').value.trim();
-  const stockMatch = dealStr.match(/(\d{5,})/g) || [];
-
-  const deal = {
-    id: editingId || crypto.randomUUID(),
-    date: document.getElementById('f-date').value,
-    vehicle: { stock: stockMatch[1] || stockMatch[0] || dealStr, model: document.getElementById('f-vehicle').value.trim() },
-    customer: document.getElementById('f-customer').value.trim(),
-    extracted,
-    calculated: { totalCommission: calcDealPayout({extracted}) },
-    status: document.getElementById('f-status').value,
-    ocrConfidence: ocrConf,
-    needsReview: ocrConf < 70,
-    sourceFile: pendingOCRData?.sourceFile || ''
+  const ds=document.getElementById('f-deal').value.trim();
+  const sk=(ds.match(/(\d{5,})/g)||[]);
+  const conf=pendingOCR?.ocrConfidence??100;
+  const deal={
+    id:editingId||crypto.randomUUID(),
+    date:document.getElementById('f-date').value,
+    vehicle:{stock:sk[1]||sk[0]||ds,model:document.getElementById('f-vehicle').value.trim()},
+    customer:document.getElementById('f-customer').value.trim(),
+    extracted:e, calculated:{totalCommission:calcPayout({extracted:e})},
+    status:document.getElementById('f-status').value,
+    ocrConfidence:conf, needsReview:conf<70,
+    sourceFile:pendingOCR?.sourceFile||''
   };
-
-  if (editingId) {
-    const idx = state.deals.findIndex(d => d.id === editingId);
-    if (idx >= 0) state.deals[idx] = deal;
-    notify('success', 'Deal updated');
-  } else {
-    state.deals.unshift(deal);
-    notify('success', 'Deal saved!');
-  }
-
-  // Update selected month to match deal date
-  if (deal.date) state.selectedMonth = deal.date.slice(0,7);
-
-  saveState();
-  closeModal();
-  renderAll();
+  if(editingId){ const i=state.deals.findIndex(d=>d.id===editingId);if(i>=0)state.deals[i]=deal; notify('Deal updated'); }
+  else{ state.deals.unshift(deal); notify('Deal saved!'); }
+  if(deal.date) state.selectedMonth=deal.date.slice(0,7);
+  saveState(); closeModal(); renderAll();
 }
 
-function deleteDeal(id) {
-  if (!confirm('Delete this deal?')) return;
-  state.deals = state.deals.filter(d => d.id !== id);
-  saveState();
-  renderAll();
-  notify('info', 'Deal deleted');
+function deleteDeal(id){if(!confirm('Delete this deal?'))return;state.deals=state.deals.filter(d=>d.id!==id);saveState();renderAll();notify('Deleted');}
+function clearAll(){if(!confirm('Delete ALL deals?'))return;state.deals=[];saveState();renderAll();notify('Cleared');}
+function clearForm(){
+  ['f-deal','f-vehicle','f-customer','f-comm1','f-accessories','f-am1','f-fi1','f-profit','f-amprofit'].forEach(id=>setF(id,''));
+  document.getElementById('f-status').value='Pending';
+  document.getElementById('modalOcrPreview').style.display='none';
 }
-
-function clearAll() {
-  if (!confirm('Delete ALL deals? This cannot be undone.')) return;
-  state.deals = [];
-  saveState();
-  renderAll();
-  notify('info', 'All deals cleared');
-}
-
-// Live preview of calc
-document.addEventListener('input', e => {
-  if (['f-comm1','f-accessories','f-am1','f-fi1'].includes(e.target.id)) updateCalcPreview();
-});
-
-function updateCalcPreview() {
-  const total = (parseFloat(document.getElementById('f-comm1')?.value)||0)
-              + (parseFloat(document.getElementById('f-accessories')?.value)||0)
-              + (parseFloat(document.getElementById('f-am1')?.value)||0)
-              + (parseFloat(document.getElementById('f-fi1')?.value)||0);
-  const el = document.getElementById('calcPreview');
-  if (el) { el.textContent = fmt(total); el.style.color = total >= 0 ? 'var(--green)' : 'var(--red)'; }
-}
-
-// ══════════════════════════════════════════
-// UTILITIES
-// ══════════════════════════════════════════
-function fmt(n) { return '$' + (parseFloat(n)||0).toFixed(2); }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function setEl(id, v) { const e = document.getElementById(id); if(e) e.textContent = v; }
-function setField(id, v) { const e = document.getElementById(id); if(e) e.value = v; }
-function clearForm() {
-  ['f-deal','f-vehicle','f-customer','f-comm1','f-accessories','f-am1','f-fi1','f-profit','f-amprofit'].forEach(id => setField(id,''));
-  document.getElementById('f-status').value = 'Pending';
-  document.getElementById('modalOcrPreview').style.display = 'none';
-}
-function formatDate(d) {
-  if (!d) return '—';
-  try { return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
-  catch { return d; }
+function updateCalcPreview(){
+  const t=(parseFloat(document.getElementById('f-comm1')?.value)||0)
+         +(parseFloat(document.getElementById('f-accessories')?.value)||0)
+         +(parseFloat(document.getElementById('f-am1')?.value)||0)
+         +(parseFloat(document.getElementById('f-fi1')?.value)||0);
+  const el=document.getElementById('calcPreview'); if(el) el.textContent=fmt(t);
 }
 
 let notifTimer;
-function notify(type, msg) {
-  const el = document.getElementById('notif');
-  el.textContent = msg;
-  el.className = `notif notif-${type} show`;
-  clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => el.classList.remove('show'), 3000);
+function notify(msg){
+  const el=document.getElementById('notif');el.textContent=msg;
+  el.classList.add('show');clearTimeout(notifTimer);
+  notifTimer=setTimeout(()=>el.classList.remove('show'),3200);
 }
 
-function exportCSV() {
-  const deals = getMonthDeals(state.selectedMonth);
-  if (!deals.length) { notify('info', 'No deals to export'); return; }
-  const headers = ['Date','Customer','Vehicle','Stock','Commission','Aftermarket','F&I','Accessories','Total','Status'];
-  const rows = deals.map(d => {
-    const e = d.extracted || {};
-    return [d.date, d.customer, d.vehicle?.model, d.vehicle?.stock,
-      e.commissionNo1, e.aftermarket1, e.fBonus1, e.accessories,
-      calcDealPayout(d).toFixed(2), d.status].map(v => `"${v||''}"`).join(',');
-  });
-  const csv = [headers.join(','), ...rows].join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = `honda_deals_${state.selectedMonth}.csv`;
-  a.click();
-  notify('success', 'CSV exported');
+function exportCSV(){
+  const deals=getMonthDeals(state.selectedMonth);
+  if(!deals.length){notify('No deals to export');return;}
+  const h=['Date','Customer','Vehicle','Stock','Comm1','Aftermarket','FI','Accessories','Total','Status'];
+  const rows=deals.map(d=>{const e=d.extracted||{};return[d.date,d.customer,d.vehicle?.model,d.vehicle?.stock,e.commissionNo1,e.aftermarket1,e.fBonus1,e.accessories,calcPayout(d).toFixed(2),d.status].map(v=>`"${v||''}"`).join(',');});
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h.join(','),...rows].join('\n'));
+  a.download=`honda_${state.selectedMonth}.csv`;a.click();notify('CSV exported');
 }
 
-// Close modal on overlay click
-document.getElementById('dealModal').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+document.getElementById('dealModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 
-// Drag & drop
-const ocrZone = document.getElementById('ocrZone');
-ocrZone.addEventListener('dragover', e => { e.preventDefault(); ocrZone.classList.add('drag'); });
-ocrZone.addEventListener('dragleave', () => ocrZone.classList.remove('drag'));
-ocrZone.addEventListener('drop', e => {
-  e.preventDefault();
-  ocrZone.classList.remove('drag');
-  const file = e.dataTransfer.files[0];
-  if (file) {
-    const fakeEvt = { target: { files: [file], value: '' }, stopPropagation: ()=>{} };
-    handleOCRFile(fakeEvt);
-  }
-});
-
-// ══════════════════════════════════════════
-// SEED DEMO DEAL (from deal sheet in image)
-// ══════════════════════════════════════════
-function seedDemoIfEmpty() {
-  if (state.deals.length === 0) {
-    const today = new Date().toISOString().slice(0,10);
+// ══════════════════════════════════
+// SEED — Mayo 2026 deals
+// ══════════════════════════════════
+function seedDeals(){
+  if(state.deals.length>0) return;
+  const M='2026-05';
+  [
+    {stock:'93665',model:'2026 Honda CR-V Hybrid',      customer:'VANESSA DE LA TORRE',   comm1:75.00,  acc:12.00, am1:175.75,fi1:40.00, p:-509.89, ap:733.00},
+    {stock:'92860',model:'2026 Honda Civic Seda',       customer:'ANABEL RAMIREZ',         comm1:75.00,  acc:12.00, am1:0,     fi1:5.00,  p:-553.34, ap:30.00},
+    {stock:'93029',model:'2026 Honda CR-V',             customer:'VICTOR M DE LA TORRE',  comm1:75.00,  acc:12.24, am1:162.00,fi1:0,     p:-292.85, ap:678.60},
+    {stock:'93480',model:'2026 Honda Pilot',            customer:'JULIE OHALLORAN',        comm1:1183.21,acc:0,     am1:0,     fi1:5.00,  p:4044.02, ap:0},
+    {stock:'92580',model:'2026 Honda Civic Seda',       customer:'ZEESHAN IMTIAZ',         comm1:75.00,  acc:0,     am1:0,     fi1:5.00,  p:285.07,  ap:0},
+    {stock:'92722',model:'2026 Honda Civic Seda',       customer:'LYLA BAULER',            comm1:893.54, acc:0,     am1:0,     fi1:5.00,  p:3078.45, ap:0},
+    {stock:'93485',model:'2026 Honda Accord Sedan',     customer:'OSCAR RAMIREZ',          comm1:75.00,  acc:12.00, am1:0,     fi1:5.00,  p:-1083.34,ap:30.00},
+    {stock:'93535',model:'2026 Honda Civic Hybrid',     customer:'JORDAN CATAPANO',        comm1:75.00,  acc:0,     am1:0,     fi1:0,     p:-513.13, ap:0},
+    {stock:'93507',model:'2026 Honda CR-V Hybrid',      customer:'KHUSHI CHOKSI',          comm1:75.00,  acc:0,     am1:0,     fi1:5.00,  p:-881.30, ap:0},
+    {stock:'93275',model:'2026 Honda Civic Hybrid',     customer:'CHAITANYA PADHYE',       comm1:75.00,  acc:12.00, am1:0,     fi1:5.00,  p:-178.44, ap:30.00},
+    {stock:'93514',model:'2026 Honda CR-V Hybrid',      customer:'ABDULAZIZ ABDULLAEV',    comm1:75.00,  acc:12.24, am1:0,     fi1:5.00,  p:-1282.70,ap:30.60},
+    {stock:'91920A',model:'2024 Honda Civic Sport',     customer:'RYAN STITNIZKY',         comm1:408.14, acc:0,     am1:0,     fi1:0,     p:1960.48, ap:0},
+    {stock:'92903A',model:'2013 Toyota RAV4 XLE',       customer:'GABRIEL PEREZ',          comm1:310.95, acc:0,     am1:0,     fi1:0,     p:1636.49, ap:0},
+    {stock:'93356',model:'2026 Honda CR-V Hybrid',      customer:'YULY COLLAZOS MARZANO', comm1:343.60, acc:12.24, am1:175.75,fi1:5.00,  p:1978.92, ap:733.60},
+    {stock:'93214',model:'2026 Honda CR-V Hybrid',      customer:'PETER WONG',             comm1:157.90, acc:0,     am1:0,     fi1:0,     p:1152.65, ap:0},
+  ].forEach((d,i)=>{
     state.deals.push({
-      id: crypto.randomUUID(),
-      date: today,
-      vehicle: { stock: '93665', model: '2026 Honda CR-V Hybrid' },
-      customer: 'VANESSA DE LA TORRE',
-      extracted: {
-        commissionNo1: 75.00,
-        accessories: 12.00,
-        aftermarket1: 175.75,
-        fBonus1: 40.00,
-        profitOfSale: -509.89,
-        amProfit: 733.00
-      },
-      calculated: { totalCommission: 302.75 },
-      status: 'Pending',
-      ocrConfidence: 95,
-      needsReview: false,
-      sourceFile: 'WhatsApp_Image_2026-06-02.jpeg'
+      id:crypto.randomUUID(),
+      date:`${M}-${String(i+1).padStart(2,'0')}`,
+      vehicle:{stock:d.stock,model:d.model},
+      customer:d.customer,
+      extracted:{commissionNo1:d.comm1,accessories:d.acc,aftermarket1:d.am1,fBonus1:d.fi1,profitOfSale:d.p,amProfit:d.ap},
+      calculated:{totalCommission:d.comm1+d.acc+d.am1+d.fi1},
+      status:'Paid',ocrConfidence:100,needsReview:false,sourceFile:'pagos_mayo_2026.pdf'
     });
-    saveState();
-  }
+  });
+  state.selectedMonth=M; saveState();
 }
 
 // INIT
-seedDemoIfEmpty();
+seedDeals();
 renderAll();
 </script>
 </body>
