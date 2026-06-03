@@ -380,6 +380,90 @@ header{
 .empty-text{font-size:0.75rem}
 .rdot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);display:inline-block;margin-right:4px;vertical-align:middle}
 
+/* ─── MISMATCH & COMMISSION SUMMARY STYLES ─── */
+.mismatch-badge{
+  display:inline-block;
+  margin-left:5px;
+  padding:1px 6px;
+  border-radius:4px;
+  font-size:0.58rem;
+  font-weight:700;
+  background:rgba(255,120,0,0.18);
+  color:#e07000;
+  border:1px solid rgba(255,120,0,0.35);
+  vertical-align:middle;
+  cursor:help;
+}
+[data-theme="dark"] .mismatch-badge{
+  background:rgba(255,140,0,0.2);
+  color:#ffaa44;
+  border-color:rgba(255,140,0,0.4);
+}
+.pp-tag{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:4px;
+  font-size:0.58rem;
+  background:var(--surface-mute);
+  color:var(--text-dim);
+  border:1px solid var(--sep);
+  white-space:nowrap;
+}
+.split-tag{
+  display:inline-block;
+  padding:1px 5px;
+  border-radius:3px;
+  font-size:0.55rem;
+  background:rgba(100,100,255,0.1);
+  color:var(--text-dim);
+  border:1px solid rgba(100,100,255,0.15);
+  margin-left:3px;
+}
+.hold-reason-badge{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:5px;
+  font-size:0.62rem;
+  font-weight:600;
+  background:rgba(255,120,0,0.12);
+  color:#e07000;
+  border:1px solid rgba(255,120,0,0.25);
+}
+[data-theme="dark"] .hold-reason-badge{
+  background:rgba(255,140,0,0.12);
+  color:#ffaa44;
+  border-color:rgba(255,140,0,0.25);
+}
+.summary-stat-pill{
+  padding:3px 10px;
+  border-radius:6px;
+  font-size:0.68rem;
+  background:var(--surface-mute);
+  border:1px solid var(--sep);
+  color:var(--text-dim);
+}
+.sv-card{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:10px;
+  padding:12px 14px;
+  backdrop-filter:var(--blur);
+}
+.sv-card-accent{
+  border-color:rgba(0,0,0,0.2);
+  background:var(--ink);
+  color:var(--ink-inv);
+}
+[data-theme="dark"] .sv-card-accent{
+  border-color:rgba(255,255,255,0.15);
+}
+.sv-label{font-size:0.59rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-faint);margin-bottom:5px}
+.sv-card-accent .sv-label{color:rgba(255,255,255,0.6)}
+.sv-val{font-family:var(--font-head);font-weight:800;font-size:1.1rem;line-height:1}
+.sv-card-accent .sv-val{color:var(--ink-inv)}
+.sv-sub{font-size:0.6rem;color:var(--text-faint);margin-top:2px}
+.sv-card-accent .sv-sub{color:rgba(255,255,255,0.5)}
+
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -473,6 +557,7 @@ header{
               <th>#</th>
               <th>Vehicle / Customer</th>
               <th>Stock</th>
+              <th>Pay Period</th>
               <th>Comm.</th>
               <th>Aftermkt</th>
               <th>F&I</th>
@@ -563,6 +648,85 @@ header{
   </div>
 
 </div><!-- .app -->
+
+  <!-- ─── COMMISSION SUMMARY VERIFICATION + HOLD FILE ─── -->
+  <div class="app" style="padding-top:0">
+
+    <!-- SUMMARY VERIFICATION BANNER -->
+    <div class="glass panel" style="margin-bottom:12px">
+      <div class="panel-head">
+        <div class="panel-title"><i class="fas fa-file-check"></i> Commission Summary Verification — Mayo 2026</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="summary-stat-pill" id="sv-mismatches">— mismatches</span>
+          <span class="summary-stat-pill" id="sv-matched">— matched</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px">
+          <div class="sv-card">
+            <div class="sv-label">Summary Total New</div>
+            <div class="sv-val">$4,412.36</div>
+            <div class="sv-sub">14.5 units</div>
+          </div>
+          <div class="sv-card">
+            <div class="sv-label">Summary Total Used</div>
+            <div class="sv-val">$1,169.78</div>
+            <div class="sv-sub">3 units</div>
+          </div>
+          <div class="sv-card">
+            <div class="sv-label">Grand Total</div>
+            <div class="sv-val">$5,582.14</div>
+            <div class="sv-sub">17.5 total units</div>
+          </div>
+          <div class="sv-card sv-card-accent">
+            <div class="sv-label">Unit Bonus</div>
+            <div class="sv-val">$900.00</div>
+            <div class="sv-sub">18-unit tier reached</div>
+          </div>
+          <div class="sv-card">
+            <div class="sv-label">Hold File Total</div>
+            <div class="sv-val" id="holdTotal">$0.00</div>
+            <div class="sv-sub">3 deals pending</div>
+          </div>
+        </div>
+        <div style="font-size:0.68rem;color:var(--text-dim);padding:10px;background:var(--surface-mute);border-radius:8px;border:1px solid var(--sep)">
+          <i class="fas fa-circle" style="color:rgba(255,130,0,0.7);font-size:0.5rem;vertical-align:middle;margin-right:5px"></i>
+          <b>Orange rows</b> = commission total in Deal Recap doesn't match Commission Summary (tolerance ±$0.50).
+          &nbsp;·&nbsp;
+          <i class="fas fa-circle" style="color:var(--text-faint);font-size:0.5rem;vertical-align:middle;margin-right:5px"></i>
+          Grey = deal not yet in Commission Summary (pending pay period).
+        </div>
+      </div>
+    </div>
+
+    <!-- HOLD FILE PANEL -->
+    <div class="glass panel">
+      <div class="panel-head">
+        <div class="panel-title" style="color:#e07000"><i class="fas fa-pause-circle"></i> Deals In Hold File</div>
+        <div style="font-size:0.7rem;color:var(--text-dim)">Pending release — do not count toward paid commission</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="deals-table">
+          <thead>
+            <tr>
+              <th>Vehicle / Customer</th>
+              <th>Stock</th>
+              <th>Date</th>
+              <th>Commission Total</th>
+              <th>Hold Reason</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="holdTableBody"></tbody>
+        </table>
+        <div id="holdEmpty" class="empty-state" style="display:none">
+          <div class="empty-icon">🔒</div>
+          <div class="empty-text">No deals in hold file.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 
 <!-- MODAL -->
 <div class="modal-overlay" id="dealModal">
@@ -669,14 +833,15 @@ function loadState() {
   } catch { return defaultState(); }
 }
 function defaultState() {
-  return { version: SCHEMA_V, deals: [], selectedMonth: new Date().toISOString().slice(0,7) };
+  return { version: SCHEMA_V, deals: [], holdDeals: [], selectedMonth: new Date().toISOString().slice(0,7) };
 }
 function migrate(old) {
   const s = defaultState();
   if (old.deals) s.deals = old.deals.map(d => ({
     ...d, status: d.status||'Pending',
-    ocrConfidence: d.ocrConfidence||100, needsReview: false
+    ocrConfidence: d.ocrConfidence||100, needsReview: false, isHold: false
   }));
+  if (old.holdDeals) s.holdDeals = old.holdDeals;
   return s;
 }
 function saveState() { localStorage.setItem(SK, JSON.stringify(state)); }
@@ -721,7 +886,7 @@ function chartColors() {
 // ══════════════════════════════════
 // RENDER
 // ══════════════════════════════════
-function renderAll() { renderDate(); renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderCharts(); }
+function renderAll() { renderDate(); renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderCharts(); renderHoldTable(); renderSummaryVerification(); }
 
 function renderDate() {
   setEl('currentDate', new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'}));
@@ -777,13 +942,33 @@ function renderTable() {
     const e=d.extracted||{}, pay=calcPayout(d);
     const sc={Paid:'badge-paid',Pending:'badge-pending','On Hold':'badge-hold'}[d.status]||'badge-pending';
     const dot=d.needsReview?'<span class="rdot"></span>':'';
-    return `<tr>
+    const match = checkCommissionMatch(d);
+    const isMismatch = match.matched === false;
+    const isUnmatched = match.matched === null;
+    const rowStyle = isMismatch ? 'background:rgba(255,120,0,0.10);' : '';
+    const mismatchTag = isMismatch
+      ? `<span class="mismatch-badge" title="Summary: ${fmt(match.summaryTotal)} | Deal: ${fmt(pay)} | Diff: ${fmt(match.diff)}">⚠ $${match.diff.toFixed(2)}</span>`
+      : '';
+    const ppTag = match.payPeriod
+      ? `<span class="pp-tag">${match.payPeriod}</span>`
+      : `<span style="font-size:0.6rem;color:var(--text-faint)">—</span>`;
+    const splitTag = match.split ? `<span class="split-tag">${match.split}</span>` : '';
+    return `<tr style="${rowStyle}">
       <td style="color:var(--text-faint);font-size:0.63rem">${i+1}</td>
-      <td><div class="deal-vehicle">${dot}${esc(d.vehicle?.model||'—')}</div><div class="deal-customer">${esc(d.customer||'—')}</div></td>
+      <td>
+        <div class="deal-vehicle">${dot}${esc(d.vehicle?.model||'—')}</div>
+        <div class="deal-customer">${esc(d.customer||'—')} ${splitTag}</div>
+      </td>
       <td style="font-size:0.64rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</td>
-      <td>${fmtC(e.commissionNo1)}</td><td>${fmtC(e.aftermarket1)}</td>
-      <td>${fmtC(e.fBonus1)}</td><td>${fmtC(e.accessories)}</td>
-      <td><span class="payout-val ${pay>=0?'payout-pos':'payout-neg'}">${fmt(pay)}</span></td>
+      <td>${ppTag}</td>
+      <td>${fmtC(e.commissionNo1)}</td>
+      <td>${fmtC(e.aftermarket1)}</td>
+      <td>${fmtC(e.fBonus1)}</td>
+      <td>${fmtC(e.accessories)}</td>
+      <td>
+        <span class="payout-val ${pay>=0?'payout-pos':'payout-neg'}">${fmt(pay)}</span>
+        ${mismatchTag}
+      </td>
       <td><span class="badge ${sc}">${d.status}</span></td>
       <td style="display:flex;gap:2px;white-space:nowrap">
         <button class="edit-btn" onclick="openEditModal('${d.id}')"><i class="fas fa-pen"></i></button>
@@ -792,7 +977,7 @@ function renderTable() {
     </tr>`;
   }).join('') +
   `<tr class="total-row">
-    <td></td><td style="font-size:0.7rem">TOTALS (${deals.length} deals)</td><td></td>
+    <td></td><td style="font-size:0.7rem">TOTALS (${deals.length} deals)</td><td></td><td></td>
     <td>${fmt(tc)}</td><td>${fmt(ta)}</td><td>${fmt(tf)}</td><td>${fmt(tac)}</td>
     <td>${fmt(tp)}</td><td></td><td></td>
   </tr>`;
@@ -1122,44 +1307,219 @@ function exportCSV(){
 document.getElementById('dealModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 
 // ══════════════════════════════════
-// SEED — Mayo 2026 deals
+// SUMMARY VERIFICATION COUNTER
+// ══════════════════════════════════
+function renderSummaryVerification() {
+  const deals = getMonthDeals('2026-05');
+  let matched = 0, mismatched = 0;
+  deals.forEach(d => {
+    const r = checkCommissionMatch(d);
+    if (r.matched === true) matched++;
+    else if (r.matched === false) mismatched++;
+  });
+  const mm = document.getElementById('sv-mismatches');
+  const mk = document.getElementById('sv-matched');
+  if(mm) {
+    mm.textContent = `${mismatched} mismatch${mismatched!==1?'es':''}`;
+    mm.style.color = mismatched > 0 ? '#e07000' : 'var(--text-dim)';
+    mm.style.borderColor = mismatched > 0 ? 'rgba(255,120,0,0.4)' : 'var(--sep)';
+    mm.style.background = mismatched > 0 ? 'rgba(255,120,0,0.1)' : 'var(--surface-mute)';
+  }
+  if(mk) mk.textContent = `${matched} matched`;
+}
+
+// ══════════════════════════════════════════════════════════
+// COMMISSION SUMMARY — Source of truth from commission.pdf
+// ══════════════════════════════════════════════════════════
+// Each entry: stock, customer, summaryTotal (AM+FAI+Comm),
+//             payPeriod, splitDeal, holdReason
+// ══════════════════════════════════════════════════════════
+const COMMISSION_SUMMARY = [
+  // ── Pay Period 5/9/2026 ──────────────────────────────
+  {stock:'92333',  customer:'FITSALOS,N',    summaryTotal:39.30,   payPeriod:'5/9/2026',  split:'MALIK'},
+  {stock:'92896',  customer:'PEREZ,A',       summaryTotal:415.18,  payPeriod:'5/9/2026',  split:''},
+  {stock:'89929',  customer:'ANGULA,M',      summaryTotal:180.38,  payPeriod:'5/9/2026',  split:'CONTRERAS'},
+  {stock:'92903A', customer:'PEREZ,G',       summaryTotal:430.95,  payPeriod:'5/9/2026',  split:''},
+  {stock:'93333A', customer:'AGUIRRE,M',     summaryTotal:330.69,  payPeriod:'5/9/2026',  split:''},
+  // ── Pay Period 5/23/2026 ─────────────────────────────
+  {stock:'93214',  customer:'WONG,P',        summaryTotal:157.90,  payPeriod:'5/23/2026', split:'contreras,adrian'},
+  {stock:'93356',  customer:'MARZANO,Y',     summaryTotal:536.59,  payPeriod:'5/23/2026', split:''},
+  {stock:'92722',  customer:'BAULER,L',      summaryTotal:702.69,  payPeriod:'5/23/2026', split:'DEAL ADJ'},
+  {stock:'92580',  customer:'IMTIAZ,Z',      summaryTotal:80.00,   payPeriod:'5/23/2026', split:''},
+  {stock:'93507',  customer:'CHOKSI,K',      summaryTotal:80.00,   payPeriod:'5/23/2026', split:''},
+  {stock:'93485',  customer:'RAMIREZ,O',     summaryTotal:92.00,   payPeriod:'5/23/2026', split:''},
+  {stock:'93029',  customer:'DELATORRE,V',   summaryTotal:249.24,  payPeriod:'5/23/2026', split:''},
+  // ── Pay Period 5/31/2026 ─────────────────────────────
+  {stock:'91920A', customer:'SITNIZKY,R',    summaryTotal:408.14,  payPeriod:'5/31/2026', split:''},
+  {stock:'93514',  customer:'ABDULLAEV,A',   summaryTotal:46.12,   payPeriod:'5/31/2026', split:'RODRIGUEZ'},
+  {stock:'92883',  customer:'AHMED,S',       summaryTotal:75.00,   payPeriod:'5/31/2026', split:''},
+  {stock:'92867',  customer:'FLOREZ,A',      summaryTotal:90.00,   payPeriod:'5/31/2026', split:''},
+  {stock:'92860',  customer:'RAMIREZ,A',     summaryTotal:102.00,  payPeriod:'5/31/2026', split:''},
+];
+
+// SUMMARY TOTALS from commission.pdf
+const SUMMARY_TOTALS = {
+  totalNew:  4412.36,
+  totalUsed: 1169.78,
+  grandTotal:5582.14,
+  unitBonus: 900.00,
+  units:     17.5
+};
+
+// HOLD FILE from commission.pdf
+const HOLD_DEALS_SEED = [
+  {stock:'93665', customer:'VANESSA DE LA TORRE',  summaryTotal:302.75,  holdReason:'DPTS ID#',      date:'2026-05-30', am1:227.75, comm1:75.00,  fi1:0,    model:'2026 Honda CR-V Hybrid'},
+  {stock:'93535', customer:'JORDAN CATAPANO',       summaryTotal:75.00,   holdReason:'SERVICE PASS',  date:'2026-05-21', am1:0,      comm1:75.00,  fi1:0,    model:'2026 Honda Civic Hybrid'},
+  {stock:'93480', customer:'JULIE OHALLORAN',       summaryTotal:1188.21, holdReason:'TRADE TITLE',   date:'2026-05-26', am1:5.00,   comm1:1183.21,fi1:0,    model:'2026 Honda Pilot'},
+];
+
+// ── Tolerance for commission match (cents rounding)
+const MATCH_TOLERANCE = 0.50;
+
+function checkCommissionMatch(deal) {
+  const stock = (deal.vehicle?.stock||'').toUpperCase().replace(/\s/g,'');
+  const entry = COMMISSION_SUMMARY.find(s => s.stock.toUpperCase() === stock);
+  if (!entry) return { matched: null, summaryTotal: null, diff: null, payPeriod: null, split: null };
+  const dealTotal = calcPayout(deal);
+  const diff = Math.abs(dealTotal - entry.summaryTotal);
+  return {
+    matched: diff <= MATCH_TOLERANCE,
+    summaryTotal: entry.summaryTotal,
+    diff: diff,
+    payPeriod: entry.payPeriod,
+    split: entry.split
+  };
+}
+
+// ══════════════════════════════════
+// SEED — Mayo 2026 deals (with correct dates from commission.pdf)
 // ══════════════════════════════════
 function seedDeals(){
   if(state.deals.length>0) return;
-  const M='2026-05';
-  [
-    {stock:'93665',model:'2026 Honda CR-V Hybrid',      customer:'VANESSA DE LA TORRE',   comm1:75.00,  acc:12.00, am1:175.75,fi1:40.00, p:-509.89, ap:733.00},
-    {stock:'92860',model:'2026 Honda Civic Seda',       customer:'ANABEL RAMIREZ',         comm1:75.00,  acc:12.00, am1:0,     fi1:5.00,  p:-553.34, ap:30.00},
-    {stock:'93029',model:'2026 Honda CR-V',             customer:'VICTOR M DE LA TORRE',  comm1:75.00,  acc:12.24, am1:162.00,fi1:0,     p:-292.85, ap:678.60},
-    {stock:'93480',model:'2026 Honda Pilot',            customer:'JULIE OHALLORAN',        comm1:1183.21,acc:0,     am1:0,     fi1:5.00,  p:4044.02, ap:0},
-    {stock:'92580',model:'2026 Honda Civic Seda',       customer:'ZEESHAN IMTIAZ',         comm1:75.00,  acc:0,     am1:0,     fi1:5.00,  p:285.07,  ap:0},
-    {stock:'92722',model:'2026 Honda Civic Seda',       customer:'LYLA BAULER',            comm1:893.54, acc:0,     am1:0,     fi1:5.00,  p:3078.45, ap:0},
-    {stock:'93485',model:'2026 Honda Accord Sedan',     customer:'OSCAR RAMIREZ',          comm1:75.00,  acc:12.00, am1:0,     fi1:5.00,  p:-1083.34,ap:30.00},
-    {stock:'93535',model:'2026 Honda Civic Hybrid',     customer:'JORDAN CATAPANO',        comm1:75.00,  acc:0,     am1:0,     fi1:0,     p:-513.13, ap:0},
-    {stock:'93507',model:'2026 Honda CR-V Hybrid',      customer:'KHUSHI CHOKSI',          comm1:75.00,  acc:0,     am1:0,     fi1:5.00,  p:-881.30, ap:0},
-    {stock:'93275',model:'2026 Honda Civic Hybrid',     customer:'CHAITANYA PADHYE',       comm1:75.00,  acc:12.00, am1:0,     fi1:5.00,  p:-178.44, ap:30.00},
-    {stock:'93514',model:'2026 Honda CR-V Hybrid',      customer:'ABDULAZIZ ABDULLAEV',    comm1:75.00,  acc:12.24, am1:0,     fi1:5.00,  p:-1282.70,ap:30.60},
-    {stock:'91920A',model:'2024 Honda Civic Sport',     customer:'RYAN STITNIZKY',         comm1:408.14, acc:0,     am1:0,     fi1:0,     p:1960.48, ap:0},
-    {stock:'92903A',model:'2013 Toyota RAV4 XLE',       customer:'GABRIEL PEREZ',          comm1:310.95, acc:0,     am1:0,     fi1:0,     p:1636.49, ap:0},
-    {stock:'93356',model:'2026 Honda CR-V Hybrid',      customer:'YULY COLLAZOS MARZANO', comm1:343.60, acc:12.24, am1:175.75,fi1:5.00,  p:1978.92, ap:733.60},
-    {stock:'93214',model:'2026 Honda CR-V Hybrid',      customer:'PETER WONG',             comm1:157.90, acc:0,     am1:0,     fi1:0,     p:1152.65, ap:0},
-  ].forEach((d,i)=>{
+
+  // ── ACTIVE DEALS (matched with Commission Summary dates)
+  const activeDeals = [
+    // Pay Period 5/9 ──────────────────────────────────────────────
+    {stock:'92333',  date:'2026-04-30', model:'2026 Honda Civic',         customer:'NADIA FITSALOS',         comm1:37.50,  acc:0,     am1:1.80,   fi1:0,    p:0,        ap:0},
+    {stock:'92896',  date:'2026-05-02', model:'2026 Honda CR-V Hybrid',   customer:'ADRIANA PEREZ',           comm1:390.18, acc:0,     am1:25.00,  fi1:0,    p:0,        ap:0},
+    {stock:'89929',  date:'2026-05-02', model:'2026 Honda Accord',        customer:'MARIA ANGULA',            comm1:67.75,  acc:0,     am1:112.63, fi1:0,    p:0,        ap:0},
+    {stock:'92903A', date:'2026-05-05', model:'2013 Toyota RAV4 XLE',     customer:'GABRIEL PEREZ',           comm1:430.95, acc:0,     am1:0,      fi1:0,    p:1636.49,  ap:0},
+    {stock:'93333A', date:'2026-05-09', model:'2026 Honda CR-V',          customer:'MIGUEL AGUIRRE',          comm1:330.69, acc:0,     am1:0,      fi1:0,    p:0,        ap:0},
+    // Pay Period 5/23 ─────────────────────────────────────────────
+    {stock:'93214',  date:'2026-05-08', model:'2026 Honda CR-V Hybrid',   customer:'PETER WONG',              comm1:157.90, acc:0,     am1:0,      fi1:0,    p:1152.65,  ap:0},
+    {stock:'93356',  date:'2026-05-11', model:'2026 Honda CR-V Hybrid',   customer:'YULY COLLAZOS MARZANO',  comm1:343.60, acc:12.24, am1:175.75, fi1:5.00, p:1978.92,  ap:733.60},
+    {stock:'92722',  date:'2026-05-16', model:'2026 Honda Civic Seda',    customer:'LYLA BAULER',             comm1:697.69, acc:0,     am1:5.00,   fi1:0,    p:3078.45,  ap:0},
+    {stock:'92580',  date:'2026-05-23', model:'2026 Honda Civic Seda',    customer:'ZEESHAN IMTIAZ',          comm1:75.00,  acc:0,     am1:5.00,   fi1:0,    p:285.07,   ap:0},
+    {stock:'93507',  date:'2026-05-22', model:'2026 Honda CR-V Hybrid',   customer:'KHUSHI CHOKSI',           comm1:75.00,  acc:0,     am1:5.00,   fi1:0,    p:-881.30,  ap:0},
+    {stock:'93485',  date:'2026-05-22', model:'2026 Honda Accord Sedan',  customer:'OSCAR RAMIREZ',           comm1:75.00,  acc:0,     am1:17.00,  fi1:0,    p:-1083.34, ap:0},
+    {stock:'93029',  date:'2026-05-23', model:'2026 Honda CR-V',          customer:'VICTOR DE LA TORRE',      comm1:75.00,  acc:12.24, am1:162.00, fi1:0,    p:-292.85,  ap:678.60},
+    // Pay Period 5/31 ─────────────────────────────────────────────
+    {stock:'91920A', date:'2026-05-28', model:'2024 Honda Civic Sport',   customer:'RYAN STITNIZKY',          comm1:408.14, acc:0,     am1:0,      fi1:0,    p:1960.48,  ap:0},
+    {stock:'93514',  date:'2026-05-28', model:'2026 Honda CR-V Hybrid',   customer:'ABDULAZIZ ABDULLAEV',     comm1:37.50,  acc:0,     am1:8.62,   fi1:0,    p:-1282.70, ap:0},
+    {stock:'92883',  date:'2026-05-29', model:'2026 Honda Civic',         customer:'SAMI AHMED',              comm1:75.00,  acc:0,     am1:0,      fi1:0,    p:0,        ap:0},
+    {stock:'92867',  date:'2026-05-30', model:'2026 Honda CR-V',          customer:'ANA FLOREZ',              comm1:75.00,  acc:0,     am1:15.00,  fi1:0,    p:0,        ap:0},
+    {stock:'92860',  date:'2026-05-29', model:'2026 Honda Civic Seda',    customer:'ANABEL RAMIREZ',          comm1:75.00,  acc:0,     am1:27.00,  fi1:0,    p:-553.34,  ap:30.00},
+    // Deal Recap only (not yet in commission summary — pending pay periods)
+    {stock:'93275',  date:'2026-05-10', model:'2026 Honda Civic Hybrid',  customer:'CHAITANYA PADHYE',        comm1:75.00,  acc:12.00, am1:0,      fi1:5.00, p:-178.44,  ap:30.00},
+  ];
+
+  activeDeals.forEach(d => {
     state.deals.push({
-      id:crypto.randomUUID(),
-      date:`${M}-${String(i+1).padStart(2,'0')}`,
-      vehicle:{stock:d.stock,model:d.model},
-      customer:d.customer,
-      extracted:{commissionNo1:d.comm1,accessories:d.acc,aftermarket1:d.am1,fBonus1:d.fi1,profitOfSale:d.p,amProfit:d.ap},
-      calculated:{totalCommission:d.comm1+d.acc+d.am1+d.fi1},
-      status:'Paid',ocrConfidence:100,needsReview:false,sourceFile:'pagos_mayo_2026.pdf'
+      id: crypto.randomUUID(),
+      date: d.date,
+      vehicle: {stock: d.stock, model: d.model},
+      customer: d.customer,
+      extracted: {commissionNo1:d.comm1, accessories:d.acc, aftermarket1:d.am1, fBonus1:d.fi1, profitOfSale:d.p, amProfit:d.ap},
+      calculated: {totalCommission: d.comm1+d.acc+d.am1+d.fi1},
+      status: 'Paid',
+      ocrConfidence: 100,
+      needsReview: false,
+      sourceFile: 'commission.pdf + pagos_mayo_2026.pdf',
+      isHold: false
     });
   });
-  state.selectedMonth=M; saveState();
+
+  // ── HOLD FILE DEALS
+  HOLD_DEALS_SEED.forEach(d => {
+    state.holdDeals = state.holdDeals || [];
+    state.holdDeals.push({
+      id: crypto.randomUUID(),
+      date: d.date,
+      vehicle: {stock: d.stock, model: d.model},
+      customer: d.customer,
+      extracted: {commissionNo1:d.comm1, accessories:0, aftermarket1:d.am1, fBonus1:d.fi1||0, profitOfSale:0, amProfit:0},
+      calculated: {totalCommission: d.summaryTotal},
+      status: 'On Hold',
+      summaryTotal: d.summaryTotal,
+      holdReason: d.holdReason,
+      ocrConfidence: 100,
+      needsReview: false,
+      sourceFile: 'commission.pdf'
+    });
+  });
+
+  state.selectedMonth = '2026-05';
+  saveState();
 }
 
+// ══════════════════════════════════
+// HOLD TABLE RENDER
+// ══════════════════════════════════
+function renderHoldTable() {
+  const holds = state.holdDeals || [];
+  const tbody = document.getElementById('holdTableBody');
+  const empty = document.getElementById('holdEmpty');
+  const totalEl = document.getElementById('holdTotal');
+  if (!holds.length) {
+    if(tbody) tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    if(totalEl) totalEl.textContent='$0.00';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  const total = holds.reduce((s,d) => s + (parseFloat(d.summaryTotal)||calcPayout(d)), 0);
+  if(totalEl) totalEl.textContent = fmt(total);
+  if(!tbody) return;
+  tbody.innerHTML = holds.map(d => {
+    const pay = parseFloat(d.summaryTotal) || calcPayout(d);
+    return `<tr>
+      <td><div class="deal-vehicle">${esc(d.vehicle?.model||'—')}</div><div class="deal-customer">${esc(d.customer||'—')}</div></td>
+      <td style="font-size:0.64rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</td>
+      <td style="font-size:0.7rem">${d.date||'—'}</td>
+      <td><span class="payout-val payout-pos">${fmt(pay)}</span></td>
+      <td><span class="hold-reason-badge">${esc(d.holdReason||'—')}</span></td>
+      <td style="display:flex;gap:2px">
+        <button class="edit-btn" onclick="releaseHold('${d.id}')" title="Release to Active"><i class="fas fa-check-circle"></i></button>
+        <button class="del-btn" onclick="deleteHold('${d.id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function releaseHold(id) {
+  const hold = (state.holdDeals||[]).find(d=>d.id===id);
+  if(!hold) return;
+  if(!confirm(`Release "${hold.customer}" from Hold to Active deals?`)) return;
+  hold.status = 'Pending';
+  hold.isHold = false;
+  state.deals.unshift({...hold});
+  state.holdDeals = state.holdDeals.filter(d=>d.id!==id);
+  saveState(); renderAll(); renderHoldTable();
+  notify('Deal released to Active');
+}
+
+function deleteHold(id) {
+  if(!confirm('Delete this hold deal?')) return;
+  state.holdDeals = (state.holdDeals||[]).filter(d=>d.id!==id);
+  saveState(); renderHoldTable(); notify('Hold deal deleted');
+}
+
+// ══════════════════════════════════
 // INIT
+// ══════════════════════════════════
 seedDeals();
 renderAll();
+renderHoldTable();
 </script>
 </body>
 </html>
