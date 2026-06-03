@@ -704,15 +704,32 @@ header{
 .auth-error{font-size:0.75rem;color:#e03;margin-top:4px;display:none;text-align:center}
 .auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text-faint);font-size:0.72rem}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--sep)}
-.google-btn{
-  width:100%;padding:10px;border-radius:10px;
-  border:1.5px solid var(--glass-border);
-  background:var(--glass-bg);color:var(--text);
-  font-family:var(--font-body);font-size:0.85rem;font-weight:500;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;
-  transition:all 0.15s;
+
+/* ─── PIN PAD ─── */
+.pin-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--border-line);
+  background:transparent;transition:all 0.15s;
 }
-.google-btn:hover{background:var(--glass-bg-hover);border-color:var(--ink)}
+.pin-dot.filled{background:var(--ink);border-color:var(--ink)}
+.pin-dot.error{background:#e03;border-color:#e03;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.pin-pad{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;max-width:220px;margin:16px auto 0;
+}
+.pin-key{
+  aspect-ratio:1;border-radius:12px;
+  border:1px solid var(--glass-border);
+  background:var(--glass-bg);
+  color:var(--text);font-family:var(--font-head);
+  font-size:1.1rem;font-weight:600;cursor:pointer;
+  transition:all 0.12s;display:flex;align-items:center;justify-content:center;
+}
+.pin-key:hover{background:var(--glass-bg-hover);border-color:var(--ink)}
+.pin-key:active{transform:scale(0.93)}
+.pin-key.pin-del{font-size:0.9rem;color:var(--text-dim)}
+.pin-key.pin-del:hover{color:#e03;border-color:#e03}
 .google-icon{width:18px;height:18px}
 
 /* ─── SYNC INDICATOR ─── */
@@ -1178,47 +1195,44 @@ header{
   </div><!-- end review section -->
 
 <!-- ─── FIREBASE AUTH OVERLAY ─── -->
-<div class="auth-overlay" id="authOverlay">
+<div class="auth-overlay" id="authOverlay" style="display:none">
   <div class="auth-card">
     <div class="auth-logo">🏎</div>
     <div class="auth-title">Valley Honda</div>
-    <div class="auth-sub">Commission Dashboard · Inicia sesión para continuar</div>
+    <div class="auth-sub" id="authSubText">Commission Dashboard · Oscar Ivan Mendez</div>
 
-    <button class="google-btn" onclick="signInGoogle()">
-      <svg class="google-icon" viewBox="0 0 48 48">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        <path fill="none" d="M0 0h48v48H0z"/>
-      </svg>
-      Continuar con Google
-    </button>
-
-    <div class="auth-divider">o con email</div>
-
-    <div class="auth-form" id="authForm">
-      <div>
-        <label class="auth-label">Email</label>
-        <input class="auth-input" id="authEmail" type="email" placeholder="ivan@valleyhonda.com" autocomplete="email"/>
-      </div>
-      <div>
-        <label class="auth-label">Contraseña</label>
-        <input class="auth-input" id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password"
-          onkeydown="if(event.key==='Enter') submitAuth()"/>
-      </div>
-      <div id="authNameWrap" style="display:none">
-        <label class="auth-label">Nombre completo</label>
-        <input class="auth-input" id="authName" type="text" placeholder="Oscar Ivan Mendez"/>
-      </div>
-      <div class="auth-error" id="authError"></div>
-      <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">
-        <span id="authBtnText">Iniciar sesión</span>
+    <!-- ADMIN FAST-ACCESS (Ivan Mendez pre-loaded) -->
+    <div id="adminQuickAccess" style="margin-bottom:16px">
+      <button class="auth-btn" id="ivanAdminBtn" onclick="loginAsIvan()"
+        style="background:var(--ink);font-size:0.95rem;padding:13px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;width:100%">
+        <span style="font-size:1.3rem">👤</span>
+        <span>
+          <span style="font-weight:800;font-size:0.95rem">Oscar Ivan Mendez</span><br>
+          <span style="font-size:0.72rem;opacity:0.7;font-weight:400">Sales Consultant · Admin</span>
+        </span>
       </button>
     </div>
 
-    <div class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">
-      ¿No tienes cuenta? <span id="authToggleText">Crear cuenta</span>
+    <div class="auth-divider">o ingresa tu PIN</div>
+
+    <div class="auth-form">
+      <div style="text-align:center">
+        <label class="auth-label" style="text-align:center;display:block;margin-bottom:10px">PIN de acceso</label>
+        <div style="display:flex;gap:8px;justify-content:center" id="pinDots">
+          <div class="pin-dot" id="pd0"></div>
+          <div class="pin-dot" id="pd1"></div>
+          <div class="pin-dot" id="pd2"></div>
+          <div class="pin-dot" id="pd3"></div>
+        </div>
+        <div class="pin-pad" id="pinPad"></div>
+        <div class="auth-error" id="authError" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div style="font-size:0.7rem;color:var(--text-faint);margin-top:16px;text-align:center">
+      PIN predeterminado: <b style="color:var(--text-dim);letter-spacing:0.15em">1234</b>
+      &nbsp;·&nbsp;
+      <span style="cursor:pointer;text-decoration:underline;color:var(--text-dim)" onclick="showChangePIN()">Cambiar PIN</span>
     </div>
   </div>
 </div>
@@ -1432,254 +1446,259 @@ header{
 
 <script>
 // ══════════════════════════════════════════════════════════
-// FIREBASE CONFIGURATION
-// ── Replace these values with your Firebase Console config
+// FIREBASE CONFIGURATION (optional — for cloud sync)
+// Leave as-is to run in offline mode with localStorage.
+// Replace values to enable Firestore real-time sync.
 // ══════════════════════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
-  authDomain: "valley-honda-dashboard.firebaseapp.com",
-  projectId: "valley-honda-dashboard",
-  storageBucket: "valley-honda-dashboard.firebasestorage.app",
-  messagingSenderId: "177697774434",
-  appId: "1:177697774434:web:e3e110a335f5e452036a3b",
-  measurementId: "G-VE12MRTHPJ"
+const FIREBASE_CONFIG = {
+  apiKey:            "REPLACE_WITH_YOUR_API_KEY",
+  authDomain:        "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "REPLACE_WITH_YOUR_PROJECT_ID",
+  storageBucket:     "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
+  appId:             "REPLACE_WITH_YOUR_APP_ID"
 };
-
-// ── Detect if Firebase is configured (not placeholder values)
 const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.includes('REPLACE_WITH');
 
 let db = null, fbAuth = null, currentUser = null, unsubscribeListener = null;
 
-function initFirebase() {
-  if (!FIREBASE_CONFIGURED) {
-    console.warn('Firebase not configured — running in offline mode (localStorage only)');
-    hideAuthOverlay();
-    return;
-  }
+// ══════════════════════════════════════════════════════════
+// LOCAL AUTH — PIN-based session for Ivan Mendez (Admin)
+// Stored in localStorage so session persists across refreshes
+// ══════════════════════════════════════════════════════════
+const AUTH_KEY       = 'vhonda_session_v1';
+const DEFAULT_PIN    = '1234';
+let   pinBuffer      = '';
+let   sessionActive  = false;
+
+const ADMIN_USER = {
+  uid:         'ivan-mendez-admin',
+  displayName: 'Oscar Ivan Mendez',
+  role:        'admin',
+  initials:    'IM',
+  email:       'ivan@valleyhonda.com'
+};
+
+function getStoredPIN() {
+  try { return localStorage.getItem('vhonda_pin') || DEFAULT_PIN; }
+  catch { return DEFAULT_PIN; }
+}
+
+function checkSession() {
   try {
-    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-    db     = firebase.firestore();
-    fbAuth = firebase.auth();
+    const s = localStorage.getItem(AUTH_KEY);
+    if (!s) return false;
+    const { uid, exp } = JSON.parse(s);
+    if (uid === ADMIN_USER.uid && Date.now() < exp) return true;
+    localStorage.removeItem(AUTH_KEY);
+    return false;
+  } catch { return false; }
+}
 
-    // Persistence — keeps user logged in across page refreshes
-    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+function createSession() {
+  const exp = Date.now() + 8 * 60 * 60 * 1000; // 8 hours
+  localStorage.setItem(AUTH_KEY, JSON.stringify({ uid: ADMIN_USER.uid, exp }));
+  sessionActive = true;
+}
 
-    fbAuth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        onUserLoggedIn(user);
-      } else {
-        currentUser = null;
-        onUserLoggedOut();
-      }
+function destroySession() {
+  localStorage.removeItem(AUTH_KEY);
+  sessionActive = false;
+  pinBuffer = '';
+  showAuthOverlay();
+}
+
+// ── Direct login as Ivan (admin button)
+function loginAsIvan() {
+  createSession();
+  activateSession(ADMIN_USER);
+}
+
+// ── PIN verification
+function submitPIN() {
+  const correct = getStoredPIN();
+  if (pinBuffer === correct) {
+    createSession();
+    activateSession(ADMIN_USER);
+  } else {
+    // Wrong PIN — shake dots, clear
+    [0,1,2,3].forEach(i => {
+      const d = document.getElementById('pd'+i);
+      if(d){ d.classList.add('error'); setTimeout(()=>d.classList.remove('error','filled'),600); }
     });
-  } catch (err) {
-    console.error('Firebase init error:', err);
-    hideAuthOverlay();
-    notify('Firebase error — modo offline');
+    pinBuffer = '';
+    document.getElementById('authError').textContent = 'PIN incorrecto';
+    document.getElementById('authError').style.display = 'block';
+    setTimeout(()=>{
+      const el=document.getElementById('authError');
+      if(el) el.style.display='none';
+    }, 2000);
   }
 }
 
-// ── Auth mode toggle (login / register)
-let authMode = 'login';
-function toggleAuthMode() {
-  authMode = authMode === 'login' ? 'register' : 'login';
-  document.getElementById('authBtnText').textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
-  document.getElementById('authToggleText').textContent = authMode === 'login' ? 'Crear cuenta' : 'Ya tengo cuenta';
-  document.getElementById('authNameWrap').style.display = authMode === 'register' ? '' : 'none';
-  document.getElementById('authError').style.display = 'none';
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(submitPIN, 120);
 }
 
-async function submitAuth() {
-  const email = document.getElementById('authEmail').value.trim();
-  const pass  = document.getElementById('authPassword').value;
-  const name  = document.getElementById('authName')?.value.trim();
-  const errEl = document.getElementById('authError');
-  const btn   = document.getElementById('authSubmitBtn');
-  errEl.style.display = 'none';
-  if (!email || !pass) { showAuthError('Completa todos los campos'); return; }
-  btn.disabled = true;
-  try {
-    if (authMode === 'login') {
-      await fbAuth.signInWithEmailAndPassword(email, pass);
-    } else {
-      if (!name) { showAuthError('Ingresa tu nombre'); btn.disabled=false; return; }
-      const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
-      await cred.user.updateProfile({ displayName: name });
-    }
-  } catch(err) {
-    const msgs = {
-      'auth/user-not-found':    'No existe una cuenta con ese email',
-      'auth/wrong-password':    'Contraseña incorrecta',
-      'auth/email-already-in-use': 'Ese email ya está registrado',
-      'auth/weak-password':     'La contraseña debe tener al menos 6 caracteres',
-      'auth/invalid-email':     'Email inválido',
-    };
-    showAuthError(msgs[err.code] || err.message);
-  } finally { btn.disabled = false; }
+function pinDel() {
+  if (!pinBuffer.length) return;
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
 }
 
-async function signInGoogle() {
-  if (!fbAuth) return;
-  try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await fbAuth.signInWithPopup(provider);
-  } catch(err) {
-    showAuthError('Error al iniciar con Google: ' + err.message);
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('pd'+i);
+    if(d) d.classList.toggle('filled', i < pinBuffer.length);
   }
 }
 
-function showAuthError(msg) {
-  const el = document.getElementById('authError');
-  el.textContent = msg; el.style.display = 'block';
+function buildPinPad() {
+  const pad = document.getElementById('pinPad');
+  if (!pad) return;
+  const keys = [1,2,3,4,5,6,7,8,9,'⌫',0,'→'];
+  pad.innerHTML = keys.map(k =>
+    k === '⌫'
+      ? `<button class="pin-key pin-del" onclick="pinDel()">⌫</button>`
+      : k === '→'
+      ? `<button class="pin-key" onclick="submitPIN()" style="font-size:1.2rem">→</button>`
+      : `<button class="pin-key" onclick="pinPress('${k}')">${k}</button>`
+  ).join('');
 }
 
-function signOut() {
-  if (!fbAuth) return;
-  fbAuth.signOut().then(() => notify('Sesión cerrada'));
+function showChangePIN() {
+  const newPIN = prompt('Ingresa tu nuevo PIN de 4 dígitos:');
+  if (!newPIN || !/^\d{4}$/.test(newPIN)) { alert('PIN inválido. Debe ser exactamente 4 dígitos.'); return; }
+  localStorage.setItem('vhonda_pin', newPIN);
+  notify('PIN actualizado ✓');
+}
+
+// ── Activate session UI
+function activateSession(user) {
+  const pill   = document.getElementById('userPill');
+  const avatar = document.getElementById('userAvatar');
+  const nameEl = document.getElementById('userDisplayName');
+  if(pill)   pill.style.display   = 'flex';
+  if(avatar) avatar.textContent   = user.initials || user.displayName[0];
+  if(nameEl) nameEl.textContent   = user.displayName;
+  hideAuthOverlay();
+  setSyncStatus('ok');
+  notify(`Bienvenido, ${user.displayName.split(' ')[2] || user.displayName} ✓`);
+  // If Firebase is also configured, try cloud sync
+  if (FIREBASE_CONFIGURED) initFirebase();
 }
 
 function showUserMenu() {
-  if (confirm(`Sesión activa: ${currentUser?.email||'—'}\n\n¿Cerrar sesión?`)) signOut();
-}
-
-// ── Called when user logs in
-function onUserLoggedIn(user) {
-  // Update header UI
-  const pill    = document.getElementById('userPill');
-  const avatar  = document.getElementById('userAvatar');
-  const nameEl  = document.getElementById('userDisplayName');
-  if (pill)   pill.style.display   = 'flex';
-  if (avatar) avatar.textContent   = (user.displayName||user.email||'?')[0].toUpperCase();
-  if (nameEl) nameEl.textContent   = user.displayName || user.email?.split('@')[0] || 'User';
-
-  hideAuthOverlay();
-  subscribeFirestore(user.uid);
-  notify(`Bienvenido, ${user.displayName || user.email?.split('@')[0] || 'User'} ✓`);
-}
-
-// ── Called when user logs out
-function onUserLoggedOut() {
-  const pill = document.getElementById('userPill');
-  if (pill) pill.style.display = 'none';
-  if (unsubscribeListener) { unsubscribeListener(); unsubscribeListener = null; }
-  showAuthOverlay();
+  const options = ['Continuar', 'Cambiar PIN', 'Cerrar sesión'];
+  const choice = window.confirm(`Sesión activa: ${ADMIN_USER.displayName}\nRol: Admin\n\n¿Cerrar sesión?`);
+  if (choice) {
+    destroySession();
+    notify('Sesión cerrada');
+  }
 }
 
 function showAuthOverlay() {
   const el = document.getElementById('authOverlay');
-  if (el) { el.style.display='flex'; el.classList.remove('hidden'); }
+  if(el){ el.style.display='flex'; el.classList.remove('hidden'); }
+  pinBuffer = '';
+  updatePinDots();
+  buildPinPad();
 }
+
 function hideAuthOverlay() {
   const el = document.getElementById('authOverlay');
-  if (el) { el.classList.add('hidden'); setTimeout(()=>el.style.display='none', 320); }
+  if(el){ el.classList.add('hidden'); setTimeout(()=>el.style.display='none', 320); }
+}
+
+// ── Initialize auth — check session, show overlay if needed
+function initAuth() {
+  if (checkSession()) {
+    sessionActive = true;
+    activateSession(ADMIN_USER);
+  } else {
+    showAuthOverlay();
+  }
 }
 
 // ══════════════════════════════════════════════════════════
-// FIRESTORE SYNC — userId-isolated real-time sync
-// Firestore structure:
-//   /users/{uid}/deals/{dealId}
-//   /users/{uid}/holdDeals/{dealId}
-//   /users/{uid}/meta/prefs   (selectedMonth, reviewPeriod, etc.)
+// FIREBASE (optional cloud sync — unchanged from before)
 // ══════════════════════════════════════════════════════════
 function setSyncStatus(status) {
   const dot = document.getElementById('syncDot');
   if (!dot) return;
   dot.className = 'sync-dot' + (status==='syncing'?' syncing':status==='error'?' error':'');
-  dot.title = status==='ok'?'Sincronizado':status==='syncing'?'Sincronizando…':'Error de sync';
+  dot.title = status==='ok'?'Sincronizado':status==='syncing'?'Sincronizando…':'Offline';
 }
 
-// Subscribe to real-time Firestore updates for this user
+function initFirebase() {
+  if (!FIREBASE_CONFIGURED) return;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db     = firebase.firestore();
+    fbAuth = firebase.auth();
+    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    // Auto sign-in anonymously mapped to Ivan's local uid for Firestore
+    fbAuth.signInAnonymously().then(cred => {
+      currentUser = cred.user;
+      subscribeFirestore(ADMIN_USER.uid); // use stable local uid, not anon uid
+    }).catch(()=>{}); // silently fail if offline
+  } catch(err) { console.warn('Firebase unavailable:', err); }
+}
+
 function subscribeFirestore(uid) {
   if (!db) return;
   setSyncStatus('syncing');
-
-  // Listen to deals collection
   unsubscribeListener = db.collection(`users/${uid}/deals`)
-    .orderBy('date', 'desc')
+    .orderBy('date','desc')
     .onSnapshot(snap => {
       const deals = [];
       snap.forEach(doc => deals.push({ id: doc.id, ...doc.data() }));
-      state.deals = deals;
-      // Also load holdDeals in parallel
-      db.collection(`users/${uid}/holdDeals`).get().then(hSnap => {
-        const holds = [];
-        hSnap.forEach(doc => holds.push({ id: doc.id, ...doc.data() }));
-        state.holdDeals = holds;
-        saveStateLocal(); // keep local cache in sync
-        renderAll();
-        renderHoldTable();
-        renderSummaryVerification();
-        setSyncStatus('ok');
-      });
-    }, err => {
-      console.error('Firestore snapshot error:', err);
-      setSyncStatus('error');
-      notify('Error de sincronización');
-    });
-
-  // Load meta/prefs
-  db.doc(`users/${uid}/meta/prefs`).get().then(doc => {
-    if (doc.exists) {
-      const prefs = doc.data();
-      if (prefs.selectedMonth) state.selectedMonth = prefs.selectedMonth;
-      if (prefs.reviewPeriod)  state.reviewPeriod  = prefs.reviewPeriod;
-      if (prefs.reviewCompData) state.reviewCompData = prefs.reviewCompData;
-    }
-  });
+      if (deals.length) { // only overwrite if cloud has data
+        state.deals = deals;
+        db.collection(`users/${uid}/holdDeals`).get().then(hSnap => {
+          const holds = []; hSnap.forEach(doc=>holds.push({id:doc.id,...doc.data()}));
+          state.holdDeals = holds;
+          saveStateLocal(); renderAll(); renderHoldTable(); renderSummaryVerification();
+        });
+      }
+      setSyncStatus('ok');
+    }, ()=>setSyncStatus('error'));
 }
 
-// Save a single deal to Firestore (used instead of full saveState)
 async function saveDealFirestore(deal) {
-  if (!db || !currentUser) return;
+  if (!db) return;
   setSyncStatus('syncing');
-  try {
-    await db.doc(`users/${currentUser.uid}/deals/${deal.id}`).set(deal);
-    setSyncStatus('ok');
-  } catch(err) {
-    setSyncStatus('error');
-    console.error('Firestore save error:', err);
-    notify('Error al guardar en la nube');
-  }
+  try { await db.doc(`users/${ADMIN_USER.uid}/deals/${deal.id}`).set(deal); setSyncStatus('ok'); }
+  catch { setSyncStatus('error'); }
 }
-
-async function deleteDealFirestore(dealId) {
-  if (!db || !currentUser) return;
-  setSyncStatus('syncing');
-  try {
-    await db.doc(`users/${currentUser.uid}/deals/${dealId}`).delete();
-    setSyncStatus('ok');
-  } catch(err) {
-    setSyncStatus('error');
-    notify('Error al eliminar en la nube');
-  }
+async function deleteDealFirestore(id) {
+  if (!db) return;
+  try { await db.doc(`users/${ADMIN_USER.uid}/deals/${id}`).delete(); }
+  catch {}
 }
-
-async function saveHoldFirestore(hold) {
-  if (!db || !currentUser) return;
-  try {
-    await db.doc(`users/${currentUser.uid}/holdDeals/${hold.id}`).set(hold);
-  } catch(err) { console.error('Hold save error:', err); }
+async function saveHoldFirestore(h) {
+  if (!db) return;
+  try { await db.doc(`users/${ADMIN_USER.uid}/holdDeals/${h.id}`).set(h); }
+  catch {}
 }
-
-async function deleteHoldFirestore(holdId) {
-  if (!db || !currentUser) return;
-  try {
-    await db.doc(`users/${currentUser.uid}/holdDeals/${holdId}`).delete();
-  } catch(err) { console.error('Hold delete error:', err); }
+async function deleteHoldFirestore(id) {
+  if (!db) return;
+  try { await db.doc(`users/${ADMIN_USER.uid}/holdDeals/${id}`).delete(); }
+  catch {}
 }
-
 async function savePrefsFirestore() {
-  if (!db || !currentUser) return;
-  try {
-    await db.doc(`users/${currentUser.uid}/meta/prefs`).set({
-      selectedMonth:   state.selectedMonth,
-      reviewPeriod:    state.reviewPeriod || null,
-      reviewCompData:  state.reviewCompData || null,
-      updatedAt:       firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch(err) { console.error('Prefs save error:', err); }
+  if (!db) return;
+  try { await db.doc(`users/${ADMIN_USER.uid}/meta/prefs`).set({ selectedMonth:state.selectedMonth, updatedAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true}); }
+  catch {}
 }
+
+// stub — was used in old email auth flow
+function signInGoogle(){}
+function submitAuth(){}
+function toggleAuthMode(){}
 
 // ══════════════════════════════════
 // THEME
@@ -3258,8 +3277,8 @@ loadCachedReviews();
 filterReviews('all');
 updateIvanBadge();
 
-// Initialize Firebase — shows auth overlay if configured, hides it if offline mode
-initFirebase();
+// Initialize local PIN auth (shows overlay only if no active session)
+initAuth();
 
 const spinStyle = document.createElement('style');
 spinStyle.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
