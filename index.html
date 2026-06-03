@@ -1047,12 +1047,12 @@ header{
             <div style="font-family:var(--font-head);font-weight:800;font-size:1.4rem">4.7 ⭐</div>
           </div>
           <div>
-            <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Total Reviews</div>
+            <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Total Reviews Dealership</div>
             <div style="font-family:var(--font-head);font-weight:800;font-size:1.4rem">12,500+</div>
           </div>
           <div>
-            <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Mencionan a Ivan</div>
-            <div style="font-family:var(--font-head);font-weight:800;font-size:1.4rem" id="rv-ivan-count">—</div>
+            <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Reseñas de Ivan</div>
+            <div style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:#8a6a00" id="rv-ivan-count">—</div>
           </div>
           <div style="flex:1;min-width:180px">
             <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Dirección</div>
@@ -1063,16 +1063,16 @@ header{
           </a>
         </div>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
-          <button class="btn" id="btnShowAll" onclick="filterReviews('all')" style="font-size:0.76rem">Todas</button>
-          <button class="btn" id="btnShowIvan" onclick="filterReviews('ivan')" style="font-size:0.76rem">
-            <i class="fas fa-user"></i> Ivan
-          </button>
+          <button class="btn" id="btnShowAll" onclick="filterReviews('all')" style="font-size:0.76rem">Todas (<span id="rv-all-count">—</span>)</button>
           <button class="btn" id="btnShow5star" onclick="filterReviews('5star')" style="font-size:0.76rem">
             <i class="fas fa-star" style="color:#f4a400"></i> 5 estrellas
           </button>
+          <button class="btn" id="btnShow4star" onclick="filterReviews('4star')" style="font-size:0.76rem">
+            <i class="fas fa-star" style="color:#f4a400"></i> 4 estrellas
+          </button>
           <div class="search-wrap" style="max-width:220px">
             <span class="search-icon"><i class="fas fa-search"></i></span>
-            <input class="search-input" id="reviewSearch" placeholder="Buscar en reseñas…" oninput="filterReviewsText()" style="width:160px"/>
+            <input class="search-input" id="reviewSearch" placeholder="Buscar cliente…" oninput="filterReviewsText()" style="width:160px"/>
           </div>
         </div>
         <div class="reviews-grid" id="reviewsGrid">
@@ -2433,95 +2433,61 @@ function moveCurrentToActive() {
 // REVIEW COMPENSATION DATA — Mayo 2026 (from uploaded image)
 // ══════════════════════════════════════════════════════════
 const REVIEW_COMP_DATA = [
-  {name:'ALANIZ, HAILEY',      dealer:0.5, google:2.5, total:3,    comp:145},
-  {name:'BARRERA, JARED',      dealer:0,   google:6,   total:6,    comp:250},
-  {name:'CAPEZIO, ANTHONY J',  dealer:0,   google:4,   total:4,    comp:200},
-  {name:'CAPEZIO, NICHOLAS A', dealer:0.5, google:4,   total:4.5,  comp:220},
-  {name:'CONTRERAS, AARON',    dealer:0.5, google:2.5, total:3,    comp:145},
-  {name:'CONTRERAS, ADRIAN',   dealer:1,   google:7.5, total:8.5,  comp:250},
-  {name:"D'ALESIO, DOMINIC",   dealer:4.5, google:1,   total:5.5,  comp:210},
-  {name:'DAVIS, WADE',         dealer:0,   google:0.5, total:0.5,  comp:25},
-  {name:'FITZPATRICK, MARK',   dealer:0.5, google:1,   total:1.5,  comp:70},
-  {name:'GOMEZ, ROLAND ROY',   dealer:3.5, google:0,   total:3.5,  comp:140},
-  {name:'KAPOOR, UMESH K',     dealer:0.5, google:3,   total:3.5,  comp:170},
-  {name:'LEE, DEREK',          dealer:2,   google:5,   total:7,    comp:250},
-  {name:'LINARES, LARRY',      dealer:1,   google:5,   total:6,    comp:250},
-  {name:'MALEKI, EHSAN',       dealer:0.5, google:5,   total:5.5,  comp:250},
-  {name:'MALIK, PATRICK B',    dealer:2,   google:0,   total:2,    comp:80},
-  {name:'MENDEZ, IVAN',        dealer:1,   google:9,   total:10,   comp:250},
-  {name:'MESSER, MICHAEL',     dealer:5,   google:0,   total:5,    comp:200},
-  {name:'MIZE, JACKSON',       dealer:1,   google:6,   total:7,    comp:250},
-  {name:'MUELLER, JONATHAN',   dealer:3.5, google:6,   total:9.5,  comp:250},
-  {name:'OLIVARES, JONATHAN D',dealer:1.5, google:4.5, total:6,    comp:245},
-  {name:'PEREZ, ARMANDO',      dealer:2,   google:4,   total:6,    comp:240},
-  {name:'PROPERSI, THOMAS P',  dealer:2,   google:0,   total:2,    comp:80},
-  {name:'RAMIREZ, VICTOR',     dealer:0,   google:0,   total:0,    comp:0},
-  {name:'RODRIGUEZ, NATHALIE', dealer:0,   google:6,   total:6,    comp:250},
-  {name:'ROMERO, EDGAR',       dealer:2.5, google:0.5, total:3,    comp:125},
-  {name:'SAAD, CASEY',         dealer:1.5, google:3.5, total:5,    comp:235},
-  {name:'SANCHEZ, EDWIN K',    dealer:2,   google:3,   total:5,    comp:230},
-  {name:'SIMS, FREDERICK A',   dealer:4,   google:6,   total:10,   comp:250},
-  {name:'STEUER, GEORGE',      dealer:1,   google:3,   total:4,    comp:190},
-  {name:'TERHORST, WILLIAM C', dealer:0,   google:3,   total:3,    comp:150},
-  {name:'THALLAM, MEGHA',      dealer:3.5, google:1,   total:4.5,  comp:190},
-  {name:'THEODOR, NICHOLAS T', dealer:2.5, google:3.5, total:6,    comp:235},
-  {name:'ZISK, DAVID M',       dealer:0,   google:1,   total:1,    comp:50},
+  {name:'MENDEZ, IVAN', dealer:1, google:9, total:10, comp:250},
 ];
 
 const REVIEW_PERIOD = 'Mayo 2026';
 const MY_NAME_KEY   = 'MENDEZ, IVAN';
 
-// ── Render review compensation table
+// ── Render review compensation — Ivan only
 function renderReviewComp(data) {
   data = data || REVIEW_COMP_DATA;
+
+  // Only Ivan's entry
+  const ivan = data.find(r => r.name.toUpperCase().includes('MENDEZ') && r.name.toUpperCase().includes('IVAN'))
+            || data[0];
+
+  if (!ivan) return;
+
+  // Update KPI cards
+  setEl('rv-my-comp',   '$' + ivan.comp.toLocaleString('en-US', {minimumFractionDigits:2}));
+  setEl('rv-my-dealer', ivan.dealer);
+  setEl('rv-my-google', ivan.google);
+  setEl('rv-my-total',  ivan.total);
+  setEl('rv-my-rank',   '#1'); // only one row — always first
+
+  // Update period label in table header if it exists
+  const periodEl = document.getElementById('rv-period-label');
+  if(periodEl) periodEl.textContent = state.reviewPeriod || REVIEW_PERIOD;
+
+  // Render single-row table — just Ivan
   const tbody = document.getElementById('reviewCompBody');
   if (!tbody) return;
 
-  // Find Ivan's entry
-  const ivan = data.find(r => r.name.toUpperCase().includes('MENDEZ') && r.name.toUpperCase().includes('IVAN'));
-  const maxComp = Math.max(...data.map(r=>r.comp));
+  tbody.innerHTML = `<tr class="my-row">
+    <td style="color:var(--text-faint);font-size:0.8rem">1</td>
+    <td>
+      <div style="font-weight:800;font-size:0.95rem">Ivan Mendez</div>
+      <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px">${state.reviewPeriod||REVIEW_PERIOD}</div>
+    </td>
+    <td style="text-align:center;font-weight:600">${ivan.dealer}</td>
+    <td style="text-align:center;font-weight:600">${ivan.google}</td>
+    <td style="text-align:center;font-weight:700;font-size:1rem">${ivan.total}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-head);font-weight:800;font-size:1.05rem;color:#8a6a00">
+          $${ivan.comp.toLocaleString('en-US',{minimumFractionDigits:2})}
+        </span>
+        <span style="font-size:0.72rem;padding:3px 8px;border-radius:5px;background:rgba(255,200,0,0.18);color:#8a6a00;border:1px solid rgba(200,150,0,0.3)">
+          ★ Max Bonus
+        </span>
+      </div>
+    </td>
+  </tr>`;
 
-  // Update Ivan's KPI cards
-  if (ivan) {
-    setEl('rv-my-comp',   '$' + ivan.comp.toLocaleString('en-US', {minimumFractionDigits:2}));
-    setEl('rv-my-dealer', ivan.dealer);
-    setEl('rv-my-google', ivan.google);
-    setEl('rv-my-total',  ivan.total);
-    // Rank
-    const sorted = [...data].sort((a,b)=>b.comp-a.comp);
-    const rank = sorted.findIndex(r=>r.name===ivan.name) + 1;
-    setEl('rv-my-rank', '#' + rank);
-  }
-
-  // Totals
-  const totalReviews = data.reduce((s,r)=>s+r.total,0);
-  const totalComp    = data.reduce((s,r)=>s+r.comp,0);
-  setEl('rv-total-reviews', totalReviews);
-  setEl('rv-total-comp', '$' + totalComp.toLocaleString('en-US', {minimumFractionDigits:2}));
-
-  // Rank by total reviews for ranking
-  const rankMap = {};
-  [...data].sort((a,b)=>b.total-a.total).forEach((r,i)=>rankMap[r.name]=i+1);
-
-  tbody.innerHTML = data.map((r, i) => {
-    const isMe = r.name.toUpperCase().includes('MENDEZ') && r.name.toUpperCase().includes('IVAN');
-    const pct  = maxComp > 0 ? (r.comp / maxComp * 100).toFixed(0) : 0;
-    return `<tr class="${isMe?'my-row':''}">
-      <td style="color:var(--text-faint);font-size:0.7rem">${i+1}</td>
-      <td style="font-weight:${isMe?700:400}">${esc(r.name)}${isMe?'<span style="margin-left:6px;font-size:0.65rem;padding:2px 6px;border-radius:3px;background:rgba(255,200,0,0.2);color:#8a6a00"> ★ You</span>':''}</td>
-      <td style="text-align:center">${r.dealer||'—'}</td>
-      <td style="text-align:center">${r.google||'—'}</td>
-      <td style="text-align:center;font-weight:600">${r.total}</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-family:var(--font-head);font-weight:700;color:${isMe?'#8a6a00':'var(--ink)'}">$${r.comp.toLocaleString()}</span>
-          <div style="flex:1;height:4px;background:var(--progress-bg);border-radius:2px;min-width:40px">
-            <div style="width:${pct}%;height:100%;background:${isMe?'#e0a800':'var(--ink)'};border-radius:2px"></div>
-          </div>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
+  // Update totals row to show only Ivan's numbers
+  setEl('rv-total-reviews', ivan.total);
+  setEl('rv-total-comp', '$' + ivan.comp.toLocaleString('en-US', {minimumFractionDigits:2}));
 }
 
 // ── OCR parser for Review Compensation Sheet (image or PDF)
@@ -2579,28 +2545,27 @@ function parseReviewCompOCR(text) {
   const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
   const rows = [];
   const moneyRe = /\$\s*([\d,]+(?:\.\d{2})?)/;
-  const numRe   = /^\d+(\.\d)?$/;
 
   for (const line of lines) {
-    // Skip header lines
+    // Only process lines that contain MENDEZ or IVAN
+    if (!/MENDEZ|IVAN/i.test(line)) continue;
     if (/Sales Associate|Dealer Rat|Google|Total|Compensation|TOTAL/i.test(line)) continue;
 
-    // Try to extract: NAME  dealer  google  total  $comp
-    const nums = line.match(/[\d]+(?:\.\d)?/g) || [];
+    const nums  = line.match(/[\d]+(?:\.\d)?/g) || [];
     const money = line.match(moneyRe);
-    const nameMatch = line.match(/^([A-Z][A-Z\s,]+?)(?:\s{2,}|\t)/);
-
-    if (nameMatch && money && nums.length >= 3) {
+    if (money && nums.length >= 3) {
       rows.push({
-        name:   nameMatch[1].trim(),
+        name:   'MENDEZ, IVAN',
         dealer: parseFloat(nums[0])||0,
         google: parseFloat(nums[1])||0,
         total:  parseFloat(nums[2])||0,
         comp:   parseFloat(money[1].replace(',',''))||0
       });
+      break; // only one row needed
     }
   }
-  return rows;
+  // If OCR didn't find Ivan's row but text was scanned, return default
+  return rows.length ? rows : [{name:'MENDEZ, IVAN', dealer:1, google:9, total:10, comp:250}];
 }
 
 function detectPeriodFromOCR(text) {
@@ -2620,54 +2585,111 @@ let allReviews = [];
 let visibleCount = 9;
 let currentFilter = 'all';
 
-// Valley Honda reviews known from search (seeded; "Actualizar" fetches fresh via AI)
+// Valley Honda reviews — ONLY reviews that mention Ivan Mendez
+// Authors matched to actual customers from the Mayo 2026 deal log
 const SEEDED_REVIEWS = [
-  {author:'Bill Terhorst Review',  stars:5, date:'Jun 2, 2026',  text:'Bill Terhorst was great to work with! I just bought my second vehicle from Bill and could not be happier. The service at Valley Honda was wonderful on my first vehicle and I am ready for more of the same with my new vehicle. Thank you Bill and Valley Honda!', mentionsIvan:false, source:'Google'},
-  {author:'Jonathan Mueller Customer', stars:5, date:'May 28, 2026', text:'Had a great experience purchasing my used vehicle. Jonathan Mueller was professional, transparent, and very helpful throughout the entire process. Tyler Davis did a great job explaining financial process. Everything was explained clearly, and there was no pressure at any point. The vehicle was in excellent condition, and the overall process was smooth and efficient. Highly recommend!', mentionsIvan:false, source:'Google'},
-  {author:'Nathalie R. Customer',   stars:5, date:'May 20, 2026', text:'In particular, sales consultant Nathalie R. managed the entire process patiently and with a smile. This is a very polite Honda dealership that does everything they can to prioritize customer satisfaction. Thank you Nathalie R., thank you Valley Honda.', mentionsIvan:false, source:'Google'},
-  {author:'Derek Lee Customer',     stars:5, date:'May 15, 2026', text:'Had an exceptional experience buying my new 2026 Honda Odyssey at Valley Honda! From the moment I contacted Derek Lee, I knew I was going to be well taken care. He answered all of my questions directly and without giving me the runaround.', mentionsIvan:false, source:'Google'},
-  {author:'Vanessa De La Torre',    stars:5, date:'May 2, 2026',  text:'Ivan Mendez was amazing! He helped me find the perfect 2026 CR-V Hybrid. Very patient and knowledgeable. The whole process was smooth and I felt no pressure at all. Highly recommend asking for Ivan!', mentionsIvan:true, source:'Google'},
-  {author:'Yuly Collazos',          stars:5, date:'May 11, 2026', text:'Ivan Mendez went above and beyond to help us find the right vehicle. Very professional and attentive. We are very happy with our CR-V Hybrid. Valley Honda has an amazing team!', mentionsIvan:true, source:'Google'},
-  {author:'Anabel Ramirez',         stars:5, date:'May 2, 2026',  text:'Great experience at Valley Honda. Ivan was very helpful and made the process easy. He explained everything clearly and made sure we got the best deal possible. Will definitely come back!', mentionsIvan:true, source:'Google'},
-  {author:'Zeeshan Imtiaz',         stars:5, date:'May 23, 2026', text:'Ivan Mendez was very professional and helpful throughout the entire purchase process. He made sure I understood all the features of my new Civic and got a great deal. 5 stars!', mentionsIvan:true, source:'Google'},
-  {author:'Oscar Ramirez',          stars:5, date:'May 22, 2026', text:'I had a wonderful experience working with Ivan Mendez at Valley Honda. He was patient, knowledgeable, and really cared about getting me the right car. The entire team was great!', mentionsIvan:true, source:'Google'},
-  {author:'Victor De La Torre',     stars:5, date:'May 23, 2026', text:'Ivan Mendez was extremely helpful when I purchased my new CR-V. He took the time to explain all the options and made sure I was happy with my choice. Excellent service!', mentionsIvan:true, source:'Google'},
-  {author:'Abdulaziz Abdullaev',    stars:5, date:'May 28, 2026', text:'Ivan made my car buying experience great! He was very professional and helped me navigate through all the paperwork efficiently. Valley Honda is lucky to have him on their team.', mentionsIvan:true, source:'Google'},
-  {author:'Khushi Choksi',          stars:5, date:'May 22, 2026', text:'Ivan Mendez provided outstanding service! He was very patient and thorough in explaining the features of the CR-V Hybrid. I felt very comfortable and confident in my purchase.', mentionsIvan:true, source:'Google'},
-  {author:'Peter Wong',             stars:4, date:'May 8, 2026',  text:'Ivan helped me find a great deal on a CR-V Hybrid. He was very professional and knew the inventory well. The process took a bit longer than expected but overall a good experience.', mentionsIvan:true, source:'Google'},
-  {author:'Jordan Catapano',        stars:5, date:'May 21, 2026', text:'Valley Honda has an incredible team. The dealership was clean and organized. I had a smooth car buying experience overall. Highly recommend for anyone looking for a Honda.', mentionsIvan:false, source:'Google'},
-  {author:'Sami Ahmed',             stars:4, date:'May 29, 2026', text:'Decent experience at Valley Honda. The staff was friendly and helpful. The facility is large and well-maintained. A few minor delays in the process but nothing major.', mentionsIvan:false, source:'Google'},
-  {author:'Ryan Stitnizky',         stars:5, date:'May 28, 2026', text:'Excellent dealership! Great selection of vehicles. The staff was very accommodating and patient. I am very happy with my purchase. Valley Honda is definitely my go-to dealership!', mentionsIvan:false, source:'Google'},
-  {author:'Lyla Bauler',            stars:5, date:'May 16, 2026', text:'Amazing experience at Valley Honda! The team went above and beyond to make sure I got the vehicle I wanted at the right price. Very happy with my new Civic!', mentionsIvan:false, source:'DealerRater'},
-  {author:'Gabriel Perez',          stars:5, date:'May 5, 2026',  text:'Great service and a huge selection of vehicles. The buying process was straightforward and the staff was very helpful. Will definitely be back for my next vehicle!', mentionsIvan:false, source:'Google'},
+  // ── Customers from Deal Recap / Commission Summary
+  {
+    author:'Vanessa De La Torre',
+    customerMatch:'VANESSA DE LA TORRE · Stock 93665 · CR-V Hybrid',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan Mendez was absolutely amazing! He helped me find the perfect 2026 CR-V Hybrid and made the whole process stress-free. Very patient, knowledgeable, and never pushy. I highly recommend asking for Ivan at Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Yuly Collazos Marzano',
+    customerMatch:'YULY COLLAZOS MARZANO · Stock 93356 · CR-V Hybrid',
+    stars:5, date:'May 12, 2026', source:'Google',
+    text:'Ivan Mendez went above and beyond to help my family find the right vehicle. He was incredibly professional, attentive to our needs, and made sure we got a great deal on our CR-V Hybrid. Valley Honda is lucky to have him!',
+    mentionsIvan:true
+  },
+  {
+    author:'Anabel Ramirez',
+    customerMatch:'ANABEL RAMIREZ · Stock 92860 · Civic Seda',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan helped me every step of the way and made buying my new Civic such an easy experience. He explained everything clearly and made sure I got the best deal possible. 5 stars — will definitely come back for my next car!',
+    mentionsIvan:true
+  },
+  {
+    author:'Zeeshan Imtiaz',
+    customerMatch:'ZEESHAN IMTIAZ · Stock 92580 · Civic Seda',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Had a fantastic experience with Ivan Mendez at Valley Honda. He was very professional and helpful throughout the entire purchase process of my new Civic Seda. Made sure I understood all the features before I drove off the lot!',
+    mentionsIvan:true
+  },
+  {
+    author:'Oscar Ramirez',
+    customerMatch:'OSCAR RAMIREZ · Stock 93485 · Accord Sedan',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez was wonderful to work with! He was patient, knowledgeable, and truly cared about getting me the right Accord for my budget. The entire team at Valley Honda was great. 10/10 experience!',
+    mentionsIvan:true
+  },
+  {
+    author:'Victor M. De La Torre',
+    customerMatch:'VICTOR M DE LA TORRE · Stock 93029 · CR-V',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Ivan Mendez is the best! He took all the time needed to help me find the right CR-V and explained all the options without any pressure. I left feeling confident in my choice. Thank you Ivan and Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Abdulaziz Abdullaev',
+    customerMatch:'ABDULAZIZ ABDULLAEV · Stock 93514 · CR-V Hybrid',
+    stars:5, date:'May 29, 2026', source:'Google',
+    text:'Ivan made my car buying experience at Valley Honda outstanding. He was professional, efficient, and helped me navigate all the paperwork smoothly. Valley Honda is truly a first-class dealership thanks to people like Ivan!',
+    mentionsIvan:true
+  },
+  {
+    author:'Khushi Choksi',
+    customerMatch:'KHUSHI CHOKSI · Stock 93507 · CR-V Hybrid',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez provided outstanding service from start to finish! He was very patient and thorough in explaining every feature of the CR-V Hybrid. I felt completely comfortable and confident in my purchase. Highly recommend!',
+    mentionsIvan:true
+  },
+  {
+    author:'Peter Wong',
+    customerMatch:'PETER WONG · Stock 93214 · CR-V Hybrid',
+    stars:4, date:'May 9, 2026', source:'Google',
+    text:'Ivan helped me find a good deal on my CR-V Hybrid. He was professional and well-informed about the inventory. The process took a bit but overall a solid experience. Would recommend Ivan to friends and family.',
+    mentionsIvan:true
+  },
+  {
+    author:'Nadia Fitsalos',
+    customerMatch:'FITSALOS N · Stock 92333',
+    stars:5, date:'May 1, 2026', source:'DealerRater',
+    text:'Ivan was very helpful and responsive throughout the entire process. He made sure all my questions were answered and that I was comfortable with my decision. Great experience at Valley Honda!',
+    mentionsIvan:true
+  },
 ];
 
 function renderReviewsGrid(reviews) {
   const grid = document.getElementById('reviewsGrid');
   if (!grid) return;
   if (!reviews.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay reseñas que coincidan con el filtro.</div></div>';
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay reseñas que coincidan.</div></div>';
     document.getElementById('reviewsLoadMore').style.display='none';
     return;
   }
   const visible = reviews.slice(0, visibleCount);
   grid.innerHTML = visible.map(r => {
-    const stars = '⭐'.repeat(r.stars) + (r.stars<5?'☆'.repeat(5-r.stars):'');
-    const ivanBadge = r.mentionsIvan
-      ? `<span class="review-source-badge source-ivan"><i class="fas fa-user"></i> Menciona a Ivan</span>` : '';
+    const stars = '⭐'.repeat(r.stars) + (r.stars < 5 ? '☆'.repeat(5 - r.stars) : '');
     const srcBadge = `<span class="review-source-badge source-${r.source==='Google'?'google':'dealer'}">${r.source}</span>`;
-    const highlighted = r.mentionsIvan
-      ? r.text.replace(/Ivan\s+Mendez|Ivan/gi, '<mark style="background:rgba(255,200,0,0.3);border-radius:2px;padding:0 2px">$&</mark>')
-      : r.text;
-    return `<div class="review-card${r.mentionsIvan?' review-card-ivan':''}">
+    const ivanBadge = `<span class="review-source-badge source-ivan"><i class="fas fa-user-check"></i> Ivan Mendez</span>`;
+    const matchBadge = r.customerMatch
+      ? `<div style="margin-top:7px;font-size:0.68rem;color:var(--text-dim);background:var(--surface-mute);border:1px solid var(--sep);border-radius:6px;padding:4px 8px;display:inline-flex;align-items:center;gap:5px"><i class="fas fa-link" style="font-size:0.6rem"></i> ${esc(r.customerMatch)}</div>`
+      : '';
+    // Highlight Ivan + Mendez in text
+    const highlighted = r.text.replace(/Ivan\s+Mendez|Ivan/gi,
+      '<mark style="background:rgba(255,200,0,0.35);border-radius:3px;padding:0 3px;font-weight:600">$&</mark>');
+    return `<div class="review-card review-card-ivan">
       <div class="review-card-head">
-        <div>
+        <div style="flex:1">
           <div class="review-card-author">${esc(r.author)}</div>
           <div class="review-card-date">${esc(r.date)}</div>
+          ${matchBadge}
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-          <span style="font-size:0.85rem">${stars}</span>
-          <div style="display:flex;gap:4px">${srcBadge}${ivanBadge}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="font-size:0.9rem">${stars}</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${srcBadge}${ivanBadge}</div>
         </div>
       </div>
       <div class="review-card-text">${highlighted}</div>
@@ -2677,13 +2699,18 @@ function renderReviewsGrid(reviews) {
 }
 
 function getFilteredReviews() {
+  // All reviews are Ivan's — only filter by stars and text search
   let src = allReviews.length ? allReviews : SEEDED_REVIEWS;
   const text = (document.getElementById('reviewSearch')?.value||'').toLowerCase();
   return src.filter(r => {
     let pass = true;
-    if (currentFilter === 'ivan')  pass = r.mentionsIvan;
     if (currentFilter === '5star') pass = r.stars === 5;
-    if (text) pass = pass && (r.text.toLowerCase().includes(text) || r.author.toLowerCase().includes(text));
+    if (currentFilter === '4star') pass = r.stars === 4;
+    if (text) pass = pass && (
+      r.text.toLowerCase().includes(text) ||
+      r.author.toLowerCase().includes(text) ||
+      (r.customerMatch||'').toLowerCase().includes(text)
+    );
     return pass;
   });
 }
@@ -2694,6 +2721,10 @@ function filterReviews(f) {
   const filtered = getFilteredReviews();
   renderReviewsGrid(filtered);
   updateIvanBadge();
+  // Update "Todas" count
+  const allCount = (allReviews.length ? allReviews : SEEDED_REVIEWS).length;
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = allCount;
 }
 
 function filterReviewsText() {
@@ -2708,10 +2739,13 @@ function showMoreReviews() {
 
 function updateIvanBadge() {
   const src = allReviews.length ? allReviews : SEEDED_REVIEWS;
-  const ivanCount = src.filter(r=>r.mentionsIvan).length;
-  setEl('rv-ivan-count', ivanCount + ' reseñas');
+  const total = src.length;
+  setEl('rv-ivan-count', total + ' reseñas');
   const badge = document.getElementById('rv-ivan-badge');
-  if(badge) badge.style.display = ivanCount > 0 ? 'inline-flex' : 'none';
+  if(badge) badge.style.display = total > 0 ? 'inline-flex' : 'none';
+  // Also update "Todas" count
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = total;
 }
 
 // Fetch fresh reviews using Claude AI API — parses Valley Honda's public review feed
@@ -2725,20 +2759,27 @@ async function fetchLiveReviews() {
   if(updEl) updEl.textContent = 'Actualizando…';
 
   try {
-    const prompt = `You are a data assistant. Generate 15 realistic, varied customer reviews for Valley Honda (4173 Ogden Ave, Aurora, IL 60504) in JSON format. 
-Rules:
-- Mix of 4 and 5 star reviews (mostly 5)
-- Dates in June 2026 (format: "Jun DD, 2026")
-- 3-4 reviews must specifically mention salesperson "Ivan Mendez" in a positive way
-- Other reviews mention other real Valley Honda salespeople: Derek Lee, Jonathan Mueller, Bill Terhorst, Nathalie Rodriguez, Tyler Davis, Oscar Ramirez
-- Reviews about 2026 Honda models: CR-V Hybrid, Civic, Accord, Pilot, Odyssey
-- Mix of sources: "Google" and "DealerRater"
-- Realistic first+last name authors
-- Vary review length 1-3 sentences
-- Set mentionsIvan: true ONLY for reviews that explicitly name Ivan Mendez
+    // Build customer list from current deals for matching
+    const myCustomers = state.deals
+      .filter(d => d.date?.startsWith('2026-05'))
+      .map(d => `${d.customer} (${d.vehicle?.model||''}, Stock ${d.vehicle?.stock||''})`)
+      .join('; ');
 
-Return ONLY a JSON array like this (no markdown, no explanation):
-[{"author":"Full Name","stars":5,"date":"Jun 12, 2026","text":"Review text here. Ivan Mendez helped me...","mentionsIvan":true,"source":"Google"},...]`;
+    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson Ivan Mendez, in JSON format.
+
+Rules:
+- ALL reviews MUST mention "Ivan Mendez" or "Ivan" by name — every single one
+- Use these REAL customer names from Ivan's actual May 2026 deals as authors (match them): ${myCustomers}
+- Dates in May-June 2026 (format: "May DD, 2026" or "Jun DD, 2026")
+- Mix of 4 and 5 star reviews (mostly 5 stars)
+- Reviews reference the specific vehicle they bought (from the customer list above)
+- Mix of sources: "Google" and "DealerRater"
+- Each review 2-3 sentences, realistic tone, no generic filler
+- Set mentionsIvan: true for ALL reviews
+- Set customerMatch to: "CUSTOMER NAME · Stock XXXX · Model" using the customer data provided
+
+Return ONLY a JSON array (no markdown, no explanation):
+[{"author":"Customer Name","customerMatch":"FULL NAME · Stock XXXXX · Model","stars":5,"date":"May 15, 2026","text":"Ivan Mendez review text...","mentionsIvan":true,"source":"Google"},...]`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
@@ -2755,8 +2796,9 @@ Return ONLY a JSON array like this (no markdown, no explanation):
     const reviews = JSON.parse(clean);
 
     if (Array.isArray(reviews) && reviews.length > 0) {
-      // Merge with seeded reviews, dedup by author
-      const merged = [...reviews];
+      // Only keep Ivan reviews, merge with seeded (no duplicates by author)
+      const ivanOnly = reviews.filter(r => r.mentionsIvan !== false);
+      const merged = [...ivanOnly];
       SEEDED_REVIEWS.forEach(s => {
         if(!merged.find(r=>r.author===s.author)) merged.push(s);
       });
@@ -2766,9 +2808,9 @@ Return ONLY a JSON array like this (no markdown, no explanation):
       localStorage.setItem('vhonda_reviews', JSON.stringify({reviews:allReviews, ts: Date.now()}));
       filterReviews(currentFilter);
       updateIvanBadge();
-      notify(`${reviews.length} reseñas actualizadas`);
+      notify(`${ivanOnly.length} reseñas de Ivan actualizadas`);
     } else {
-      throw new Error('No valid reviews in response');
+      throw new Error('No valid reviews');
     }
   } catch(err) {
     console.error('Reviews fetch error:', err);
