@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Valley Honda · Commission Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
@@ -42,8 +42,9 @@
   --chart-grid:     rgba(0,0,0,0.06);
   --chart-legend:   #555;
   --radius:         14px;
-  --font-head:      'Syne', sans-serif;
+  --font-head:      'Inter', sans-serif;
   --font-mono:      'DM Mono', monospace;
+  --font-body:      'Inter', sans-serif;
 }
 
 /* ─── DARK THEME ─── */
@@ -86,7 +87,7 @@ body{
   background:var(--bg-grad);
   background-attachment:fixed;
   color:var(--text);
-  font-family:var(--font-mono);
+  font-family:var(--font-body);
   min-height:100vh;
   overflow-x:hidden;
   transition:background 0.35s ease, color 0.35s ease;
@@ -158,7 +159,7 @@ header{
   border:1px solid var(--glass-border);
   background:var(--glass-bg);
   color:var(--text);
-  font-family:var(--font-mono);font-size:0.74rem;
+  font-family:var(--font-body);font-size:0.8rem;font-weight:500;
   cursor:pointer;
   backdrop-filter:var(--blur);
   transition:all 0.15s ease;
@@ -322,7 +323,7 @@ header{
   border-bottom-color:var(--glass-border2);
   border-radius:8px;padding:8px 10px;
   color:var(--text);
-  font-family:var(--font-mono);font-size:0.76rem;
+  font-family:var(--font-body);font-size:0.82rem;
   outline:none;transition:border-color 0.15s,box-shadow 0.15s;
 }
 .form-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(100,100,100,0.12)}
@@ -353,7 +354,7 @@ header{
   border:1px solid var(--glass-border);
   background:var(--month-tab-bg);
   color:var(--text-dim);
-  font-family:var(--font-mono);font-size:0.66rem;
+  font-family:var(--font-body);font-size:0.72rem;font-weight:500;
   cursor:pointer;white-space:nowrap;transition:all 0.12s;
 }
 .month-tab.active{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
@@ -379,6 +380,34 @@ header{
 .empty-icon{font-size:1.8rem;margin-bottom:9px;opacity:0.3}
 .empty-text{font-size:0.75rem}
 .rdot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);display:inline-block;margin-right:4px;vertical-align:middle}
+
+/* ─── MODAL TABS ─── */
+.modal-tabs{display:flex;gap:4px;margin-top:14px;border-bottom:1px solid var(--sep);padding-bottom:0}
+.modal-tab{
+  padding:7px 16px;border-radius:8px 8px 0 0;
+  border:1px solid transparent;border-bottom:none;
+  background:transparent;color:var(--text-dim);
+  font-family:var(--font-body);font-size:0.78rem;font-weight:500;
+  cursor:pointer;transition:all 0.12s;
+}
+.modal-tab.active{
+  background:var(--glass-bg);
+  border-color:var(--glass-border);
+  color:var(--ink);
+}
+.modal-tab:hover:not(.active){color:var(--ink);background:var(--surface-mute)}
+
+/* ─── OPTION CARDS (inside modal options tab) ─── */
+.option-card{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:10px;padding:13px 15px;
+}
+.option-card-head{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-body);font-weight:600;font-size:0.82rem;margin-bottom:3px;
+}
+.option-card-desc{font-size:0.7rem;color:var(--text-dim);line-height:1.5}
 
 /* ─── MISMATCH & COMMISSION SUMMARY STYLES ─── */
 .mismatch-badge{
@@ -703,7 +732,10 @@ header{
     <div class="glass panel">
       <div class="panel-head">
         <div class="panel-title" style="color:#e07000"><i class="fas fa-pause-circle"></i> Deals In Hold File</div>
-        <div style="font-size:0.7rem;color:var(--text-dim)">Pending release — do not count toward paid commission</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:0.7rem;color:var(--text-dim)">Pendientes — no cuentan como comisión pagada</span>
+          <button class="btn" style="color:#e07000;border-color:rgba(224,112,0,0.35);font-size:0.73rem" onclick="openHoldModal()"><i class="fas fa-plus"></i> Agregar Hold</button>
+        </div>
       </div>
       <div style="overflow-x:auto">
         <table class="deals-table">
@@ -712,7 +744,9 @@ header{
               <th>Vehicle / Customer</th>
               <th>Stock</th>
               <th>Date</th>
-              <th>Commission Total</th>
+              <th>Commission</th>
+              <th>Aftermkt/FAI</th>
+              <th>Total</th>
               <th>Hold Reason</th>
               <th></th>
             </tr>
@@ -728,7 +762,7 @@ header{
 
   </div>
 
-<!-- MODAL -->
+<!-- MODAL — Add / Edit Deal -->
 <div class="modal-overlay" id="dealModal">
   <div class="modal">
     <div class="modal-title"><span id="modalTitle">Add Deal</span></div>
@@ -738,62 +772,196 @@ header{
       <span class="conf-badge" id="confBadge">—</span>
       <span id="reviewFlag" style="color:#e03;font-size:0.63rem"></span>
     </div>
+
+    <!-- SECTION TABS inside modal -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-deal" onclick="switchModalTab('deal')">Deal Info</button>
+      <button class="modal-tab" id="tab-options" onclick="switchModalTab('options')">Options</button>
+    </div>
+
+    <!-- TAB: DEAL INFO -->
+    <div id="tab-content-deal">
+      <div class="form-grid" style="margin-top:12px">
+        <div class="form-full">
+          <label class="form-label">Deal # / Stock #</label>
+          <input class="form-input" id="f-deal" placeholder="e.g. 214852 / 93665"/>
+        </div>
+        <div class="form-full">
+          <label class="form-label">Vehicle Description</label>
+          <input class="form-input" id="f-vehicle" placeholder="2026 Honda CR-V Hybrid"/>
+        </div>
+        <div class="form-full">
+          <label class="form-label">Customer Name</label>
+          <input class="form-input" id="f-customer" placeholder="VANESSA DE LA TORRE"/>
+        </div>
+        <div>
+          <label class="form-label">Date</label>
+          <input class="form-input" id="f-date" type="date"/>
+        </div>
+        <div>
+          <label class="form-label">Status</label>
+          <select class="form-input form-select" id="f-status">
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="On Hold">On Hold</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Commission No.1 ($)</label>
+          <input class="form-input" id="f-comm1" type="number" step="0.01" placeholder="75.00" oninput="updateCalcPreview()"/>
+        </div>
+        <div>
+          <label class="form-label">Accessories ($)</label>
+          <input class="form-input" id="f-accessories" type="number" step="0.01" placeholder="12.00" oninput="updateCalcPreview()"/>
+        </div>
+        <div>
+          <label class="form-label">Aftermarket 1 ($)</label>
+          <input class="form-input" id="f-am1" type="number" step="0.01" placeholder="175.75" oninput="updateCalcPreview()"/>
+        </div>
+        <div>
+          <label class="form-label">F&I Bonus 1 ($)</label>
+          <input class="form-input" id="f-fi1" type="number" step="0.01" placeholder="40.00" oninput="updateCalcPreview()"/>
+        </div>
+        <div>
+          <label class="form-label">Profit of Sale ($)</label>
+          <input class="form-input" id="f-profit" type="number" step="0.01" placeholder="-509.89"/>
+        </div>
+        <div>
+          <label class="form-label">Acc./AM Profit ($)</label>
+          <input class="form-input" id="f-amprofit" type="number" step="0.01" placeholder="733.00"/>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--sep);font-size:0.7rem;color:var(--text-dim)">
+        Payout calculado: <span id="calcPreview" style="font-family:var(--font-mono);font-weight:800;font-size:0.98rem">$0.00</span>
+      </div>
+    </div>
+
+    <!-- TAB: OPTIONS -->
+    <div id="tab-content-options" style="display:none">
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px">
+
+        <!-- Move to Hold / Active -->
+        <div class="option-card">
+          <div class="option-card-head">
+            <i class="fas fa-pause-circle" style="color:#e07000"></i>
+            <span>Hold File</span>
+          </div>
+          <div class="option-card-desc">Mover este deal al Hold File o regresarlo a Active Deals.</div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn" id="btnMoveToHold" onclick="moveCurrentToHold()" style="color:#e07000;border-color:rgba(224,112,0,0.35)">
+              <i class="fas fa-pause"></i> Mover a Hold
+            </button>
+            <button class="btn" id="btnMoveToActive" onclick="moveCurrentToActive()" style="display:none">
+              <i class="fas fa-play"></i> Regresar a Active
+            </button>
+          </div>
+          <div style="margin-top:10px" id="holdReasonWrap">
+            <label class="form-label">Hold Reason</label>
+            <input class="form-input" id="f-hold-reason" placeholder="SERVICE PASS, TRADE TITLE, DPTS ID#…"/>
+          </div>
+        </div>
+
+        <!-- Mismatch Override -->
+        <div class="option-card">
+          <div class="option-card-head">
+            <i class="fas fa-eye-slash" style="color:var(--text-dim)"></i>
+            <span>Mismatch Detection</span>
+          </div>
+          <div class="option-card-desc">Activar o ignorar la comparación con el Commission Summary para este deal.</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+            <label class="toggle-wrap" style="cursor:pointer">
+              <span style="font-size:0.75rem;color:var(--text-dim)">Ignorar mismatch</span>
+              <div class="theme-toggle" id="mismatchToggle" onclick="toggleMismatch()"></div>
+            </label>
+            <span id="mismatchStatus" style="font-size:0.7rem;color:var(--text-faint)"></span>
+          </div>
+        </div>
+
+        <!-- Pay Period override -->
+        <div class="option-card">
+          <div class="option-card-head">
+            <i class="fas fa-calendar-alt" style="color:var(--text-dim)"></i>
+            <span>Pay Period Override</span>
+          </div>
+          <div class="option-card-desc">Asignar manualmente el período de pago si no está en el Commission Summary.</div>
+          <div style="margin-top:10px">
+            <label class="form-label">Pay Period</label>
+            <select class="form-input form-select" id="f-payperiod">
+              <option value="">Auto (desde Summary)</option>
+              <option value="5/9/2026">5/9/2026</option>
+              <option value="5/23/2026">5/23/2026</option>
+              <option value="5/31/2026">5/31/2026</option>
+              <option value="custom">Otro…</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Split Deal -->
+        <div class="option-card">
+          <div class="option-card-head">
+            <i class="fas fa-user-friends" style="color:var(--text-dim)"></i>
+            <span>Split Deal</span>
+          </div>
+          <div style="margin-top:10px">
+            <label class="form-label">Split con (nombre del otro vendedor)</label>
+            <input class="form-input" id="f-split" placeholder="CONTRERAS, MALIK, ADRIAN…"/>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveDeal()"><i class="fas fa-check"></i> Guardar Deal</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOLD MODAL — Add/Edit Hold Deal -->
+<div class="modal-overlay" id="holdModal">
+  <div class="modal">
+    <div class="modal-title" style="color:#e07000"><i class="fas fa-pause-circle"></i> <span id="holdModalTitle">Agregar Hold Deal</span></div>
     <div class="form-grid" style="margin-top:14px">
       <div class="form-full">
-        <label class="form-label">Deal # / Stock #</label>
-        <input class="form-input" id="f-deal" placeholder="e.g. 214852 / 93665"/>
+        <label class="form-label">Stock # / Deal #</label>
+        <input class="form-input" id="hf-stock" placeholder="93665"/>
       </div>
       <div class="form-full">
         <label class="form-label">Vehicle Description</label>
-        <input class="form-input" id="f-vehicle" placeholder="2026 Honda CR-V Hybrid"/>
+        <input class="form-input" id="hf-vehicle" placeholder="2026 Honda CR-V Hybrid"/>
       </div>
       <div class="form-full">
         <label class="form-label">Customer Name</label>
-        <input class="form-input" id="f-customer" placeholder="VANESSA DE LA TORRE"/>
+        <input class="form-input" id="hf-customer" placeholder="VANESSA DE LA TORRE"/>
       </div>
       <div>
         <label class="form-label">Date</label>
-        <input class="form-input" id="f-date" type="date"/>
+        <input class="form-input" id="hf-date" type="date"/>
       </div>
       <div>
-        <label class="form-label">Status</label>
-        <select class="form-input form-select" id="f-status">
-          <option value="Pending">Pending</option>
-          <option value="Paid">Paid</option>
-          <option value="On Hold">On Hold</option>
-        </select>
+        <label class="form-label">Hold Reason</label>
+        <input class="form-input" id="hf-reason" placeholder="SERVICE PASS, TRADE TITLE…"/>
       </div>
       <div>
-        <label class="form-label">Commission No.1 ($)</label>
-        <input class="form-input" id="f-comm1" type="number" step="0.01" placeholder="75.00" oninput="updateCalcPreview()"/>
+        <label class="form-label">Commission ($)</label>
+        <input class="form-input" id="hf-comm1" type="number" step="0.01" placeholder="75.00" oninput="updateHoldPreview()"/>
       </div>
       <div>
-        <label class="form-label">Accessories ($)</label>
-        <input class="form-input" id="f-accessories" type="number" step="0.01" placeholder="12.00" oninput="updateCalcPreview()"/>
+        <label class="form-label">Aftermarket/FAI ($)</label>
+        <input class="form-input" id="hf-am1" type="number" step="0.01" placeholder="0.00" oninput="updateHoldPreview()"/>
       </div>
       <div>
-        <label class="form-label">Aftermarket 1 ($)</label>
-        <input class="form-input" id="f-am1" type="number" step="0.01" placeholder="175.75" oninput="updateCalcPreview()"/>
-      </div>
-      <div>
-        <label class="form-label">F&I Bonus 1 ($)</label>
-        <input class="form-input" id="f-fi1" type="number" step="0.01" placeholder="40.00" oninput="updateCalcPreview()"/>
-      </div>
-      <div>
-        <label class="form-label">Profit of Sale ($)</label>
-        <input class="form-input" id="f-profit" type="number" step="0.01" placeholder="-509.89"/>
-      </div>
-      <div>
-        <label class="form-label">Acc./AM Profit ($)</label>
-        <input class="form-input" id="f-amprofit" type="number" step="0.01" placeholder="733.00"/>
+        <label class="form-label">F&I Bonus ($)</label>
+        <input class="form-input" id="hf-fi1" type="number" step="0.01" placeholder="0.00" oninput="updateHoldPreview()"/>
       </div>
     </div>
-    <div style="margin-top:13px;padding-top:11px;border-top:1px solid var(--sep);font-size:0.68rem;color:var(--text-dim)">
-      Calculated Payout: <span id="calcPreview" style="font-family:var(--font-head);font-weight:800;font-size:0.98rem">$0.00</span>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--sep);font-size:0.7rem;color:var(--text-dim)">
+      Total Hold: <span id="holdCalcPreview" style="font-family:var(--font-mono);font-weight:800;font-size:0.98rem;color:#e07000">$0.00</span>
     </div>
     <div class="modal-actions">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveDeal()"><i class="fas fa-check"></i> Save Deal</button>
+      <button class="btn" onclick="closeHoldModal()">Cancelar</button>
+      <button class="btn" style="background:rgba(224,112,0,0.12);border-color:rgba(224,112,0,0.4);color:#e07000" onclick="saveHoldDeal()"><i class="fas fa-pause"></i> Guardar Hold</button>
     </div>
   </div>
 </div>
@@ -1203,7 +1371,8 @@ oz.addEventListener('drop',e=>{
 // ══════════════════════════════════
 function openAddModal(ocr) {
   editingId=null; clearForm();
-  setEl('modalTitle', ocr?'📷 Review OCR Fields':'Add Deal');
+  switchModalTab('deal');
+  setEl('modalTitle', ocr?'📷 Review OCR — Verificar Campos':'Agregar Deal');
   if(ocr){
     setF('f-deal',[ocr.dealNo,ocr.stockNo].filter(Boolean).join(' / '));
     setF('f-vehicle',ocr.model||''); setF('f-customer',ocr.customer||'');
@@ -1214,13 +1383,14 @@ function openAddModal(ocr) {
     const cr=document.getElementById('confRow'); cr.style.display='flex';
     const cb=document.getElementById('confBadge');
     cb.textContent=conf+'%'; cb.className='conf-badge '+(conf>=80?'conf-hi':conf>=60?'conf-med':'conf-lo');
-    setEl('reviewFlag', conf<70?' ⚠ Needs review':'');
+    setEl('reviewFlag', conf<70?' ⚠ Necesita revisión':'');
     if(ocr.previewSrc){document.getElementById('modalOcrPreview').src=ocr.previewSrc;document.getElementById('modalOcrPreview').style.display='block';}
   } else {
     document.getElementById('confRow').style.display='none';
     document.getElementById('modalOcrPreview').style.display='none';
   }
   setF('f-date', new Date().toISOString().slice(0,10));
+  setF('f-payperiod',''); setF('f-split',''); setF('f-hold-reason','');
   updateCalcPreview();
   document.getElementById('dealModal').classList.add('open');
 }
@@ -1228,7 +1398,8 @@ function openAddModal(ocr) {
 function openEditModal(id) {
   const deal=state.deals.find(d=>d.id===id);if(!deal)return;
   editingId=id; clearForm();
-  setEl('modalTitle','Edit Deal');
+  switchModalTab('deal');
+  setEl('modalTitle','Editar Deal');
   document.getElementById('confRow').style.display='none';
   document.getElementById('modalOcrPreview').style.display='none';
   const e=deal.extracted||{};
@@ -1238,6 +1409,9 @@ function openEditModal(id) {
   setF('f-comm1',e.commissionNo1||''); setF('f-accessories',e.accessories||'');
   setF('f-am1',e.aftermarket1||''); setF('f-fi1',e.fBonus1||'');
   setF('f-profit',e.profitOfSale||''); setF('f-amprofit',e.amProfit||'');
+  setF('f-payperiod',deal.payPeriodOverride||'');
+  setF('f-split',deal.splitWith||'');
+  setF('f-hold-reason',deal.holdReason||'');
   updateCalcPreview();
   document.getElementById('dealModal').classList.add('open');
 }
@@ -1256,6 +1430,10 @@ function saveDeal(){
   const ds=document.getElementById('f-deal').value.trim();
   const sk=(ds.match(/(\d{5,})/g)||[]);
   const conf=pendingOCR?.ocrConfidence??100;
+  const ppVal = document.getElementById('f-payperiod')?.value||'';
+  const splitVal = document.getElementById('f-split')?.value.trim()||'';
+  const holdR = document.getElementById('f-hold-reason')?.value.trim()||'';
+  const existingDeal = editingId ? state.deals.find(d=>d.id===editingId) : null;
   const deal={
     id:editingId||crypto.randomUUID(),
     date:document.getElementById('f-date').value,
@@ -1264,10 +1442,14 @@ function saveDeal(){
     extracted:e, calculated:{totalCommission:calcPayout({extracted:e})},
     status:document.getElementById('f-status').value,
     ocrConfidence:conf, needsReview:conf<70,
-    sourceFile:pendingOCR?.sourceFile||''
+    sourceFile:pendingOCR?.sourceFile||'',
+    payPeriodOverride: ppVal||undefined,
+    splitWith: splitVal||undefined,
+    holdReason: holdR||undefined,
+    ignoreMismatch: existingDeal?.ignoreMismatch||false
   };
-  if(editingId){ const i=state.deals.findIndex(d=>d.id===editingId);if(i>=0)state.deals[i]=deal; notify('Deal updated'); }
-  else{ state.deals.unshift(deal); notify('Deal saved!'); }
+  if(editingId){ const i=state.deals.findIndex(d=>d.id===editingId);if(i>=0)state.deals[i]=deal; notify('Deal actualizado'); }
+  else{ state.deals.unshift(deal); notify('Deal guardado'); }
   if(deal.date) state.selectedMonth=deal.date.slice(0,7);
   saveState(); closeModal(); renderAll();
 }
@@ -1275,7 +1457,8 @@ function saveDeal(){
 function deleteDeal(id){if(!confirm('Delete this deal?'))return;state.deals=state.deals.filter(d=>d.id!==id);saveState();renderAll();notify('Deleted');}
 function clearAll(){if(!confirm('Delete ALL deals?'))return;state.deals=[];saveState();renderAll();notify('Cleared');}
 function clearForm(){
-  ['f-deal','f-vehicle','f-customer','f-comm1','f-accessories','f-am1','f-fi1','f-profit','f-amprofit'].forEach(id=>setF(id,''));
+  ['f-deal','f-vehicle','f-customer','f-comm1','f-accessories','f-am1','f-fi1','f-profit','f-amprofit',
+   'f-payperiod','f-split','f-hold-reason'].forEach(id=>setF(id,''));
   document.getElementById('f-status').value='Pending';
   document.getElementById('modalOcrPreview').style.display='none';
 }
@@ -1377,17 +1560,18 @@ const HOLD_DEALS_SEED = [
 const MATCH_TOLERANCE = 0.50;
 
 function checkCommissionMatch(deal) {
+  if (deal.ignoreMismatch) return { matched: true, summaryTotal: null, diff: 0, payPeriod: deal.payPeriodOverride||null, split: deal.splitWith||null, ignored: true };
   const stock = (deal.vehicle?.stock||'').toUpperCase().replace(/\s/g,'');
   const entry = COMMISSION_SUMMARY.find(s => s.stock.toUpperCase() === stock);
-  if (!entry) return { matched: null, summaryTotal: null, diff: null, payPeriod: null, split: null };
+  if (!entry) return { matched: null, summaryTotal: null, diff: null, payPeriod: deal.payPeriodOverride||null, split: deal.splitWith||null };
   const dealTotal = calcPayout(deal);
   const diff = Math.abs(dealTotal - entry.summaryTotal);
   return {
     matched: diff <= MATCH_TOLERANCE,
     summaryTotal: entry.summaryTotal,
     diff: diff,
-    payPeriod: entry.payPeriod,
-    split: entry.split
+    payPeriod: deal.payPeriodOverride || entry.payPeriod,
+    split: deal.splitWith || entry.split
   };
 }
 
@@ -1470,48 +1654,210 @@ function renderHoldTable() {
   const tbody = document.getElementById('holdTableBody');
   const empty = document.getElementById('holdEmpty');
   const totalEl = document.getElementById('holdTotal');
+  const subEl = document.querySelector('#holdTotal')?.closest('.sv-card')?.querySelector('.sv-sub');
+  const total = holds.reduce((s,d) => s + (parseFloat(d.summaryTotal)||calcPayout(d)), 0);
+  if(totalEl) totalEl.textContent = fmt(total);
   if (!holds.length) {
     if(tbody) tbody.innerHTML='';
     if(empty) empty.style.display='block';
-    if(totalEl) totalEl.textContent='$0.00';
     return;
   }
   if(empty) empty.style.display='none';
-  const total = holds.reduce((s,d) => s + (parseFloat(d.summaryTotal)||calcPayout(d)), 0);
-  if(totalEl) totalEl.textContent = fmt(total);
   if(!tbody) return;
-  tbody.innerHTML = holds.map(d => {
-    const pay = parseFloat(d.summaryTotal) || calcPayout(d);
-    return `<tr>
+  tbody.innerHTML = holds.map((d,i) => {
+    const e = d.extracted || {};
+    const comm = parseFloat(e.commissionNo1)||0;
+    const am   = parseFloat(e.aftermarket1)||0;
+    const fi   = parseFloat(e.fBonus1)||0;
+    const pay  = parseFloat(d.summaryTotal) || (comm+am+fi);
+    return `<tr style="background:rgba(255,120,0,0.04)">
       <td><div class="deal-vehicle">${esc(d.vehicle?.model||'—')}</div><div class="deal-customer">${esc(d.customer||'—')}</div></td>
       <td style="font-size:0.64rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</td>
-      <td style="font-size:0.7rem">${d.date||'—'}</td>
+      <td style="font-size:0.7rem;color:var(--text-dim)">${d.date||'—'}</td>
+      <td style="font-size:0.77rem">${fmt(comm)}</td>
+      <td style="font-size:0.77rem">${fmt(am+fi)}</td>
       <td><span class="payout-val payout-pos">${fmt(pay)}</span></td>
       <td><span class="hold-reason-badge">${esc(d.holdReason||'—')}</span></td>
-      <td style="display:flex;gap:2px">
-        <button class="edit-btn" onclick="releaseHold('${d.id}')" title="Release to Active"><i class="fas fa-check-circle"></i></button>
+      <td style="display:flex;gap:2px;white-space:nowrap">
+        <button class="edit-btn" onclick="openHoldModal('${d.id}')" title="Editar"><i class="fas fa-pen"></i></button>
+        <button class="edit-btn" onclick="releaseHold('${d.id}')" title="Liberar a Active" style="color:#27a05a"><i class="fas fa-check-circle"></i></button>
         <button class="del-btn" onclick="deleteHold('${d.id}')"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
-  }).join('');
+  }).join('') +
+  `<tr class="total-row">
+    <td colspan="5" style="font-size:0.7rem">HOLD TOTAL (${holds.length} deals)</td>
+    <td>${fmt(total)}</td><td></td><td></td>
+  </tr>`;
 }
 
 function releaseHold(id) {
   const hold = (state.holdDeals||[]).find(d=>d.id===id);
   if(!hold) return;
-  if(!confirm(`Release "${hold.customer}" from Hold to Active deals?`)) return;
-  hold.status = 'Pending';
-  hold.isHold = false;
-  state.deals.unshift({...hold});
+  if(!confirm(`¿Liberar "${hold.customer}" del Hold File a Active Deals?`)) return;
+  const active = {...hold, status:'Pending', isHold:false};
+  delete active.holdReason; delete active.summaryTotal;
+  state.deals.unshift(active);
   state.holdDeals = state.holdDeals.filter(d=>d.id!==id);
-  saveState(); renderAll(); renderHoldTable();
-  notify('Deal released to Active');
+  saveState(); renderAll();
+  notify('Deal liberado a Active');
 }
 
 function deleteHold(id) {
-  if(!confirm('Delete this hold deal?')) return;
+  if(!confirm('¿Eliminar este hold deal?')) return;
   state.holdDeals = (state.holdDeals||[]).filter(d=>d.id!==id);
-  saveState(); renderHoldTable(); notify('Hold deal deleted');
+  saveState(); renderHoldTable(); renderSummaryVerification();
+  notify('Hold deal eliminado');
+}
+
+// ══════════════════════════════════
+// HOLD MODAL — Add / Edit
+// ══════════════════════════════════
+let editingHoldId = null;
+
+function openHoldModal(id) {
+  editingHoldId = id || null;
+  const modal = document.getElementById('holdModal');
+  const titleEl = document.getElementById('holdModalTitle');
+  if (id) {
+    const d = (state.holdDeals||[]).find(h=>h.id===id);
+    if (!d) return;
+    titleEl.textContent = 'Editar Hold Deal';
+    const e = d.extracted||{};
+    setF('hf-stock',   d.vehicle?.stock||'');
+    setF('hf-vehicle', d.vehicle?.model||'');
+    setF('hf-customer',d.customer||'');
+    setF('hf-date',    d.date||'');
+    setF('hf-reason',  d.holdReason||'');
+    setF('hf-comm1',   e.commissionNo1||'');
+    setF('hf-am1',     e.aftermarket1||'');
+    setF('hf-fi1',     e.fBonus1||'');
+  } else {
+    titleEl.textContent = 'Agregar Hold Deal';
+    ['hf-stock','hf-vehicle','hf-customer','hf-reason','hf-comm1','hf-am1','hf-fi1'].forEach(id=>setF(id,''));
+    setF('hf-date', new Date().toISOString().slice(0,10));
+  }
+  updateHoldPreview();
+  modal.classList.add('open');
+}
+
+function closeHoldModal() {
+  document.getElementById('holdModal').classList.remove('open');
+  editingHoldId = null;
+}
+
+function updateHoldPreview() {
+  const t = (parseFloat(document.getElementById('hf-comm1')?.value)||0)
+          + (parseFloat(document.getElementById('hf-am1')?.value)||0)
+          + (parseFloat(document.getElementById('hf-fi1')?.value)||0);
+  const el = document.getElementById('holdCalcPreview');
+  if(el) el.textContent = fmt(t);
+}
+
+function saveHoldDeal() {
+  const comm1 = parseFloat(document.getElementById('hf-comm1').value)||0;
+  const am1   = parseFloat(document.getElementById('hf-am1').value)||0;
+  const fi1   = parseFloat(document.getElementById('hf-fi1').value)||0;
+  const total = comm1+am1+fi1;
+  const deal = {
+    id:           editingHoldId || crypto.randomUUID(),
+    date:         document.getElementById('hf-date').value,
+    vehicle:      {stock: document.getElementById('hf-stock').value.trim(), model: document.getElementById('hf-vehicle').value.trim()},
+    customer:     document.getElementById('hf-customer').value.trim(),
+    extracted:    {commissionNo1:comm1, aftermarket1:am1, fBonus1:fi1, accessories:0, profitOfSale:0, amProfit:0},
+    calculated:   {totalCommission: total},
+    status:       'On Hold',
+    summaryTotal: total,
+    holdReason:   document.getElementById('hf-reason').value.trim(),
+    ocrConfidence:100, needsReview:false,
+    sourceFile:   'manual'
+  };
+  state.holdDeals = state.holdDeals || [];
+  if (editingHoldId) {
+    const i = state.holdDeals.findIndex(d=>d.id===editingHoldId);
+    if(i>=0) state.holdDeals[i] = deal;
+    notify('Hold deal actualizado');
+  } else {
+    state.holdDeals.push(deal);
+    notify('Hold deal agregado');
+  }
+  saveState(); closeHoldModal(); renderHoldTable(); renderSummaryVerification();
+}
+
+document.getElementById('holdModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeHoldModal();});
+
+// ══════════════════════════════════
+// MODAL TAB SWITCHING
+// ══════════════════════════════════
+function switchModalTab(tab) {
+  document.getElementById('tab-content-deal').style.display    = tab==='deal'    ? '' : 'none';
+  document.getElementById('tab-content-options').style.display = tab==='options' ? '' : 'none';
+  document.getElementById('tab-deal').classList.toggle('active',    tab==='deal');
+  document.getElementById('tab-options').classList.toggle('active', tab==='options');
+  if (tab==='options') refreshOptionsTab();
+}
+
+function refreshOptionsTab() {
+  // Reflect current deal's mismatch ignore state
+  const deal = editingId ? state.deals.find(d=>d.id===editingId) : null;
+  const ignored = deal?.ignoreMismatch || false;
+  const tog = document.getElementById('mismatchToggle');
+  if(tog) tog.setAttribute('data-on', ignored ? '1' : '0');
+  tog?.style && (tog.style.background = ignored ? 'rgba(0,0,0,0.3)' : 'var(--month-tab-bg)');
+  setEl('mismatchStatus', ignored ? 'Mismatch ignorado para este deal' : 'Activo — se compara con el Summary');
+
+  // Hold btn visibility
+  const isHold = deal?.status === 'On Hold';
+  const btnH = document.getElementById('btnMoveToHold');
+  const btnA = document.getElementById('btnMoveToActive');
+  if(btnH) btnH.style.display = isHold ? 'none' : '';
+  if(btnA) btnA.style.display = isHold ? '' : 'none';
+
+  // Pay period
+  const ppSel = document.getElementById('f-payperiod');
+  if(ppSel && deal?.payPeriodOverride) ppSel.value = deal.payPeriodOverride;
+
+  // Split
+  setF('f-split', deal?.splitWith||'');
+
+  // Hold reason
+  setF('f-hold-reason', deal?.holdReason||'');
+}
+
+function toggleMismatch() {
+  const deal = editingId ? state.deals.find(d=>d.id===editingId) : null;
+  if(!deal) { notify('Guarda el deal primero'); return; }
+  deal.ignoreMismatch = !deal.ignoreMismatch;
+  saveState(); renderTable();
+  refreshOptionsTab();
+  notify(deal.ignoreMismatch ? 'Mismatch ignorado' : 'Mismatch detection activado');
+}
+
+function moveCurrentToHold() {
+  if (!editingId) { notify('Guarda el deal primero para moverlo a Hold'); return; }
+  const reason = document.getElementById('f-hold-reason').value.trim() || 'Manual';
+  const deal = state.deals.find(d=>d.id===editingId);
+  if(!deal) return;
+  deal.status = 'On Hold';
+  deal.holdReason = reason;
+  // Copy to holdDeals
+  state.holdDeals = state.holdDeals || [];
+  const already = state.holdDeals.find(h=>h.id===editingId);
+  if(!already) state.holdDeals.push({...deal, summaryTotal: calcPayout(deal)});
+  state.deals = state.deals.filter(d=>d.id!==editingId);
+  saveState(); closeModal(); renderAll();
+  notify(`"${deal.customer}" movido a Hold`);
+}
+
+function moveCurrentToActive() {
+  if (!editingId) return;
+  const deal = state.deals.find(d=>d.id===editingId);
+  if(!deal) return;
+  deal.status = 'Pending';
+  delete deal.holdReason;
+  state.holdDeals = (state.holdDeals||[]).filter(d=>d.id!==editingId);
+  saveState(); closeModal(); renderAll();
+  notify('Deal regresado a Active');
 }
 
 // ══════════════════════════════════
