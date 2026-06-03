@@ -756,6 +756,26 @@ header{
   font-size:0.65rem;font-weight:700;flex-shrink:0;
 }
 
+/* ─── GOOGLE SIGN-IN BUTTON ─── */
+.google-btn{
+  width:100%;padding:11px 14px;border-radius:10px;
+  border:1.5px solid var(--glass-border);
+  background:var(--glass-bg);color:var(--text);
+  font-family:var(--font-body);font-size:0.88rem;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all 0.15s;margin-bottom:2px;
+  backdrop-filter:var(--blur);
+}
+.google-btn:hover{background:var(--glass-bg-hover);border-color:var(--ink)}
+
+/* ─── REVIEW CARD TEXT HELPERS ─── */
+.review-card-author{font-weight:700;font-size:0.9rem}
+.review-card-date{font-size:0.68rem;color:var(--text-faint);margin-top:1px}
+.review-card-text{font-size:0.8rem;color:var(--text-dim);line-height:1.65;margin-top:6px}
+.review-card-ivan{border-color:rgba(255,200,0,0.35)!important}
+.source-ivan{background:rgba(255,200,0,0.15);color:#8a6a00;border:1px solid rgba(200,150,0,0.3)}
+[data-theme="dark"] .source-ivan{background:rgba(255,220,50,0.1);color:#d4bc00;border-color:rgba(200,170,0,0.3)}
+
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -1489,21 +1509,17 @@ header{
 
 <script>
 // ══════════════════════════════════════════════════════════
-// FIREBASE CONFIGURATION
-// ── Paste your Firebase project config here.
-//    Get it from: Firebase Console → Project Settings → Your apps → SDK setup
-//    Leave as-is for offline/localStorage-only mode.
+// FIREBASE CONFIGURATION — Valley Honda Dashboard
 // ══════════════════════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
-  authDomain: "valley-honda-dashboard.firebaseapp.com",
-  projectId: "valley-honda-dashboard",
-  storageBucket: "valley-honda-dashboard.firebasestorage.app",
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
+  authDomain:        "valley-honda-dashboard.firebaseapp.com",
+  projectId:         "valley-honda-dashboard",
+  storageBucket:     "valley-honda-dashboard.firebasestorage.app",
   messagingSenderId: "177697774434",
-  appId: "1:177697774434:web:e3e110a335f5e452036a3b",
-  measurementId: "G-VE12MRTHPJ"
+  appId:             "1:177697774434:web:e3e110a335f5e452036a3b"
 };
-const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.includes('REPLACE_WITH');
+const FIREBASE_CONFIGURED = true; // credentials are set — Firebase is active
 
 // Runtime Firebase references
 let db = null, fbAuth = null, unsubscribeDeals = null;
@@ -2660,7 +2676,8 @@ function deleteDeal(id){
 }
 function clearAll(){
   if(!confirm('¿Eliminar TODOS los deals? No se puede deshacer.'))return;
-  if(db && currentUser){const uid=currentUser.uid;state.deals.forEach(d=>db.doc(`users/${uid}/deals/${d.id}`).delete().catch(()=>{}));}
+  const uid = _uid();
+  if(db && uid){ state.deals.forEach(d=>db.doc(`users/${uid}/deals/${d.id}`).delete().catch(()=>{})); }
   state.deals=[];saveStateLocal();renderAll();notify('Todos eliminados');
 }
 function clearForm(){
