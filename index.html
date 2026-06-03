@@ -7,6 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<!-- Firebase v10 CDN (compat layer — no build step required) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 /* ─── LIGHT THEME ─── */
 :root {
@@ -654,6 +658,87 @@ header{
 .trading-tooltip .tt-delta{font-size:0.72rem;margin-top:2px}
 .tt-up{color:#27a05a}.tt-down{color:#e03}
 
+/* ─── FIREBASE AUTH OVERLAY ─── */
+.auth-overlay{
+  position:fixed;inset:0;
+  background:var(--bg-grad);
+  z-index:500;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  transition:opacity 0.3s ease;
+}
+.auth-overlay.hidden{opacity:0;pointer-events:none}
+.auth-card{
+  background:var(--glass-bg);
+  backdrop-filter:blur(24px) saturate(200%);
+  border:1px solid var(--glass-border);
+  box-shadow:0 24px 64px rgba(0,0,0,0.18);
+  border-radius:20px;
+  padding:36px 32px;
+  width:100%;max-width:400px;
+  text-align:center;
+  animation:slideUp 0.28s cubic-bezier(.4,0,.2,1);
+}
+.auth-logo{font-size:2.5rem;margin-bottom:6px}
+.auth-title{font-family:var(--font-head);font-weight:800;font-size:1.3rem;margin-bottom:4px}
+.auth-sub{font-size:0.8rem;color:var(--text-dim);margin-bottom:24px}
+.auth-form{display:flex;flex-direction:column;gap:10px;text-align:left}
+.auth-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-dim);margin-bottom:3px;display:block}
+.auth-input{
+  width:100%;background:var(--input-bg);backdrop-filter:blur(8px);
+  border:1px solid var(--glass-border);border-radius:9px;
+  padding:10px 13px;color:var(--text);font-family:var(--font-body);
+  font-size:0.85rem;outline:none;transition:border-color 0.15s;
+}
+.auth-input:focus{border-color:var(--ink)}
+.auth-btn{
+  width:100%;padding:11px;border-radius:10px;border:none;
+  background:var(--ink);color:var(--ink-inv);
+  font-family:var(--font-body);font-size:0.88rem;font-weight:600;
+  cursor:pointer;margin-top:4px;transition:opacity 0.15s;
+}
+.auth-btn:hover{opacity:0.85}
+.auth-btn:disabled{opacity:0.5;cursor:not-allowed}
+.auth-toggle{font-size:0.78rem;color:var(--text-dim);margin-top:14px;cursor:pointer}
+.auth-toggle span{color:var(--ink);font-weight:600;text-decoration:underline}
+.auth-error{font-size:0.75rem;color:#e03;margin-top:4px;display:none;text-align:center}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text-faint);font-size:0.72rem}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--sep)}
+.google-btn{
+  width:100%;padding:10px;border-radius:10px;
+  border:1.5px solid var(--glass-border);
+  background:var(--glass-bg);color:var(--text);
+  font-family:var(--font-body);font-size:0.85rem;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;
+  transition:all 0.15s;
+}
+.google-btn:hover{background:var(--glass-bg-hover);border-color:var(--ink)}
+.google-icon{width:18px;height:18px}
+
+/* ─── SYNC INDICATOR ─── */
+.sync-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#27a05a;display:inline-block;
+  margin-right:5px;transition:background 0.2s;
+}
+.sync-dot.syncing{background:#e0a800;animation:pulse-dot 0.8s ease infinite}
+.sync-dot.error{background:#e03}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.35}}
+.user-pill{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 12px;border-radius:8px;
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  font-size:0.75rem;color:var(--text-dim);cursor:pointer;
+  transition:all 0.15s;
+}
+.user-pill:hover{background:var(--glass-bg-hover)}
+.user-avatar{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--ink);color:var(--ink-inv);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:700;flex-shrink:0;
+}
+
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -682,6 +767,12 @@ header{
     </div>
     <div class="header-right">
       <div class="month-pill" id="currentDate">—</div>
+      <!-- FIREBASE USER PILL -->
+      <div class="user-pill" id="userPill" style="display:none" onclick="showUserMenu()">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span id="userDisplayName">—</span>
+        <span class="sync-dot" id="syncDot" title="Sync status"></span>
+      </div>
       <label class="toggle-wrap" title="Toggle dark/light mode">
         <i class="fas fa-sun" style="font-size:0.72rem;color:var(--text-faint)"></i>
         <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></div>
@@ -1086,6 +1177,52 @@ header{
 
   </div><!-- end review section -->
 
+<!-- ─── FIREBASE AUTH OVERLAY ─── -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <div class="auth-logo">🏎</div>
+    <div class="auth-title">Valley Honda</div>
+    <div class="auth-sub">Commission Dashboard · Inicia sesión para continuar</div>
+
+    <button class="google-btn" onclick="signInGoogle()">
+      <svg class="google-icon" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Continuar con Google
+    </button>
+
+    <div class="auth-divider">o con email</div>
+
+    <div class="auth-form" id="authForm">
+      <div>
+        <label class="auth-label">Email</label>
+        <input class="auth-input" id="authEmail" type="email" placeholder="ivan@valleyhonda.com" autocomplete="email"/>
+      </div>
+      <div>
+        <label class="auth-label">Contraseña</label>
+        <input class="auth-input" id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') submitAuth()"/>
+      </div>
+      <div id="authNameWrap" style="display:none">
+        <label class="auth-label">Nombre completo</label>
+        <input class="auth-input" id="authName" type="text" placeholder="Oscar Ivan Mendez"/>
+      </div>
+      <div class="auth-error" id="authError"></div>
+      <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">
+        <span id="authBtnText">Iniciar sesión</span>
+      </button>
+    </div>
+
+    <div class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">
+      ¿No tienes cuenta? <span id="authToggleText">Crear cuenta</span>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL — Add / Edit Deal -->
 <div class="modal-overlay" id="dealModal">
   <div class="modal">
@@ -1294,6 +1431,255 @@ header{
 <div class="notif" id="notif"></div>
 
 <script>
+// ══════════════════════════════════════════════════════════
+// FIREBASE CONFIGURATION
+// ── Replace these values with your Firebase Console config
+// ══════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "REPLACE_WITH_YOUR_API_KEY",
+  authDomain:        "REPLACE_WITH_YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "REPLACE_WITH_YOUR_PROJECT_ID",
+  storageBucket:     "REPLACE_WITH_YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
+  appId:             "REPLACE_WITH_YOUR_APP_ID"
+};
+
+// ── Detect if Firebase is configured (not placeholder values)
+const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.includes('REPLACE_WITH');
+
+let db = null, fbAuth = null, currentUser = null, unsubscribeListener = null;
+
+function initFirebase() {
+  if (!FIREBASE_CONFIGURED) {
+    console.warn('Firebase not configured — running in offline mode (localStorage only)');
+    hideAuthOverlay();
+    return;
+  }
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db     = firebase.firestore();
+    fbAuth = firebase.auth();
+
+    // Persistence — keeps user logged in across page refreshes
+    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    fbAuth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        onUserLoggedIn(user);
+      } else {
+        currentUser = null;
+        onUserLoggedOut();
+      }
+    });
+  } catch (err) {
+    console.error('Firebase init error:', err);
+    hideAuthOverlay();
+    notify('Firebase error — modo offline');
+  }
+}
+
+// ── Auth mode toggle (login / register)
+let authMode = 'login';
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'register' : 'login';
+  document.getElementById('authBtnText').textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
+  document.getElementById('authToggleText').textContent = authMode === 'login' ? 'Crear cuenta' : 'Ya tengo cuenta';
+  document.getElementById('authNameWrap').style.display = authMode === 'register' ? '' : 'none';
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const pass  = document.getElementById('authPassword').value;
+  const name  = document.getElementById('authName')?.value.trim();
+  const errEl = document.getElementById('authError');
+  const btn   = document.getElementById('authSubmitBtn');
+  errEl.style.display = 'none';
+  if (!email || !pass) { showAuthError('Completa todos los campos'); return; }
+  btn.disabled = true;
+  try {
+    if (authMode === 'login') {
+      await fbAuth.signInWithEmailAndPassword(email, pass);
+    } else {
+      if (!name) { showAuthError('Ingresa tu nombre'); btn.disabled=false; return; }
+      const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+      await cred.user.updateProfile({ displayName: name });
+    }
+  } catch(err) {
+    const msgs = {
+      'auth/user-not-found':    'No existe una cuenta con ese email',
+      'auth/wrong-password':    'Contraseña incorrecta',
+      'auth/email-already-in-use': 'Ese email ya está registrado',
+      'auth/weak-password':     'La contraseña debe tener al menos 6 caracteres',
+      'auth/invalid-email':     'Email inválido',
+    };
+    showAuthError(msgs[err.code] || err.message);
+  } finally { btn.disabled = false; }
+}
+
+async function signInGoogle() {
+  if (!fbAuth) return;
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await fbAuth.signInWithPopup(provider);
+  } catch(err) {
+    showAuthError('Error al iniciar con Google: ' + err.message);
+  }
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function signOut() {
+  if (!fbAuth) return;
+  fbAuth.signOut().then(() => notify('Sesión cerrada'));
+}
+
+function showUserMenu() {
+  if (confirm(`Sesión activa: ${currentUser?.email||'—'}\n\n¿Cerrar sesión?`)) signOut();
+}
+
+// ── Called when user logs in
+function onUserLoggedIn(user) {
+  // Update header UI
+  const pill    = document.getElementById('userPill');
+  const avatar  = document.getElementById('userAvatar');
+  const nameEl  = document.getElementById('userDisplayName');
+  if (pill)   pill.style.display   = 'flex';
+  if (avatar) avatar.textContent   = (user.displayName||user.email||'?')[0].toUpperCase();
+  if (nameEl) nameEl.textContent   = user.displayName || user.email?.split('@')[0] || 'User';
+
+  hideAuthOverlay();
+  subscribeFirestore(user.uid);
+  notify(`Bienvenido, ${user.displayName || user.email?.split('@')[0] || 'User'} ✓`);
+}
+
+// ── Called when user logs out
+function onUserLoggedOut() {
+  const pill = document.getElementById('userPill');
+  if (pill) pill.style.display = 'none';
+  if (unsubscribeListener) { unsubscribeListener(); unsubscribeListener = null; }
+  showAuthOverlay();
+}
+
+function showAuthOverlay() {
+  const el = document.getElementById('authOverlay');
+  if (el) { el.style.display='flex'; el.classList.remove('hidden'); }
+}
+function hideAuthOverlay() {
+  const el = document.getElementById('authOverlay');
+  if (el) { el.classList.add('hidden'); setTimeout(()=>el.style.display='none', 320); }
+}
+
+// ══════════════════════════════════════════════════════════
+// FIRESTORE SYNC — userId-isolated real-time sync
+// Firestore structure:
+//   /users/{uid}/deals/{dealId}
+//   /users/{uid}/holdDeals/{dealId}
+//   /users/{uid}/meta/prefs   (selectedMonth, reviewPeriod, etc.)
+// ══════════════════════════════════════════════════════════
+function setSyncStatus(status) {
+  const dot = document.getElementById('syncDot');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (status==='syncing'?' syncing':status==='error'?' error':'');
+  dot.title = status==='ok'?'Sincronizado':status==='syncing'?'Sincronizando…':'Error de sync';
+}
+
+// Subscribe to real-time Firestore updates for this user
+function subscribeFirestore(uid) {
+  if (!db) return;
+  setSyncStatus('syncing');
+
+  // Listen to deals collection
+  unsubscribeListener = db.collection(`users/${uid}/deals`)
+    .orderBy('date', 'desc')
+    .onSnapshot(snap => {
+      const deals = [];
+      snap.forEach(doc => deals.push({ id: doc.id, ...doc.data() }));
+      state.deals = deals;
+      // Also load holdDeals in parallel
+      db.collection(`users/${uid}/holdDeals`).get().then(hSnap => {
+        const holds = [];
+        hSnap.forEach(doc => holds.push({ id: doc.id, ...doc.data() }));
+        state.holdDeals = holds;
+        saveStateLocal(); // keep local cache in sync
+        renderAll();
+        renderHoldTable();
+        renderSummaryVerification();
+        setSyncStatus('ok');
+      });
+    }, err => {
+      console.error('Firestore snapshot error:', err);
+      setSyncStatus('error');
+      notify('Error de sincronización');
+    });
+
+  // Load meta/prefs
+  db.doc(`users/${uid}/meta/prefs`).get().then(doc => {
+    if (doc.exists) {
+      const prefs = doc.data();
+      if (prefs.selectedMonth) state.selectedMonth = prefs.selectedMonth;
+      if (prefs.reviewPeriod)  state.reviewPeriod  = prefs.reviewPeriod;
+      if (prefs.reviewCompData) state.reviewCompData = prefs.reviewCompData;
+    }
+  });
+}
+
+// Save a single deal to Firestore (used instead of full saveState)
+async function saveDealFirestore(deal) {
+  if (!db || !currentUser) return;
+  setSyncStatus('syncing');
+  try {
+    await db.doc(`users/${currentUser.uid}/deals/${deal.id}`).set(deal);
+    setSyncStatus('ok');
+  } catch(err) {
+    setSyncStatus('error');
+    console.error('Firestore save error:', err);
+    notify('Error al guardar en la nube');
+  }
+}
+
+async function deleteDealFirestore(dealId) {
+  if (!db || !currentUser) return;
+  setSyncStatus('syncing');
+  try {
+    await db.doc(`users/${currentUser.uid}/deals/${dealId}`).delete();
+    setSyncStatus('ok');
+  } catch(err) {
+    setSyncStatus('error');
+    notify('Error al eliminar en la nube');
+  }
+}
+
+async function saveHoldFirestore(hold) {
+  if (!db || !currentUser) return;
+  try {
+    await db.doc(`users/${currentUser.uid}/holdDeals/${hold.id}`).set(hold);
+  } catch(err) { console.error('Hold save error:', err); }
+}
+
+async function deleteHoldFirestore(holdId) {
+  if (!db || !currentUser) return;
+  try {
+    await db.doc(`users/${currentUser.uid}/holdDeals/${holdId}`).delete();
+  } catch(err) { console.error('Hold delete error:', err); }
+}
+
+async function savePrefsFirestore() {
+  if (!db || !currentUser) return;
+  try {
+    await db.doc(`users/${currentUser.uid}/meta/prefs`).set({
+      selectedMonth:   state.selectedMonth,
+      reviewPeriod:    state.reviewPeriod || null,
+      reviewCompData:  state.reviewCompData || null,
+      updatedAt:       firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch(err) { console.error('Prefs save error:', err); }
+}
+
 // ══════════════════════════════════
 // THEME
 // ══════════════════════════════════
@@ -1336,7 +1722,13 @@ function migrate(old) {
   if (old.holdDeals) s.holdDeals = old.holdDeals;
   return s;
 }
-function saveState() { localStorage.setItem(SK, JSON.stringify(state)); }
+function saveStateLocal() { localStorage.setItem(SK, JSON.stringify(state)); }
+
+// saveState — writes locally always, and to Firestore if authenticated
+function saveState() {
+  saveStateLocal();
+  savePrefsFirestore();
+}
 
 let state = loadState();
 let editingId = null;
@@ -2019,11 +2411,21 @@ function saveDeal(){
   if(editingId){ const i=state.deals.findIndex(d=>d.id===editingId);if(i>=0)state.deals[i]=deal; notify('Deal actualizado'); }
   else{ state.deals.unshift(deal); notify('Deal guardado'); }
   if(deal.date) state.selectedMonth=deal.date.slice(0,7);
-  saveState(); closeModal(); renderAll();
+  saveStateLocal(); closeModal(); renderAll();
+  saveDealFirestore(deal); // async cloud write
 }
 
-function deleteDeal(id){if(!confirm('Delete this deal?'))return;state.deals=state.deals.filter(d=>d.id!==id);saveState();renderAll();notify('Deleted');}
-function clearAll(){if(!confirm('Delete ALL deals?'))return;state.deals=[];saveState();renderAll();notify('Cleared');}
+function deleteDeal(id){
+  if(!confirm('¿Eliminar este deal?'))return;
+  state.deals=state.deals.filter(d=>d.id!==id);
+  saveStateLocal();renderAll();notify('Deal eliminado');
+  deleteDealFirestore(id);
+}
+function clearAll(){
+  if(!confirm('¿Eliminar TODOS los deals? No se puede deshacer.'))return;
+  if(db && currentUser){const uid=currentUser.uid;state.deals.forEach(d=>db.doc(`users/${uid}/deals/${d.id}`).delete().catch(()=>{}));}
+  state.deals=[];saveStateLocal();renderAll();notify('Todos eliminados');
+}
 function clearForm(){
   ['f-deal','f-vehicle','f-customer','f-comm1','f-accessories','f-am1','f-fi1','f-profit','f-amprofit',
    'f-payperiod','f-split','f-hold-reason'].forEach(id=>setF(id,''));
@@ -2267,15 +2669,18 @@ function releaseHold(id) {
   delete active.holdReason; delete active.summaryTotal;
   state.deals.unshift(active);
   state.holdDeals = state.holdDeals.filter(d=>d.id!==id);
-  saveState(); renderAll();
+  saveStateLocal(); renderAll();
   notify('Deal liberado a Active');
+  saveDealFirestore(active);
+  deleteHoldFirestore(id);
 }
 
 function deleteHold(id) {
   if(!confirm('¿Eliminar este hold deal?')) return;
   state.holdDeals = (state.holdDeals||[]).filter(d=>d.id!==id);
-  saveState(); renderHoldTable(); renderSummaryVerification();
+  saveStateLocal(); renderHoldTable(); renderSummaryVerification();
   notify('Hold deal eliminado');
+  deleteHoldFirestore(id);
 }
 
 // ══════════════════════════════════
@@ -2349,7 +2754,8 @@ function saveHoldDeal() {
     state.holdDeals.push(deal);
     notify('Hold deal agregado');
   }
-  saveState(); closeHoldModal(); renderHoldTable(); renderSummaryVerification();
+  saveStateLocal(); closeHoldModal(); renderHoldTable(); renderSummaryVerification();
+  saveHoldFirestore(deal); // async cloud write
 }
 
 document.getElementById('holdModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeHoldModal();});
@@ -2851,7 +3257,9 @@ loadCachedReviews();
 filterReviews('all');
 updateIvanBadge();
 
-// Add spin keyframe
+// Initialize Firebase — shows auth overlay if configured, hides it if offline mode
+initFirebase();
+
 const spinStyle = document.createElement('style');
 spinStyle.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
 document.head.appendChild(spinStyle);
