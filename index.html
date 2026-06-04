@@ -929,13 +929,14 @@ details[open] summary{color:var(--text)}
 // ============================================================
 // FIREBASE CONFIG (replace with your credentials)
 // ============================================================
-const FIREBASE_CONFIG = {
-  apiKey:            "REPLACE_WITH_YOUR_API_KEY",
-  authDomain:        "REPLACE_WITH_YOUR_PROJECT.firebaseapp.com",
-  projectId:         "REPLACE_WITH_YOUR_PROJECT",
-  storageBucket:     "REPLACE_WITH_YOUR_PROJECT.appspot.com",
-  messagingSenderId: "REPLACE_WITH_SENDER_ID",
-  appId:             "REPLACE_WITH_APP_ID"
+const firebaseConfig = {
+  apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
+  authDomain: "valley-honda-dashboard.firebaseapp.com",
+  projectId: "valley-honda-dashboard",
+  storageBucket: "valley-honda-dashboard.firebasestorage.app",
+  messagingSenderId: "177697774434",
+  appId: "1:177697774434:web:e3e110a335f5e452036a3b",
+  measurementId: "G-VE12MRTHPJ"
 };
 const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.includes('REPLACE_WITH');
 let db = null, fbAuth = null, unsubscribeDeals = null;
