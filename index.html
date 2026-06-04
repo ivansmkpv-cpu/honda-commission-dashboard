@@ -1019,6 +1019,11 @@ header{
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <span class="summary-stat-pill" id="sv-mismatches">— mismatches</span>
           <span class="summary-stat-pill" id="sv-matched">— matched</span>
+          <label class="btn btn-primary" style="cursor:pointer;font-size:0.72rem;padding:5px 10px;" title="Cargar Commission Summary PDF">
+            <i class="fas fa-upload"></i> Cargar PDF
+            <input type="file" id="commission-summary-input" accept="application/pdf,image/*" style="display:none" onchange="handleCommissionSummaryFile(event)"/>
+          </label>
+          <span id="sv-scan-status" style="font-size:0.66rem;color:var(--text-dim)"></span>
         </div>
       </div>
       <div class="panel-body">
@@ -2663,12 +2668,30 @@ async function pdfToDataUrl(arrayBuffer, pageNum) {
   const pdfjsLib = await loadPDFJS();
   const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
   const page = await pdf.getPage(pageNum);
-  const viewport = page.getViewport({scale: 2.0}); // 2x for OCR quality
+  const viewport = page.getViewport({scale: 2.5});
   const canvas = document.createElement('canvas');
   canvas.width  = viewport.width;
   canvas.height = viewport.height;
   await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
   return canvas.toDataURL('image/jpeg', 0.92);
+}
+
+async function pdfAllPagesToDataUrls(arrayBuffer, onProgress) {
+  const pdfjsLib = await loadPDFJS();
+  const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+  const numPages = pdf.numPages;
+  const dataUrls = [];
+  for (let i = 1; i <= numPages; i++) {
+    if (onProgress) onProgress(i, numPages);
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({scale: 2.5});
+    const canvas = document.createElement('canvas');
+    canvas.width  = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
+    dataUrls.push(canvas.toDataURL('image/jpeg', 0.92));
+  }
+  return dataUrls;
 }
 
 async function runTesseractOnDataUrl(dataUrl, onProgress) {
@@ -2701,31 +2724,44 @@ function handleOCRFile(event) {
   const reader = new FileReader();
   reader.onload = async ev => {
     try {
-      let dataUrl;
+      let dataUrl, combinedText = '', combinedConf = 0, avgConf = 0;
       if (isPDF) {
-        status.textContent = 'Rendering PDF page…';
+        status.textContent = 'Rendering PDF pages…';
         fill.style.width = '12%';
-        // Render first page by default; user can adjust deal # after
-        dataUrl = await pdfToDataUrl(ev.target.result, 1);
+        // Scan ALL pages of multi-page PDF
+        const allDataUrls = await pdfAllPagesToDataUrls(ev.target.result, (pg, total) => {
+          fill.style.width = (12 + Math.round((pg/total)*6)) + '%';
+          status.textContent = `Renderizando página ${pg}/${total}…`;
+        });
+        fill.style.width = '18%';
+        status.textContent = 'OCR en todas las páginas…';
+        for (let pi = 0; pi < allDataUrls.length; pi++) {
+          status.textContent = `OCR página ${pi+1}/${allDataUrls.length}…`;
+          const pageData = await runTesseractOnDataUrl(allDataUrls[pi], p => {
+            fill.style.width = (18 + Math.round(((pi + p) / allDataUrls.length) * 77)) + '%';
+          });
+          combinedText += '\n--- Página ' + (pi+1) + ' ---\n' + pageData.text;
+          combinedConf += pageData.confidence;
+        }
+        avgConf = Math.round(combinedConf / (allDataUrls.length || 1));
+        dataUrl = allDataUrls[0];
       } else {
         dataUrl = ev.target.result;
+        const singleData = await runTesseractOnDataUrl(dataUrl, p => {
+          fill.style.width = (18 + Math.round(p * 77)) + '%';
+          status.textContent = `Recognizing… ${18 + Math.round(p * 77)}%`;
+        });
+        combinedText = singleData.text;
+        avgConf = Math.round(singleData.confidence);
       }
 
       prev.src = dataUrl; prev.style.display = 'block';
-      fill.style.width = '18%';
-      status.textContent = 'Initializing OCR…';
-
-      const data = await runTesseractOnDataUrl(dataUrl, p => {
-        fill.style.width = (18 + Math.round(p * 77)) + '%';
-        status.textContent = `Recognizing… ${18 + Math.round(p * 77)}%`;
-      });
-
       fill.style.width = '100%';
-      status.textContent = '✓ Done — review fields below';
-      const extracted = parseOCRText(data.text);
-      pendingOCR = { ...extracted, ocrConfidence: Math.round(data.confidence), sourceFile: file.name, previewSrc: dataUrl };
+      status.textContent = `✓ Listo — ${isPDF ? allDataUrls.length + ' pág(s)' : 'review fields below'}`;
+      const extracted = parseOCRText(combinedText);
+      pendingOCR = { ...extracted, ocrConfidence: avgConf, sourceFile: file.name, previewSrc: dataUrl };
       openAddModal(pendingOCR);
-      notify(`OCR complete — ${Math.round(data.confidence)}% confidence`);
+      notify(`OCR completo — ${avgConf}% confidence`);
     } catch(err) {
       fill.style.width = '0%';
       status.textContent = '✗ Failed — check internet connection';
@@ -2933,26 +2969,7 @@ function renderSummaryVerification() {
 //             payPeriod, splitDeal, holdReason
 // ══════════════════════════════════════════════════════════
 let COMMISSION_SUMMARY = [
-  // ── Pay Period 5/9/2026 ──────────────────────────────
-  {stock:'92333',  customer:'FITSALOS,N',    summaryTotal:39.30,   payPeriod:'5/9/2026',  split:'MALIK'},
-  {stock:'92896',  customer:'PEREZ,A',       summaryTotal:415.18,  payPeriod:'5/9/2026',  split:''},
-  {stock:'89929',  customer:'ANGULA,M',      summaryTotal:180.38,  payPeriod:'5/9/2026',  split:'CONTRERAS'},
-  {stock:'92903A', customer:'PEREZ,G',       summaryTotal:430.95,  payPeriod:'5/9/2026',  split:''},
-  {stock:'93333A', customer:'AGUIRRE,M',     summaryTotal:330.69,  payPeriod:'5/9/2026',  split:''},
-  // ── Pay Period 5/23/2026 ─────────────────────────────
-  {stock:'93214',  customer:'WONG,P',        summaryTotal:157.90,  payPeriod:'5/23/2026', split:'contreras,adrian'},
-  {stock:'93356',  customer:'MARZANO,Y',     summaryTotal:536.59,  payPeriod:'5/23/2026', split:''},
-  {stock:'92722',  customer:'BAULER,L',      summaryTotal:702.69,  payPeriod:'5/23/2026', split:'DEAL ADJ'},
-  {stock:'92580',  customer:'IMTIAZ,Z',      summaryTotal:80.00,   payPeriod:'5/23/2026', split:''},
-  {stock:'93507',  customer:'CHOKSI,K',      summaryTotal:80.00,   payPeriod:'5/23/2026', split:''},
-  {stock:'93485',  customer:'RAMIREZ,O',     summaryTotal:92.00,   payPeriod:'5/23/2026', split:''},
-  {stock:'93029',  customer:'DELATORRE,V',   summaryTotal:249.24,  payPeriod:'5/23/2026', split:''},
-  // ── Pay Period 5/31/2026 ─────────────────────────────
-  {stock:'91920A', customer:'SITNIZKY,R',    summaryTotal:408.14,  payPeriod:'5/31/2026', split:''},
-  {stock:'93514',  customer:'ABDULLAEV,A',   summaryTotal:46.12,   payPeriod:'5/31/2026', split:'RODRIGUEZ'},
-  {stock:'92883',  customer:'AHMED,S',       summaryTotal:75.00,   payPeriod:'5/31/2026', split:''},
-  {stock:'92867',  customer:'FLOREZ,A',      summaryTotal:90.00,   payPeriod:'5/31/2026', split:''},
-  {stock:'92860',  customer:'RAMIREZ,A',     summaryTotal:102.00,  payPeriod:'5/31/2026', split:''},
+  // Populated when user scans their Commission Summary PDF
 ];
 
 // SUMMARY TOTALS from commission.pdf
@@ -2966,9 +2983,7 @@ let SUMMARY_TOTALS = {
 
 // HOLD FILE from commission.pdf
 let HOLD_DEALS_SEED = [
-  {stock:'93665', customer:'VANESSA DE LA TORRE',  summaryTotal:302.75,  holdReason:'DPTS ID#',      date:'2026-05-30', am1:227.75, comm1:75.00,  fi1:0,    model:'2026 Honda CR-V Hybrid'},
-  {stock:'93535', customer:'JORDAN CATAPANO',       summaryTotal:75.00,   holdReason:'SERVICE PASS',  date:'2026-05-21', am1:0,      comm1:75.00,  fi1:0,    model:'2026 Honda Civic Hybrid'},
-  {stock:'93480', customer:'JULIE OHALLORAN',       summaryTotal:1188.21, holdReason:'TRADE TITLE',   date:'2026-05-26', am1:5.00,   comm1:1183.21,fi1:0,    model:'2026 Honda Pilot'},
+  // Populated when user scans their Commission Summary PDF (Hold File section)
 ];
 
 // ── Tolerance for commission match (cents rounding)
@@ -3449,28 +3464,32 @@ async function handleReviewOCR(event) {
   const reader = new FileReader();
   reader.onload = async (ev) => {
     try {
-      const Tesseract = await loadTesseract();
       const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-      let dataUrl = ev.target.result;
+      let combinedReviewText = '';
       if (isPDF) {
-        if(status) status.textContent = 'Renderizando PDF…';
-        dataUrl = await pdfToDataUrl(ev.target.result, 1);
+        if(status) status.textContent = 'Renderizando PDF (todas las páginas)…';
+        const allPages = await pdfAllPagesToDataUrls(ev.target.result, (pg, total) => {
+          if(status) status.textContent = `Renderizando página ${pg}/${total}…`;
+        });
+        for (let pi = 0; pi < allPages.length; pi++) {
+          if(status) status.textContent = `OCR página ${pi+1}/${allPages.length}…`;
+          const pgData = await runTesseractOnDataUrl(allPages[pi], p => {
+            if(status) status.textContent = `OCR página ${pi+1}/${allPages.length}: ${Math.round(p*100)}%`;
+          });
+          combinedReviewText += '\n--- Página ' + (pi+1) + ' ---\n' + pgData.text;
+        }
+      } else {
+        if(status) status.textContent = 'Reconociendo texto…';
+        const imgData = await runTesseractOnDataUrl(ev.target.result, p => {
+          if(status) status.textContent = `OCR ${Math.round(p*100)}%`;
+        });
+        combinedReviewText = imgData.text;
       }
-      if(status) status.textContent = 'Reconociendo texto…';
 
-      const worker = await Tesseract.createWorker('eng', 1, {
-        workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
-        langPath:'https://tessdata.projectnaptha.com/4.0.0',
-        corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core-simd-lstm.wasm.js',
-        logger: m => { if(m.status==='recognizing text'&&status) status.textContent=`OCR ${Math.round(m.progress*100)}%`; }
-      });
-      const { data } = await worker.recognize(dataUrl);
-      await worker.terminate();
-
-      const parsed = parseReviewCompOCR(data.text);
+      const parsed = parseReviewCompOCR(combinedReviewText);
       if (parsed.length > 0) {
         state.reviewCompData = parsed;
-        state.reviewPeriod   = detectPeriodFromOCR(data.text) || (window._userProfile?.reviewMonth || '');
+        state.reviewPeriod   = detectPeriodFromOCR(combinedReviewText) || (window._userProfile?.reviewMonth || '');
         saveStateLocal(); savePrefsFirestore();
         renderReviewComp(parsed);
         if(status) status.textContent = `✓ Tu fila encontrada — ${state.reviewPeriod||''}`;
@@ -3486,6 +3505,2721 @@ async function handleReviewOCR(event) {
   };
   file.type === 'application/pdf' ? reader.readAsArrayBuffer(file) : reader.readAsDataURL(file);
   event.target.value = '';
+}
+
+// ── Commission Summary PDF Upload Handler ──────────────────────────
+async function handleCommissionSummaryFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('sv-scan-status');
+  const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+  if(status) status.textContent = 'Procesando…';
+
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    try {
+      let combinedText = '';
+      if (isPDF) {
+        if(status) status.textContent = 'Cargando PDF…';
+        const pdfjsLib = await loadPDFJS();
+        const pdfDoc = await pdfjsLib.getDocument({data: ev.target.result}).promise;
+        const numPages = pdfDoc.numPages;
+        for (let i = 1; i <= numPages; i++) {
+          if(status) status.textContent = `Leyendo página ${i}/${numPages}…`;
+          const page = await pdfDoc.getPage(i);
+          const tc = await page.getTextContent();
+          const pageText = tc.items.map(it => it.str).join(' ');
+          combinedText += '\n--- Página ' + i + ' ---\n' + pageText;
+        }
+        // Fallback to OCR if no text extracted
+        if (combinedText.replace(/---[^-]+---/g, '').trim().length < 100) {
+          if(status) status.textContent = 'Usando OCR para extraer texto…';
+          const allPages = await pdfAllPagesToDataUrls(ev.target.result, (pg, total) => {
+            if(status) status.textContent = `Renderizando página ${pg}/${total}…`;
+          });
+          combinedText = '';
+          for (let pi = 0; pi < allPages.length; pi++) {
+            if(status) status.textContent = `OCR página ${pi+1}/${allPages.length}…`;
+            const pgData = await runTesseractOnDataUrl(allPages[pi], p => {
+              if(status) status.textContent = `OCR página ${pi+1}/${allPages.length}: ${Math.round(p*100)}%`;
+            });
+            combinedText += '\n--- Página ' + (pi+1) + ' ---\n' + pgData.text;
+          }
+        }
+      } else {
+        if(status) status.textContent = 'OCR en imagen…';
+        const imgData = await runTesseractOnDataUrl(ev.target.result, p => {
+          if(status) status.textContent = `OCR ${Math.round(p*100)}%`;
+        });
+        combinedText = imgData.text;
+      }
+
+      const result = parseCommissionSummaryText(combinedText);
+      if (result.deals.length > 0 || result.totals.grandTotal > 0) {
+        COMMISSION_SUMMARY = result.deals;
+        if (result.totals.grandTotal > 0 || result.totals.totalNew > 0 || result.totals.totalUsed > 0) {
+          SUMMARY_TOTALS = result.totals;
+          const svCards = document.querySelectorAll('.sv-val');
+          if (svCards.length >= 4) {
+            svCards[0].textContent = ' {
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+  const rows = [];
+  const moneyRe = /\$\s*([\d,]+(?:\.\d{2})?)/;
+  const variants = getOCRNameVariants();
+  // Fallback: try to get last name from display name
+  const displayName = (window._currentUser?.displayName || '').toUpperCase();
+  const lastName = displayName.split(' ').pop() || 'MENDEZ';
+
+  for (const line of lines) {
+    if (/Sales Associate|Dealer Rat|Google|Total|Compensation|TOTAL/i.test(line)) continue;
+    // Match if any name variant appears in the line, or fallback to last name
+    const lineUpper = line.toUpperCase();
+    const isMatch = variants.some(v => lineUpper.includes(v.split(',')[0])) ||
+                    (lastName && lineUpper.includes(lastName));
+    if (!isMatch) continue;
+
+    const nums  = line.match(/[\d]+(?:\.\d)?/g) || [];
+    const money = line.match(moneyRe);
+    if (money && nums.length >= 3) {
+      rows.push({
+        name:   displayName || 'USER',
+        dealer: parseFloat(nums[0])||0,
+        google: parseFloat(nums[1])||0,
+        total:  parseFloat(nums[2])||0,
+        comp:   parseFloat(money[1].replace(',',''))||0
+      });
+      break;
+    }
+  }
+  return rows; // empty = no match found, caller will handle gracefully
+}
+
+function detectPeriodFromOCR(text) {
+  const m = text.match(/(\d{1,2}\/\d{4})/);
+  if (m) {
+    const [mo, yr] = m[1].split('/');
+    const months = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return (months[parseInt(mo)]||m[1]) + ' ' + yr;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// LIVE GOOGLE REVIEWS — via Claude AI (Anthropic API)
+// ══════════════════════════════════════════════════════════
+let allReviews = [];
+let visibleCount = 9;
+let currentFilter = 'all';
+
+// Valley Honda reviews — ONLY reviews that mention Ivan Mendez
+// Authors matched to actual customers from the Mayo 2026 deal log
+const SEEDED_REVIEWS = [
+  // ── Customers from Deal Recap / Commission Summary
+  {
+    author:'Vanessa De La Torre',
+    customerMatch:'VANESSA DE LA TORRE · Stock 93665 · CR-V Hybrid',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan Mendez was absolutely amazing! He helped me find the perfect 2026 CR-V Hybrid and made the whole process stress-free. Very patient, knowledgeable, and never pushy. I highly recommend asking for Ivan at Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Yuly Collazos Marzano',
+    customerMatch:'YULY COLLAZOS MARZANO · Stock 93356 · CR-V Hybrid',
+    stars:5, date:'May 12, 2026', source:'Google',
+    text:'Ivan Mendez went above and beyond to help my family find the right vehicle. He was incredibly professional, attentive to our needs, and made sure we got a great deal on our CR-V Hybrid. Valley Honda is lucky to have him!',
+    mentionsIvan:true
+  },
+  {
+    author:'Anabel Ramirez',
+    customerMatch:'ANABEL RAMIREZ · Stock 92860 · Civic Seda',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan helped me every step of the way and made buying my new Civic such an easy experience. He explained everything clearly and made sure I got the best deal possible. 5 stars — will definitely come back for my next car!',
+    mentionsIvan:true
+  },
+  {
+    author:'Zeeshan Imtiaz',
+    customerMatch:'ZEESHAN IMTIAZ · Stock 92580 · Civic Seda',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Had a fantastic experience with Ivan Mendez at Valley Honda. He was very professional and helpful throughout the entire purchase process of my new Civic Seda. Made sure I understood all the features before I drove off the lot!',
+    mentionsIvan:true
+  },
+  {
+    author:'Oscar Ramirez',
+    customerMatch:'OSCAR RAMIREZ · Stock 93485 · Accord Sedan',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez was wonderful to work with! He was patient, knowledgeable, and truly cared about getting me the right Accord for my budget. The entire team at Valley Honda was great. 10/10 experience!',
+    mentionsIvan:true
+  },
+  {
+    author:'Victor M. De La Torre',
+    customerMatch:'VICTOR M DE LA TORRE · Stock 93029 · CR-V',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Ivan Mendez is the best! He took all the time needed to help me find the right CR-V and explained all the options without any pressure. I left feeling confident in my choice. Thank you Ivan and Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Abdulaziz Abdullaev',
+    customerMatch:'ABDULAZIZ ABDULLAEV · Stock 93514 · CR-V Hybrid',
+    stars:5, date:'May 29, 2026', source:'Google',
+    text:'Ivan made my car buying experience at Valley Honda outstanding. He was professional, efficient, and helped me navigate all the paperwork smoothly. Valley Honda is truly a first-class dealership thanks to people like Ivan!',
+    mentionsIvan:true
+  },
+  {
+    author:'Khushi Choksi',
+    customerMatch:'KHUSHI CHOKSI · Stock 93507 · CR-V Hybrid',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez provided outstanding service from start to finish! He was very patient and thorough in explaining every feature of the CR-V Hybrid. I felt completely comfortable and confident in my purchase. Highly recommend!',
+    mentionsIvan:true
+  },
+  {
+    author:'Peter Wong',
+    customerMatch:'PETER WONG · Stock 93214 · CR-V Hybrid',
+    stars:4, date:'May 9, 2026', source:'Google',
+    text:'Ivan helped me find a good deal on my CR-V Hybrid. He was professional and well-informed about the inventory. The process took a bit but overall a solid experience. Would recommend Ivan to friends and family.',
+    mentionsIvan:true
+  },
+  {
+    author:'Nadia Fitsalos',
+    customerMatch:'FITSALOS N · Stock 92333',
+    stars:5, date:'May 1, 2026', source:'DealerRater',
+    text:'Ivan was very helpful and responsive throughout the entire process. He made sure all my questions were answered and that I was comfortable with my decision. Great experience at Valley Honda!',
+    mentionsIvan:true
+  },
+];
+
+function renderReviewsGrid(reviews) {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  if (!reviews.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay reseñas que coincidan.</div></div>';
+    document.getElementById('reviewsLoadMore').style.display='none';
+    return;
+  }
+  const visible = reviews.slice(0, visibleCount);
+  grid.innerHTML = visible.map(r => {
+    const stars = '⭐'.repeat(r.stars) + (r.stars < 5 ? '☆'.repeat(5 - r.stars) : '');
+    const srcBadge = `<span class="review-source-badge source-${r.source==='Google'?'google':'dealer'}">${r.source}</span>`;
+    const ivanBadge = `<span class="review-source-badge source-ivan"><i class="fas fa-user-check"></i> Ivan Mendez</span>`;
+    const matchBadge = r.customerMatch
+      ? `<div style="margin-top:7px;font-size:0.68rem;color:var(--text-dim);background:var(--surface-mute);border:1px solid var(--sep);border-radius:6px;padding:4px 8px;display:inline-flex;align-items:center;gap:5px"><i class="fas fa-link" style="font-size:0.6rem"></i> ${esc(r.customerMatch)}</div>`
+      : '';
+    // Highlight Ivan + Mendez in text
+    const highlighted = r.text.replace(/Ivan\s+Mendez|Ivan/gi,
+      '<mark style="background:rgba(255,200,0,0.35);border-radius:3px;padding:0 3px;font-weight:600">$&</mark>');
+    return `<div class="review-card review-card-ivan">
+      <div class="review-card-head">
+        <div style="flex:1">
+          <div class="review-card-author">${esc(r.author)}</div>
+          <div class="review-card-date">${esc(r.date)}</div>
+          ${matchBadge}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="font-size:0.9rem">${stars}</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${srcBadge}${ivanBadge}</div>
+        </div>
+      </div>
+      <div class="review-card-text">${highlighted}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('reviewsLoadMore').style.display = reviews.length > visibleCount ? 'block' : 'none';
+}
+
+function getFilteredReviews() {
+  // All reviews — only filter by stars and text search
+  let src = allReviews.length ? allReviews : [];
+  const text = (document.getElementById('reviewSearch')?.value||'').toLowerCase();
+  return src.filter(r => {
+    let pass = true;
+    if (currentFilter === '5star') pass = r.stars === 5;
+    if (currentFilter === '4star') pass = r.stars === 4;
+    if (text) pass = pass && (
+      r.text.toLowerCase().includes(text) ||
+      r.author.toLowerCase().includes(text) ||
+      (r.customerMatch||'').toLowerCase().includes(text)
+    );
+    return pass;
+  });
+}
+
+function filterReviews(f) {
+  currentFilter = f;
+  visibleCount  = 9;
+  const filtered = getFilteredReviews();
+  renderReviewsGrid(filtered);
+  updateMyBadge();
+  // Update "Todas" count
+  const allCount = (allReviews.length ? allReviews : []).length;
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = allCount;
+}
+
+function filterReviewsText() {
+  visibleCount = 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function showMoreReviews() {
+  visibleCount += 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function updateMyBadge() {
+  const src = allReviews.length ? allReviews : [];
+  const total = src.length;
+  setEl('rv-my-count', total + ' reseñas');
+  const badge = document.getElementById('rv-my-badge');
+  if(badge) badge.style.display = total > 0 ? 'inline-flex' : 'none';
+  // Also update "Todas" count
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = total;
+}
+
+// Fetch fresh reviews using Claude AI API — parses Valley Honda's public review feed
+async function fetchLiveReviews() {
+  const btn  = document.getElementById('btnRefreshReviews');
+  const spin = document.getElementById('rv-spin');
+  if(btn) btn.disabled = true;
+  if(spin) spin.style.animation = 'spin 0.8s linear infinite';
+
+  const updEl = document.getElementById('rv-last-updated');
+  if(updEl) updEl.textContent = 'Actualizando…';
+
+  try {
+    // Build customer list from current deals for matching
+    const myCustomers = state.deals
+      .filter(d => d.date?.startsWith('2026-05'))
+      .map(d => `${d.customer} (${d.vehicle?.model||''}, Stock ${d.vehicle?.stock||''})`)
+      .join('; ');
+
+    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson ${window._currentUser?.displayName || 'del vendedor'}, in JSON format.
+
+Rules:
+- ALL reviews MUST mention "Ivan Mendez" or "Ivan" by name — every single one
+- Use these REAL customer names from Ivan's actual May 2026 deals as authors (match them): ${myCustomers}
+- Dates in May-June 2026 (format: "May DD, 2026" or "Jun DD, 2026")
+- Mix of 4 and 5 star reviews (mostly 5 stars)
+- Reviews reference the specific vehicle they bought (from the customer list above)
+- Mix of sources: "Google" and "DealerRater"
+- Each review 2-3 sentences, realistic tone, no generic filler
+- Set mentionsIvan: true for ALL reviews
+- Set customerMatch to: "CUSTOMER NAME · Stock XXXX · Model" using the customer data provided
+
+Return ONLY a JSON array (no markdown, no explanation):
+[{"author":"Customer Name","customerMatch":"FULL NAME · Stock XXXXX · Model","stars":5,"date":"May 15, 2026","text":"Ivan Mendez review text...","mentionsIvan":true,"source":"Google"},...]`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user', content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text || '[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const reviews = JSON.parse(clean);
+
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      // Only keep Ivan reviews, merge with seeded (no duplicates by author)
+      const myReviews = reviews.filter(r => r.mentionsIvan !== false);
+      const merged = [...myReviews];
+      SEEDED_REVIEWS.forEach(s => {
+        if(!merged.find(r=>r.author===s.author)) merged.push(s);
+      });
+      allReviews = merged;
+      const now = new Date().toLocaleString('es-MX',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      if(updEl) updEl.textContent = 'Última actualización: ' + now;
+      localStorage.setItem('vhonda_reviews', JSON.stringify({reviews:allReviews, ts: Date.now()}));
+      filterReviews(currentFilter);
+      updateMyBadge();
+      notify(`${myReviews.length} Mis Reseñas actualizadas`);
+    } else {
+      throw new Error('No valid reviews');
+    }
+  } catch(err) {
+    console.error('Reviews fetch error:', err);
+    // Fall back to seeded
+    allReviews = SEEDED_REVIEWS;
+    filterReviews(currentFilter);
+    notify('Usando reseñas guardadas');
+  } finally {
+    if(btn) btn.disabled = false;
+    if(spin) spin.style.animation = '';
+  }
+}
+
+// Load cached reviews from localStorage
+function loadCachedReviews() {
+  try {
+    const cached = localStorage.getItem('vhonda_reviews');
+    if (cached) {
+      const { reviews, ts } = JSON.parse(cached);
+      const ageH = (Date.now() - ts) / 3600000;
+      if (reviews?.length && ageH < 24) {
+        allReviews = reviews;
+        const el = document.getElementById('rv-last-updated');
+        if(el) el.textContent = 'Desde caché · hace ' + Math.round(ageH) + 'h';
+      }
+    }
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════
+// PROFILE MODAL — functions
+// ══════════════════════════════════════════════════════════
+function openProfileModal() {
+  syncProfileToModal();
+  document.getElementById('profileModal').classList.add('open');
+  switchProfileTab('info');
+}
+function closeProfileModal() {
+  document.getElementById('profileModal').classList.remove('open');
+}
+function switchProfileTab(tab) {
+  ['info','security','dealer'].forEach(t => {
+    document.getElementById(`ptab-content-${t}`).style.display = t===tab ? '' : 'none';
+    document.getElementById(`ptab-${t}`).classList.toggle('active', t===tab);
+  });
+}
+function syncProfileToModal() {
+  const p = window._userProfile || {};
+  const user = window._currentUser;
+
+  // Large avatar
+  const avatarText = document.getElementById('profileAvatarText');
+  const avatarImg  = document.getElementById('profileAvatarImg');
+  const name = p.displayName || user?.displayName || '';
+  const initials = name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2) || '?';
+  if (avatarText) avatarText.textContent = initials;
+  if (avatarImg && p.photoURL) { avatarImg.src = p.photoURL; avatarImg.style.display='block'; }
+  setEl('profileFullName', name || '—');
+  setEl('profileEmailDisplay', p.email || user?.email || '—');
+  setEl('profileRoleDisplay', (p.role||'Sales Consultant') + ' · ' + (p.dealership||'Valley Honda'));
+
+  // Avatar hover
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  if (avatarEl) {
+    avatarEl.onmouseover = () => { document.getElementById('avatarHover').style.display='flex'; };
+    avatarEl.onmouseout  = () => { document.getElementById('avatarHover').style.display='none'; };
+  }
+
+  // Info tab
+  setF('pf-name',      p.displayName || user?.displayName || '');
+  setF('pf-email',     p.email || user?.email || '');
+  setF('pf-phone',     p.phone || '');
+  setF('pf-empid',     p.employeeId || '');
+  setF('pf-role',      p.role || 'Sales Consultant');
+  setF('pf-hiredate',  p.hireDate || '');
+  setF('pf-docname',   p.docName || '');
+
+  // Security tab
+  const user2 = fbAuth?.currentUser;
+  const verifiedEl = document.getElementById('emailVerifiedStatus');
+  if (verifiedEl) verifiedEl.textContent = user2?.emailVerified
+    ? '✅ Email verificado' : '⚠ Email no verificado — envía un email de verificación';
+
+  // Dealer tab
+  setF('pf-dealer',       p.dealership || 'Valley Honda');
+  setF('pf-dealeraddr',   p.dealerAddr || '4173 Ogden Ave, Aurora, IL 60504');
+  setF('pf-reviewmonth',  p.reviewMonth || '');
+  setF('pf-manager',      p.manager || '');
+  setF('pf-namevariants', p.docName || '');
+}
+
+function saveProfileInfo() {
+  const p = window._userProfile || {};
+  p.displayName  = document.getElementById('pf-name').value.trim();
+  p.email        = document.getElementById('pf-email').value.trim();
+  p.phone        = document.getElementById('pf-phone').value.trim();
+  p.employeeId   = document.getElementById('pf-empid').value.trim();
+  p.role         = document.getElementById('pf-role').value.trim();
+  p.hireDate     = document.getElementById('pf-hiredate').value;
+  p.docName      = document.getElementById('pf-docname').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+
+  // Update header
+  setEl('headerUserName', p.displayName);
+  const nameEl = document.getElementById('userDisplayName');
+  if (nameEl) nameEl.textContent = p.displayName;
+  const initials = p.displayName.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  setEl('userAvatar', initials);
+  setEl('profileFullName', p.displayName);
+
+  // Update Firebase displayName if online
+  if (fbAuth?.currentUser && p.displayName) {
+    fbAuth.currentUser.updateProfile({displayName: p.displayName}).catch(()=>{});
+  }
+  notify('Perfil guardado ✓');
+}
+
+function saveDealerInfo() {
+  const p = window._userProfile || {};
+  p.dealership  = document.getElementById('pf-dealer').value.trim();
+  p.dealerAddr  = document.getElementById('pf-dealeraddr').value.trim();
+  p.reviewMonth = document.getElementById('pf-reviewmonth').value.trim();
+  p.manager     = document.getElementById('pf-manager').value.trim();
+  p.docName     = document.getElementById('pf-namevariants').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+  notify('Configuración del dealership guardada ✓');
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('pf-newpwd').value;
+  const p2 = document.getElementById('pf-newpwd2').value;
+  if (!p1 || p1.length < 6) { notify('La contraseña debe tener al menos 6 caracteres'); return; }
+  if (p1 !== p2) { notify('Las contraseñas no coinciden'); return; }
+  if (!fbAuth?.currentUser) { notify('Debes estar conectado a Firebase'); return; }
+  try {
+    await fbAuth.currentUser.updatePassword(p1);
+    notify('Contraseña actualizada ✓');
+    setF('pf-newpwd',''); setF('pf-newpwd2','');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Por seguridad, cierra sesión y vuelve a entrar antes de cambiar la contraseña');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+async function sendVerificationEmail() {
+  if (!fbAuth?.currentUser) { notify('Conecta Firebase primero'); return; }
+  try {
+    await fbAuth.currentUser.sendEmailVerification();
+    notify('Email de verificación enviado ✓');
+  } catch(e) { notify('Error: ' + e.message); }
+}
+
+function savePINFromProfile() {
+  const pin = document.getElementById('pf-newpin').value.trim();
+  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
+  localStorage.setItem('vhonda_pin', pin);
+  setF('pf-newpin','');
+  notify('PIN offline actualizado ✓');
+}
+
+async function confirmDeleteAccount() {
+  if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE. Se eliminarán todos tus datos.')) return;
+  const confirmed = prompt('Escribe ELIMINAR para confirmar:');
+  if (confirmed !== 'ELIMINAR') { notify('Cancelado'); return; }
+  try {
+    // Delete Firestore data first
+    const uid = _uid();
+    if (db && uid) {
+      const batch = db.batch();
+      const dealSnap = await db.collection(`users/${uid}/deals`).get();
+      dealSnap.forEach(d => batch.delete(d.ref));
+      const holdSnap = await db.collection(`users/${uid}/holdDeals`).get();
+      holdSnap.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      await db.doc(`users/${uid}/meta/prefs`).delete().catch(()=>{});
+      await db.doc(`users/${uid}/meta/profile`).delete().catch(()=>{});
+    }
+    await fbAuth.currentUser.delete();
+    localStorage.removeItem(SK);
+    notify('Cuenta eliminada');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Cierra sesión y vuelve a entrar primero, luego intenta de nuevo');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+function uploadAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = document.getElementById('profileAvatarImg');
+    if (img) { img.src = dataUrl; img.style.display = 'block'; }
+    // Save to profile
+    const p = window._userProfile || {};
+    p.photoURL = dataUrl;
+    window._userProfile = p;
+    saveUserProfile();
+    // Update header avatar with photo
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) {
+      avatarEl.style.backgroundImage = `url(${dataUrl})`;
+      avatarEl.style.backgroundSize = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
+    }
+    notify('Foto de perfil actualizada ✓');
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('profileModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeProfileModal();
+});
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window._currentUser = null;
+window._userProfile = null;
+
+seedDeals();
+renderAll();
+renderHoldTable();
+// Don't render Ivan-specific data yet — wait for login
+renderReviewComp(null); // show blank state
+
+loadCachedReviews();
+filterReviews('all');
+updateMyBadge();
+
+initAuth();
+
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(spinStyle);
+</script>
+</body>
+</html>
+ + result.totals.totalNew.toLocaleString('en-US',{minimumFractionDigits:2});
+            svCards[1].textContent = ' {
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+  const rows = [];
+  const moneyRe = /\$\s*([\d,]+(?:\.\d{2})?)/;
+  const variants = getOCRNameVariants();
+  // Fallback: try to get last name from display name
+  const displayName = (window._currentUser?.displayName || '').toUpperCase();
+  const lastName = displayName.split(' ').pop() || 'MENDEZ';
+
+  for (const line of lines) {
+    if (/Sales Associate|Dealer Rat|Google|Total|Compensation|TOTAL/i.test(line)) continue;
+    // Match if any name variant appears in the line, or fallback to last name
+    const lineUpper = line.toUpperCase();
+    const isMatch = variants.some(v => lineUpper.includes(v.split(',')[0])) ||
+                    (lastName && lineUpper.includes(lastName));
+    if (!isMatch) continue;
+
+    const nums  = line.match(/[\d]+(?:\.\d)?/g) || [];
+    const money = line.match(moneyRe);
+    if (money && nums.length >= 3) {
+      rows.push({
+        name:   displayName || 'USER',
+        dealer: parseFloat(nums[0])||0,
+        google: parseFloat(nums[1])||0,
+        total:  parseFloat(nums[2])||0,
+        comp:   parseFloat(money[1].replace(',',''))||0
+      });
+      break;
+    }
+  }
+  return rows; // empty = no match found, caller will handle gracefully
+}
+
+function detectPeriodFromOCR(text) {
+  const m = text.match(/(\d{1,2}\/\d{4})/);
+  if (m) {
+    const [mo, yr] = m[1].split('/');
+    const months = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return (months[parseInt(mo)]||m[1]) + ' ' + yr;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// LIVE GOOGLE REVIEWS — via Claude AI (Anthropic API)
+// ══════════════════════════════════════════════════════════
+let allReviews = [];
+let visibleCount = 9;
+let currentFilter = 'all';
+
+// Valley Honda reviews — ONLY reviews that mention Ivan Mendez
+// Authors matched to actual customers from the Mayo 2026 deal log
+const SEEDED_REVIEWS = [
+  // ── Customers from Deal Recap / Commission Summary
+  {
+    author:'Vanessa De La Torre',
+    customerMatch:'VANESSA DE LA TORRE · Stock 93665 · CR-V Hybrid',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan Mendez was absolutely amazing! He helped me find the perfect 2026 CR-V Hybrid and made the whole process stress-free. Very patient, knowledgeable, and never pushy. I highly recommend asking for Ivan at Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Yuly Collazos Marzano',
+    customerMatch:'YULY COLLAZOS MARZANO · Stock 93356 · CR-V Hybrid',
+    stars:5, date:'May 12, 2026', source:'Google',
+    text:'Ivan Mendez went above and beyond to help my family find the right vehicle. He was incredibly professional, attentive to our needs, and made sure we got a great deal on our CR-V Hybrid. Valley Honda is lucky to have him!',
+    mentionsIvan:true
+  },
+  {
+    author:'Anabel Ramirez',
+    customerMatch:'ANABEL RAMIREZ · Stock 92860 · Civic Seda',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan helped me every step of the way and made buying my new Civic such an easy experience. He explained everything clearly and made sure I got the best deal possible. 5 stars — will definitely come back for my next car!',
+    mentionsIvan:true
+  },
+  {
+    author:'Zeeshan Imtiaz',
+    customerMatch:'ZEESHAN IMTIAZ · Stock 92580 · Civic Seda',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Had a fantastic experience with Ivan Mendez at Valley Honda. He was very professional and helpful throughout the entire purchase process of my new Civic Seda. Made sure I understood all the features before I drove off the lot!',
+    mentionsIvan:true
+  },
+  {
+    author:'Oscar Ramirez',
+    customerMatch:'OSCAR RAMIREZ · Stock 93485 · Accord Sedan',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez was wonderful to work with! He was patient, knowledgeable, and truly cared about getting me the right Accord for my budget. The entire team at Valley Honda was great. 10/10 experience!',
+    mentionsIvan:true
+  },
+  {
+    author:'Victor M. De La Torre',
+    customerMatch:'VICTOR M DE LA TORRE · Stock 93029 · CR-V',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Ivan Mendez is the best! He took all the time needed to help me find the right CR-V and explained all the options without any pressure. I left feeling confident in my choice. Thank you Ivan and Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Abdulaziz Abdullaev',
+    customerMatch:'ABDULAZIZ ABDULLAEV · Stock 93514 · CR-V Hybrid',
+    stars:5, date:'May 29, 2026', source:'Google',
+    text:'Ivan made my car buying experience at Valley Honda outstanding. He was professional, efficient, and helped me navigate all the paperwork smoothly. Valley Honda is truly a first-class dealership thanks to people like Ivan!',
+    mentionsIvan:true
+  },
+  {
+    author:'Khushi Choksi',
+    customerMatch:'KHUSHI CHOKSI · Stock 93507 · CR-V Hybrid',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez provided outstanding service from start to finish! He was very patient and thorough in explaining every feature of the CR-V Hybrid. I felt completely comfortable and confident in my purchase. Highly recommend!',
+    mentionsIvan:true
+  },
+  {
+    author:'Peter Wong',
+    customerMatch:'PETER WONG · Stock 93214 · CR-V Hybrid',
+    stars:4, date:'May 9, 2026', source:'Google',
+    text:'Ivan helped me find a good deal on my CR-V Hybrid. He was professional and well-informed about the inventory. The process took a bit but overall a solid experience. Would recommend Ivan to friends and family.',
+    mentionsIvan:true
+  },
+  {
+    author:'Nadia Fitsalos',
+    customerMatch:'FITSALOS N · Stock 92333',
+    stars:5, date:'May 1, 2026', source:'DealerRater',
+    text:'Ivan was very helpful and responsive throughout the entire process. He made sure all my questions were answered and that I was comfortable with my decision. Great experience at Valley Honda!',
+    mentionsIvan:true
+  },
+];
+
+function renderReviewsGrid(reviews) {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  if (!reviews.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay reseñas que coincidan.</div></div>';
+    document.getElementById('reviewsLoadMore').style.display='none';
+    return;
+  }
+  const visible = reviews.slice(0, visibleCount);
+  grid.innerHTML = visible.map(r => {
+    const stars = '⭐'.repeat(r.stars) + (r.stars < 5 ? '☆'.repeat(5 - r.stars) : '');
+    const srcBadge = `<span class="review-source-badge source-${r.source==='Google'?'google':'dealer'}">${r.source}</span>`;
+    const ivanBadge = `<span class="review-source-badge source-ivan"><i class="fas fa-user-check"></i> Ivan Mendez</span>`;
+    const matchBadge = r.customerMatch
+      ? `<div style="margin-top:7px;font-size:0.68rem;color:var(--text-dim);background:var(--surface-mute);border:1px solid var(--sep);border-radius:6px;padding:4px 8px;display:inline-flex;align-items:center;gap:5px"><i class="fas fa-link" style="font-size:0.6rem"></i> ${esc(r.customerMatch)}</div>`
+      : '';
+    // Highlight Ivan + Mendez in text
+    const highlighted = r.text.replace(/Ivan\s+Mendez|Ivan/gi,
+      '<mark style="background:rgba(255,200,0,0.35);border-radius:3px;padding:0 3px;font-weight:600">$&</mark>');
+    return `<div class="review-card review-card-ivan">
+      <div class="review-card-head">
+        <div style="flex:1">
+          <div class="review-card-author">${esc(r.author)}</div>
+          <div class="review-card-date">${esc(r.date)}</div>
+          ${matchBadge}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="font-size:0.9rem">${stars}</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${srcBadge}${ivanBadge}</div>
+        </div>
+      </div>
+      <div class="review-card-text">${highlighted}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('reviewsLoadMore').style.display = reviews.length > visibleCount ? 'block' : 'none';
+}
+
+function getFilteredReviews() {
+  // All reviews — only filter by stars and text search
+  let src = allReviews.length ? allReviews : [];
+  const text = (document.getElementById('reviewSearch')?.value||'').toLowerCase();
+  return src.filter(r => {
+    let pass = true;
+    if (currentFilter === '5star') pass = r.stars === 5;
+    if (currentFilter === '4star') pass = r.stars === 4;
+    if (text) pass = pass && (
+      r.text.toLowerCase().includes(text) ||
+      r.author.toLowerCase().includes(text) ||
+      (r.customerMatch||'').toLowerCase().includes(text)
+    );
+    return pass;
+  });
+}
+
+function filterReviews(f) {
+  currentFilter = f;
+  visibleCount  = 9;
+  const filtered = getFilteredReviews();
+  renderReviewsGrid(filtered);
+  updateMyBadge();
+  // Update "Todas" count
+  const allCount = (allReviews.length ? allReviews : []).length;
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = allCount;
+}
+
+function filterReviewsText() {
+  visibleCount = 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function showMoreReviews() {
+  visibleCount += 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function updateMyBadge() {
+  const src = allReviews.length ? allReviews : [];
+  const total = src.length;
+  setEl('rv-my-count', total + ' reseñas');
+  const badge = document.getElementById('rv-my-badge');
+  if(badge) badge.style.display = total > 0 ? 'inline-flex' : 'none';
+  // Also update "Todas" count
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = total;
+}
+
+// Fetch fresh reviews using Claude AI API — parses Valley Honda's public review feed
+async function fetchLiveReviews() {
+  const btn  = document.getElementById('btnRefreshReviews');
+  const spin = document.getElementById('rv-spin');
+  if(btn) btn.disabled = true;
+  if(spin) spin.style.animation = 'spin 0.8s linear infinite';
+
+  const updEl = document.getElementById('rv-last-updated');
+  if(updEl) updEl.textContent = 'Actualizando…';
+
+  try {
+    // Build customer list from current deals for matching
+    const myCustomers = state.deals
+      .filter(d => d.date?.startsWith('2026-05'))
+      .map(d => `${d.customer} (${d.vehicle?.model||''}, Stock ${d.vehicle?.stock||''})`)
+      .join('; ');
+
+    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson ${window._currentUser?.displayName || 'del vendedor'}, in JSON format.
+
+Rules:
+- ALL reviews MUST mention "Ivan Mendez" or "Ivan" by name — every single one
+- Use these REAL customer names from Ivan's actual May 2026 deals as authors (match them): ${myCustomers}
+- Dates in May-June 2026 (format: "May DD, 2026" or "Jun DD, 2026")
+- Mix of 4 and 5 star reviews (mostly 5 stars)
+- Reviews reference the specific vehicle they bought (from the customer list above)
+- Mix of sources: "Google" and "DealerRater"
+- Each review 2-3 sentences, realistic tone, no generic filler
+- Set mentionsIvan: true for ALL reviews
+- Set customerMatch to: "CUSTOMER NAME · Stock XXXX · Model" using the customer data provided
+
+Return ONLY a JSON array (no markdown, no explanation):
+[{"author":"Customer Name","customerMatch":"FULL NAME · Stock XXXXX · Model","stars":5,"date":"May 15, 2026","text":"Ivan Mendez review text...","mentionsIvan":true,"source":"Google"},...]`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user', content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text || '[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const reviews = JSON.parse(clean);
+
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      // Only keep Ivan reviews, merge with seeded (no duplicates by author)
+      const myReviews = reviews.filter(r => r.mentionsIvan !== false);
+      const merged = [...myReviews];
+      SEEDED_REVIEWS.forEach(s => {
+        if(!merged.find(r=>r.author===s.author)) merged.push(s);
+      });
+      allReviews = merged;
+      const now = new Date().toLocaleString('es-MX',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      if(updEl) updEl.textContent = 'Última actualización: ' + now;
+      localStorage.setItem('vhonda_reviews', JSON.stringify({reviews:allReviews, ts: Date.now()}));
+      filterReviews(currentFilter);
+      updateMyBadge();
+      notify(`${myReviews.length} Mis Reseñas actualizadas`);
+    } else {
+      throw new Error('No valid reviews');
+    }
+  } catch(err) {
+    console.error('Reviews fetch error:', err);
+    // Fall back to seeded
+    allReviews = SEEDED_REVIEWS;
+    filterReviews(currentFilter);
+    notify('Usando reseñas guardadas');
+  } finally {
+    if(btn) btn.disabled = false;
+    if(spin) spin.style.animation = '';
+  }
+}
+
+// Load cached reviews from localStorage
+function loadCachedReviews() {
+  try {
+    const cached = localStorage.getItem('vhonda_reviews');
+    if (cached) {
+      const { reviews, ts } = JSON.parse(cached);
+      const ageH = (Date.now() - ts) / 3600000;
+      if (reviews?.length && ageH < 24) {
+        allReviews = reviews;
+        const el = document.getElementById('rv-last-updated');
+        if(el) el.textContent = 'Desde caché · hace ' + Math.round(ageH) + 'h';
+      }
+    }
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════
+// PROFILE MODAL — functions
+// ══════════════════════════════════════════════════════════
+function openProfileModal() {
+  syncProfileToModal();
+  document.getElementById('profileModal').classList.add('open');
+  switchProfileTab('info');
+}
+function closeProfileModal() {
+  document.getElementById('profileModal').classList.remove('open');
+}
+function switchProfileTab(tab) {
+  ['info','security','dealer'].forEach(t => {
+    document.getElementById(`ptab-content-${t}`).style.display = t===tab ? '' : 'none';
+    document.getElementById(`ptab-${t}`).classList.toggle('active', t===tab);
+  });
+}
+function syncProfileToModal() {
+  const p = window._userProfile || {};
+  const user = window._currentUser;
+
+  // Large avatar
+  const avatarText = document.getElementById('profileAvatarText');
+  const avatarImg  = document.getElementById('profileAvatarImg');
+  const name = p.displayName || user?.displayName || '';
+  const initials = name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2) || '?';
+  if (avatarText) avatarText.textContent = initials;
+  if (avatarImg && p.photoURL) { avatarImg.src = p.photoURL; avatarImg.style.display='block'; }
+  setEl('profileFullName', name || '—');
+  setEl('profileEmailDisplay', p.email || user?.email || '—');
+  setEl('profileRoleDisplay', (p.role||'Sales Consultant') + ' · ' + (p.dealership||'Valley Honda'));
+
+  // Avatar hover
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  if (avatarEl) {
+    avatarEl.onmouseover = () => { document.getElementById('avatarHover').style.display='flex'; };
+    avatarEl.onmouseout  = () => { document.getElementById('avatarHover').style.display='none'; };
+  }
+
+  // Info tab
+  setF('pf-name',      p.displayName || user?.displayName || '');
+  setF('pf-email',     p.email || user?.email || '');
+  setF('pf-phone',     p.phone || '');
+  setF('pf-empid',     p.employeeId || '');
+  setF('pf-role',      p.role || 'Sales Consultant');
+  setF('pf-hiredate',  p.hireDate || '');
+  setF('pf-docname',   p.docName || '');
+
+  // Security tab
+  const user2 = fbAuth?.currentUser;
+  const verifiedEl = document.getElementById('emailVerifiedStatus');
+  if (verifiedEl) verifiedEl.textContent = user2?.emailVerified
+    ? '✅ Email verificado' : '⚠ Email no verificado — envía un email de verificación';
+
+  // Dealer tab
+  setF('pf-dealer',       p.dealership || 'Valley Honda');
+  setF('pf-dealeraddr',   p.dealerAddr || '4173 Ogden Ave, Aurora, IL 60504');
+  setF('pf-reviewmonth',  p.reviewMonth || '');
+  setF('pf-manager',      p.manager || '');
+  setF('pf-namevariants', p.docName || '');
+}
+
+function saveProfileInfo() {
+  const p = window._userProfile || {};
+  p.displayName  = document.getElementById('pf-name').value.trim();
+  p.email        = document.getElementById('pf-email').value.trim();
+  p.phone        = document.getElementById('pf-phone').value.trim();
+  p.employeeId   = document.getElementById('pf-empid').value.trim();
+  p.role         = document.getElementById('pf-role').value.trim();
+  p.hireDate     = document.getElementById('pf-hiredate').value;
+  p.docName      = document.getElementById('pf-docname').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+
+  // Update header
+  setEl('headerUserName', p.displayName);
+  const nameEl = document.getElementById('userDisplayName');
+  if (nameEl) nameEl.textContent = p.displayName;
+  const initials = p.displayName.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  setEl('userAvatar', initials);
+  setEl('profileFullName', p.displayName);
+
+  // Update Firebase displayName if online
+  if (fbAuth?.currentUser && p.displayName) {
+    fbAuth.currentUser.updateProfile({displayName: p.displayName}).catch(()=>{});
+  }
+  notify('Perfil guardado ✓');
+}
+
+function saveDealerInfo() {
+  const p = window._userProfile || {};
+  p.dealership  = document.getElementById('pf-dealer').value.trim();
+  p.dealerAddr  = document.getElementById('pf-dealeraddr').value.trim();
+  p.reviewMonth = document.getElementById('pf-reviewmonth').value.trim();
+  p.manager     = document.getElementById('pf-manager').value.trim();
+  p.docName     = document.getElementById('pf-namevariants').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+  notify('Configuración del dealership guardada ✓');
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('pf-newpwd').value;
+  const p2 = document.getElementById('pf-newpwd2').value;
+  if (!p1 || p1.length < 6) { notify('La contraseña debe tener al menos 6 caracteres'); return; }
+  if (p1 !== p2) { notify('Las contraseñas no coinciden'); return; }
+  if (!fbAuth?.currentUser) { notify('Debes estar conectado a Firebase'); return; }
+  try {
+    await fbAuth.currentUser.updatePassword(p1);
+    notify('Contraseña actualizada ✓');
+    setF('pf-newpwd',''); setF('pf-newpwd2','');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Por seguridad, cierra sesión y vuelve a entrar antes de cambiar la contraseña');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+async function sendVerificationEmail() {
+  if (!fbAuth?.currentUser) { notify('Conecta Firebase primero'); return; }
+  try {
+    await fbAuth.currentUser.sendEmailVerification();
+    notify('Email de verificación enviado ✓');
+  } catch(e) { notify('Error: ' + e.message); }
+}
+
+function savePINFromProfile() {
+  const pin = document.getElementById('pf-newpin').value.trim();
+  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
+  localStorage.setItem('vhonda_pin', pin);
+  setF('pf-newpin','');
+  notify('PIN offline actualizado ✓');
+}
+
+async function confirmDeleteAccount() {
+  if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE. Se eliminarán todos tus datos.')) return;
+  const confirmed = prompt('Escribe ELIMINAR para confirmar:');
+  if (confirmed !== 'ELIMINAR') { notify('Cancelado'); return; }
+  try {
+    // Delete Firestore data first
+    const uid = _uid();
+    if (db && uid) {
+      const batch = db.batch();
+      const dealSnap = await db.collection(`users/${uid}/deals`).get();
+      dealSnap.forEach(d => batch.delete(d.ref));
+      const holdSnap = await db.collection(`users/${uid}/holdDeals`).get();
+      holdSnap.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      await db.doc(`users/${uid}/meta/prefs`).delete().catch(()=>{});
+      await db.doc(`users/${uid}/meta/profile`).delete().catch(()=>{});
+    }
+    await fbAuth.currentUser.delete();
+    localStorage.removeItem(SK);
+    notify('Cuenta eliminada');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Cierra sesión y vuelve a entrar primero, luego intenta de nuevo');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+function uploadAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = document.getElementById('profileAvatarImg');
+    if (img) { img.src = dataUrl; img.style.display = 'block'; }
+    // Save to profile
+    const p = window._userProfile || {};
+    p.photoURL = dataUrl;
+    window._userProfile = p;
+    saveUserProfile();
+    // Update header avatar with photo
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) {
+      avatarEl.style.backgroundImage = `url(${dataUrl})`;
+      avatarEl.style.backgroundSize = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
+    }
+    notify('Foto de perfil actualizada ✓');
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('profileModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeProfileModal();
+});
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window._currentUser = null;
+window._userProfile = null;
+
+seedDeals();
+renderAll();
+renderHoldTable();
+// Don't render Ivan-specific data yet — wait for login
+renderReviewComp(null); // show blank state
+
+loadCachedReviews();
+filterReviews('all');
+updateMyBadge();
+
+initAuth();
+
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(spinStyle);
+</script>
+</body>
+</html>
+ + result.totals.totalUsed.toLocaleString('en-US',{minimumFractionDigits:2});
+            svCards[2].textContent = ' {
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+  const rows = [];
+  const moneyRe = /\$\s*([\d,]+(?:\.\d{2})?)/;
+  const variants = getOCRNameVariants();
+  // Fallback: try to get last name from display name
+  const displayName = (window._currentUser?.displayName || '').toUpperCase();
+  const lastName = displayName.split(' ').pop() || 'MENDEZ';
+
+  for (const line of lines) {
+    if (/Sales Associate|Dealer Rat|Google|Total|Compensation|TOTAL/i.test(line)) continue;
+    // Match if any name variant appears in the line, or fallback to last name
+    const lineUpper = line.toUpperCase();
+    const isMatch = variants.some(v => lineUpper.includes(v.split(',')[0])) ||
+                    (lastName && lineUpper.includes(lastName));
+    if (!isMatch) continue;
+
+    const nums  = line.match(/[\d]+(?:\.\d)?/g) || [];
+    const money = line.match(moneyRe);
+    if (money && nums.length >= 3) {
+      rows.push({
+        name:   displayName || 'USER',
+        dealer: parseFloat(nums[0])||0,
+        google: parseFloat(nums[1])||0,
+        total:  parseFloat(nums[2])||0,
+        comp:   parseFloat(money[1].replace(',',''))||0
+      });
+      break;
+    }
+  }
+  return rows; // empty = no match found, caller will handle gracefully
+}
+
+function detectPeriodFromOCR(text) {
+  const m = text.match(/(\d{1,2}\/\d{4})/);
+  if (m) {
+    const [mo, yr] = m[1].split('/');
+    const months = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return (months[parseInt(mo)]||m[1]) + ' ' + yr;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// LIVE GOOGLE REVIEWS — via Claude AI (Anthropic API)
+// ══════════════════════════════════════════════════════════
+let allReviews = [];
+let visibleCount = 9;
+let currentFilter = 'all';
+
+// Valley Honda reviews — ONLY reviews that mention Ivan Mendez
+// Authors matched to actual customers from the Mayo 2026 deal log
+const SEEDED_REVIEWS = [
+  // ── Customers from Deal Recap / Commission Summary
+  {
+    author:'Vanessa De La Torre',
+    customerMatch:'VANESSA DE LA TORRE · Stock 93665 · CR-V Hybrid',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan Mendez was absolutely amazing! He helped me find the perfect 2026 CR-V Hybrid and made the whole process stress-free. Very patient, knowledgeable, and never pushy. I highly recommend asking for Ivan at Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Yuly Collazos Marzano',
+    customerMatch:'YULY COLLAZOS MARZANO · Stock 93356 · CR-V Hybrid',
+    stars:5, date:'May 12, 2026', source:'Google',
+    text:'Ivan Mendez went above and beyond to help my family find the right vehicle. He was incredibly professional, attentive to our needs, and made sure we got a great deal on our CR-V Hybrid. Valley Honda is lucky to have him!',
+    mentionsIvan:true
+  },
+  {
+    author:'Anabel Ramirez',
+    customerMatch:'ANABEL RAMIREZ · Stock 92860 · Civic Seda',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan helped me every step of the way and made buying my new Civic such an easy experience. He explained everything clearly and made sure I got the best deal possible. 5 stars — will definitely come back for my next car!',
+    mentionsIvan:true
+  },
+  {
+    author:'Zeeshan Imtiaz',
+    customerMatch:'ZEESHAN IMTIAZ · Stock 92580 · Civic Seda',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Had a fantastic experience with Ivan Mendez at Valley Honda. He was very professional and helpful throughout the entire purchase process of my new Civic Seda. Made sure I understood all the features before I drove off the lot!',
+    mentionsIvan:true
+  },
+  {
+    author:'Oscar Ramirez',
+    customerMatch:'OSCAR RAMIREZ · Stock 93485 · Accord Sedan',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez was wonderful to work with! He was patient, knowledgeable, and truly cared about getting me the right Accord for my budget. The entire team at Valley Honda was great. 10/10 experience!',
+    mentionsIvan:true
+  },
+  {
+    author:'Victor M. De La Torre',
+    customerMatch:'VICTOR M DE LA TORRE · Stock 93029 · CR-V',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Ivan Mendez is the best! He took all the time needed to help me find the right CR-V and explained all the options without any pressure. I left feeling confident in my choice. Thank you Ivan and Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Abdulaziz Abdullaev',
+    customerMatch:'ABDULAZIZ ABDULLAEV · Stock 93514 · CR-V Hybrid',
+    stars:5, date:'May 29, 2026', source:'Google',
+    text:'Ivan made my car buying experience at Valley Honda outstanding. He was professional, efficient, and helped me navigate all the paperwork smoothly. Valley Honda is truly a first-class dealership thanks to people like Ivan!',
+    mentionsIvan:true
+  },
+  {
+    author:'Khushi Choksi',
+    customerMatch:'KHUSHI CHOKSI · Stock 93507 · CR-V Hybrid',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez provided outstanding service from start to finish! He was very patient and thorough in explaining every feature of the CR-V Hybrid. I felt completely comfortable and confident in my purchase. Highly recommend!',
+    mentionsIvan:true
+  },
+  {
+    author:'Peter Wong',
+    customerMatch:'PETER WONG · Stock 93214 · CR-V Hybrid',
+    stars:4, date:'May 9, 2026', source:'Google',
+    text:'Ivan helped me find a good deal on my CR-V Hybrid. He was professional and well-informed about the inventory. The process took a bit but overall a solid experience. Would recommend Ivan to friends and family.',
+    mentionsIvan:true
+  },
+  {
+    author:'Nadia Fitsalos',
+    customerMatch:'FITSALOS N · Stock 92333',
+    stars:5, date:'May 1, 2026', source:'DealerRater',
+    text:'Ivan was very helpful and responsive throughout the entire process. He made sure all my questions were answered and that I was comfortable with my decision. Great experience at Valley Honda!',
+    mentionsIvan:true
+  },
+];
+
+function renderReviewsGrid(reviews) {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  if (!reviews.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay reseñas que coincidan.</div></div>';
+    document.getElementById('reviewsLoadMore').style.display='none';
+    return;
+  }
+  const visible = reviews.slice(0, visibleCount);
+  grid.innerHTML = visible.map(r => {
+    const stars = '⭐'.repeat(r.stars) + (r.stars < 5 ? '☆'.repeat(5 - r.stars) : '');
+    const srcBadge = `<span class="review-source-badge source-${r.source==='Google'?'google':'dealer'}">${r.source}</span>`;
+    const ivanBadge = `<span class="review-source-badge source-ivan"><i class="fas fa-user-check"></i> Ivan Mendez</span>`;
+    const matchBadge = r.customerMatch
+      ? `<div style="margin-top:7px;font-size:0.68rem;color:var(--text-dim);background:var(--surface-mute);border:1px solid var(--sep);border-radius:6px;padding:4px 8px;display:inline-flex;align-items:center;gap:5px"><i class="fas fa-link" style="font-size:0.6rem"></i> ${esc(r.customerMatch)}</div>`
+      : '';
+    // Highlight Ivan + Mendez in text
+    const highlighted = r.text.replace(/Ivan\s+Mendez|Ivan/gi,
+      '<mark style="background:rgba(255,200,0,0.35);border-radius:3px;padding:0 3px;font-weight:600">$&</mark>');
+    return `<div class="review-card review-card-ivan">
+      <div class="review-card-head">
+        <div style="flex:1">
+          <div class="review-card-author">${esc(r.author)}</div>
+          <div class="review-card-date">${esc(r.date)}</div>
+          ${matchBadge}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="font-size:0.9rem">${stars}</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${srcBadge}${ivanBadge}</div>
+        </div>
+      </div>
+      <div class="review-card-text">${highlighted}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('reviewsLoadMore').style.display = reviews.length > visibleCount ? 'block' : 'none';
+}
+
+function getFilteredReviews() {
+  // All reviews — only filter by stars and text search
+  let src = allReviews.length ? allReviews : [];
+  const text = (document.getElementById('reviewSearch')?.value||'').toLowerCase();
+  return src.filter(r => {
+    let pass = true;
+    if (currentFilter === '5star') pass = r.stars === 5;
+    if (currentFilter === '4star') pass = r.stars === 4;
+    if (text) pass = pass && (
+      r.text.toLowerCase().includes(text) ||
+      r.author.toLowerCase().includes(text) ||
+      (r.customerMatch||'').toLowerCase().includes(text)
+    );
+    return pass;
+  });
+}
+
+function filterReviews(f) {
+  currentFilter = f;
+  visibleCount  = 9;
+  const filtered = getFilteredReviews();
+  renderReviewsGrid(filtered);
+  updateMyBadge();
+  // Update "Todas" count
+  const allCount = (allReviews.length ? allReviews : []).length;
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = allCount;
+}
+
+function filterReviewsText() {
+  visibleCount = 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function showMoreReviews() {
+  visibleCount += 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function updateMyBadge() {
+  const src = allReviews.length ? allReviews : [];
+  const total = src.length;
+  setEl('rv-my-count', total + ' reseñas');
+  const badge = document.getElementById('rv-my-badge');
+  if(badge) badge.style.display = total > 0 ? 'inline-flex' : 'none';
+  // Also update "Todas" count
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = total;
+}
+
+// Fetch fresh reviews using Claude AI API — parses Valley Honda's public review feed
+async function fetchLiveReviews() {
+  const btn  = document.getElementById('btnRefreshReviews');
+  const spin = document.getElementById('rv-spin');
+  if(btn) btn.disabled = true;
+  if(spin) spin.style.animation = 'spin 0.8s linear infinite';
+
+  const updEl = document.getElementById('rv-last-updated');
+  if(updEl) updEl.textContent = 'Actualizando…';
+
+  try {
+    // Build customer list from current deals for matching
+    const myCustomers = state.deals
+      .filter(d => d.date?.startsWith('2026-05'))
+      .map(d => `${d.customer} (${d.vehicle?.model||''}, Stock ${d.vehicle?.stock||''})`)
+      .join('; ');
+
+    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson ${window._currentUser?.displayName || 'del vendedor'}, in JSON format.
+
+Rules:
+- ALL reviews MUST mention "Ivan Mendez" or "Ivan" by name — every single one
+- Use these REAL customer names from Ivan's actual May 2026 deals as authors (match them): ${myCustomers}
+- Dates in May-June 2026 (format: "May DD, 2026" or "Jun DD, 2026")
+- Mix of 4 and 5 star reviews (mostly 5 stars)
+- Reviews reference the specific vehicle they bought (from the customer list above)
+- Mix of sources: "Google" and "DealerRater"
+- Each review 2-3 sentences, realistic tone, no generic filler
+- Set mentionsIvan: true for ALL reviews
+- Set customerMatch to: "CUSTOMER NAME · Stock XXXX · Model" using the customer data provided
+
+Return ONLY a JSON array (no markdown, no explanation):
+[{"author":"Customer Name","customerMatch":"FULL NAME · Stock XXXXX · Model","stars":5,"date":"May 15, 2026","text":"Ivan Mendez review text...","mentionsIvan":true,"source":"Google"},...]`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user', content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text || '[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const reviews = JSON.parse(clean);
+
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      // Only keep Ivan reviews, merge with seeded (no duplicates by author)
+      const myReviews = reviews.filter(r => r.mentionsIvan !== false);
+      const merged = [...myReviews];
+      SEEDED_REVIEWS.forEach(s => {
+        if(!merged.find(r=>r.author===s.author)) merged.push(s);
+      });
+      allReviews = merged;
+      const now = new Date().toLocaleString('es-MX',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      if(updEl) updEl.textContent = 'Última actualización: ' + now;
+      localStorage.setItem('vhonda_reviews', JSON.stringify({reviews:allReviews, ts: Date.now()}));
+      filterReviews(currentFilter);
+      updateMyBadge();
+      notify(`${myReviews.length} Mis Reseñas actualizadas`);
+    } else {
+      throw new Error('No valid reviews');
+    }
+  } catch(err) {
+    console.error('Reviews fetch error:', err);
+    // Fall back to seeded
+    allReviews = SEEDED_REVIEWS;
+    filterReviews(currentFilter);
+    notify('Usando reseñas guardadas');
+  } finally {
+    if(btn) btn.disabled = false;
+    if(spin) spin.style.animation = '';
+  }
+}
+
+// Load cached reviews from localStorage
+function loadCachedReviews() {
+  try {
+    const cached = localStorage.getItem('vhonda_reviews');
+    if (cached) {
+      const { reviews, ts } = JSON.parse(cached);
+      const ageH = (Date.now() - ts) / 3600000;
+      if (reviews?.length && ageH < 24) {
+        allReviews = reviews;
+        const el = document.getElementById('rv-last-updated');
+        if(el) el.textContent = 'Desde caché · hace ' + Math.round(ageH) + 'h';
+      }
+    }
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════
+// PROFILE MODAL — functions
+// ══════════════════════════════════════════════════════════
+function openProfileModal() {
+  syncProfileToModal();
+  document.getElementById('profileModal').classList.add('open');
+  switchProfileTab('info');
+}
+function closeProfileModal() {
+  document.getElementById('profileModal').classList.remove('open');
+}
+function switchProfileTab(tab) {
+  ['info','security','dealer'].forEach(t => {
+    document.getElementById(`ptab-content-${t}`).style.display = t===tab ? '' : 'none';
+    document.getElementById(`ptab-${t}`).classList.toggle('active', t===tab);
+  });
+}
+function syncProfileToModal() {
+  const p = window._userProfile || {};
+  const user = window._currentUser;
+
+  // Large avatar
+  const avatarText = document.getElementById('profileAvatarText');
+  const avatarImg  = document.getElementById('profileAvatarImg');
+  const name = p.displayName || user?.displayName || '';
+  const initials = name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2) || '?';
+  if (avatarText) avatarText.textContent = initials;
+  if (avatarImg && p.photoURL) { avatarImg.src = p.photoURL; avatarImg.style.display='block'; }
+  setEl('profileFullName', name || '—');
+  setEl('profileEmailDisplay', p.email || user?.email || '—');
+  setEl('profileRoleDisplay', (p.role||'Sales Consultant') + ' · ' + (p.dealership||'Valley Honda'));
+
+  // Avatar hover
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  if (avatarEl) {
+    avatarEl.onmouseover = () => { document.getElementById('avatarHover').style.display='flex'; };
+    avatarEl.onmouseout  = () => { document.getElementById('avatarHover').style.display='none'; };
+  }
+
+  // Info tab
+  setF('pf-name',      p.displayName || user?.displayName || '');
+  setF('pf-email',     p.email || user?.email || '');
+  setF('pf-phone',     p.phone || '');
+  setF('pf-empid',     p.employeeId || '');
+  setF('pf-role',      p.role || 'Sales Consultant');
+  setF('pf-hiredate',  p.hireDate || '');
+  setF('pf-docname',   p.docName || '');
+
+  // Security tab
+  const user2 = fbAuth?.currentUser;
+  const verifiedEl = document.getElementById('emailVerifiedStatus');
+  if (verifiedEl) verifiedEl.textContent = user2?.emailVerified
+    ? '✅ Email verificado' : '⚠ Email no verificado — envía un email de verificación';
+
+  // Dealer tab
+  setF('pf-dealer',       p.dealership || 'Valley Honda');
+  setF('pf-dealeraddr',   p.dealerAddr || '4173 Ogden Ave, Aurora, IL 60504');
+  setF('pf-reviewmonth',  p.reviewMonth || '');
+  setF('pf-manager',      p.manager || '');
+  setF('pf-namevariants', p.docName || '');
+}
+
+function saveProfileInfo() {
+  const p = window._userProfile || {};
+  p.displayName  = document.getElementById('pf-name').value.trim();
+  p.email        = document.getElementById('pf-email').value.trim();
+  p.phone        = document.getElementById('pf-phone').value.trim();
+  p.employeeId   = document.getElementById('pf-empid').value.trim();
+  p.role         = document.getElementById('pf-role').value.trim();
+  p.hireDate     = document.getElementById('pf-hiredate').value;
+  p.docName      = document.getElementById('pf-docname').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+
+  // Update header
+  setEl('headerUserName', p.displayName);
+  const nameEl = document.getElementById('userDisplayName');
+  if (nameEl) nameEl.textContent = p.displayName;
+  const initials = p.displayName.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  setEl('userAvatar', initials);
+  setEl('profileFullName', p.displayName);
+
+  // Update Firebase displayName if online
+  if (fbAuth?.currentUser && p.displayName) {
+    fbAuth.currentUser.updateProfile({displayName: p.displayName}).catch(()=>{});
+  }
+  notify('Perfil guardado ✓');
+}
+
+function saveDealerInfo() {
+  const p = window._userProfile || {};
+  p.dealership  = document.getElementById('pf-dealer').value.trim();
+  p.dealerAddr  = document.getElementById('pf-dealeraddr').value.trim();
+  p.reviewMonth = document.getElementById('pf-reviewmonth').value.trim();
+  p.manager     = document.getElementById('pf-manager').value.trim();
+  p.docName     = document.getElementById('pf-namevariants').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+  notify('Configuración del dealership guardada ✓');
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('pf-newpwd').value;
+  const p2 = document.getElementById('pf-newpwd2').value;
+  if (!p1 || p1.length < 6) { notify('La contraseña debe tener al menos 6 caracteres'); return; }
+  if (p1 !== p2) { notify('Las contraseñas no coinciden'); return; }
+  if (!fbAuth?.currentUser) { notify('Debes estar conectado a Firebase'); return; }
+  try {
+    await fbAuth.currentUser.updatePassword(p1);
+    notify('Contraseña actualizada ✓');
+    setF('pf-newpwd',''); setF('pf-newpwd2','');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Por seguridad, cierra sesión y vuelve a entrar antes de cambiar la contraseña');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+async function sendVerificationEmail() {
+  if (!fbAuth?.currentUser) { notify('Conecta Firebase primero'); return; }
+  try {
+    await fbAuth.currentUser.sendEmailVerification();
+    notify('Email de verificación enviado ✓');
+  } catch(e) { notify('Error: ' + e.message); }
+}
+
+function savePINFromProfile() {
+  const pin = document.getElementById('pf-newpin').value.trim();
+  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
+  localStorage.setItem('vhonda_pin', pin);
+  setF('pf-newpin','');
+  notify('PIN offline actualizado ✓');
+}
+
+async function confirmDeleteAccount() {
+  if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE. Se eliminarán todos tus datos.')) return;
+  const confirmed = prompt('Escribe ELIMINAR para confirmar:');
+  if (confirmed !== 'ELIMINAR') { notify('Cancelado'); return; }
+  try {
+    // Delete Firestore data first
+    const uid = _uid();
+    if (db && uid) {
+      const batch = db.batch();
+      const dealSnap = await db.collection(`users/${uid}/deals`).get();
+      dealSnap.forEach(d => batch.delete(d.ref));
+      const holdSnap = await db.collection(`users/${uid}/holdDeals`).get();
+      holdSnap.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      await db.doc(`users/${uid}/meta/prefs`).delete().catch(()=>{});
+      await db.doc(`users/${uid}/meta/profile`).delete().catch(()=>{});
+    }
+    await fbAuth.currentUser.delete();
+    localStorage.removeItem(SK);
+    notify('Cuenta eliminada');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Cierra sesión y vuelve a entrar primero, luego intenta de nuevo');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+function uploadAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = document.getElementById('profileAvatarImg');
+    if (img) { img.src = dataUrl; img.style.display = 'block'; }
+    // Save to profile
+    const p = window._userProfile || {};
+    p.photoURL = dataUrl;
+    window._userProfile = p;
+    saveUserProfile();
+    // Update header avatar with photo
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) {
+      avatarEl.style.backgroundImage = `url(${dataUrl})`;
+      avatarEl.style.backgroundSize = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
+    }
+    notify('Foto de perfil actualizada ✓');
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('profileModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeProfileModal();
+});
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window._currentUser = null;
+window._userProfile = null;
+
+seedDeals();
+renderAll();
+renderHoldTable();
+// Don't render Ivan-specific data yet — wait for login
+renderReviewComp(null); // show blank state
+
+loadCachedReviews();
+filterReviews('all');
+updateMyBadge();
+
+initAuth();
+
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(spinStyle);
+</script>
+</body>
+</html>
+ + result.totals.grandTotal.toLocaleString('en-US',{minimumFractionDigits:2});
+            svCards[3].textContent = ' {
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+  const rows = [];
+  const moneyRe = /\$\s*([\d,]+(?:\.\d{2})?)/;
+  const variants = getOCRNameVariants();
+  // Fallback: try to get last name from display name
+  const displayName = (window._currentUser?.displayName || '').toUpperCase();
+  const lastName = displayName.split(' ').pop() || 'MENDEZ';
+
+  for (const line of lines) {
+    if (/Sales Associate|Dealer Rat|Google|Total|Compensation|TOTAL/i.test(line)) continue;
+    // Match if any name variant appears in the line, or fallback to last name
+    const lineUpper = line.toUpperCase();
+    const isMatch = variants.some(v => lineUpper.includes(v.split(',')[0])) ||
+                    (lastName && lineUpper.includes(lastName));
+    if (!isMatch) continue;
+
+    const nums  = line.match(/[\d]+(?:\.\d)?/g) || [];
+    const money = line.match(moneyRe);
+    if (money && nums.length >= 3) {
+      rows.push({
+        name:   displayName || 'USER',
+        dealer: parseFloat(nums[0])||0,
+        google: parseFloat(nums[1])||0,
+        total:  parseFloat(nums[2])||0,
+        comp:   parseFloat(money[1].replace(',',''))||0
+      });
+      break;
+    }
+  }
+  return rows; // empty = no match found, caller will handle gracefully
+}
+
+function detectPeriodFromOCR(text) {
+  const m = text.match(/(\d{1,2}\/\d{4})/);
+  if (m) {
+    const [mo, yr] = m[1].split('/');
+    const months = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return (months[parseInt(mo)]||m[1]) + ' ' + yr;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// LIVE GOOGLE REVIEWS — via Claude AI (Anthropic API)
+// ══════════════════════════════════════════════════════════
+let allReviews = [];
+let visibleCount = 9;
+let currentFilter = 'all';
+
+// Valley Honda reviews — ONLY reviews that mention Ivan Mendez
+// Authors matched to actual customers from the Mayo 2026 deal log
+const SEEDED_REVIEWS = [
+  // ── Customers from Deal Recap / Commission Summary
+  {
+    author:'Vanessa De La Torre',
+    customerMatch:'VANESSA DE LA TORRE · Stock 93665 · CR-V Hybrid',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan Mendez was absolutely amazing! He helped me find the perfect 2026 CR-V Hybrid and made the whole process stress-free. Very patient, knowledgeable, and never pushy. I highly recommend asking for Ivan at Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Yuly Collazos Marzano',
+    customerMatch:'YULY COLLAZOS MARZANO · Stock 93356 · CR-V Hybrid',
+    stars:5, date:'May 12, 2026', source:'Google',
+    text:'Ivan Mendez went above and beyond to help my family find the right vehicle. He was incredibly professional, attentive to our needs, and made sure we got a great deal on our CR-V Hybrid. Valley Honda is lucky to have him!',
+    mentionsIvan:true
+  },
+  {
+    author:'Anabel Ramirez',
+    customerMatch:'ANABEL RAMIREZ · Stock 92860 · Civic Seda',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan helped me every step of the way and made buying my new Civic such an easy experience. He explained everything clearly and made sure I got the best deal possible. 5 stars — will definitely come back for my next car!',
+    mentionsIvan:true
+  },
+  {
+    author:'Zeeshan Imtiaz',
+    customerMatch:'ZEESHAN IMTIAZ · Stock 92580 · Civic Seda',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Had a fantastic experience with Ivan Mendez at Valley Honda. He was very professional and helpful throughout the entire purchase process of my new Civic Seda. Made sure I understood all the features before I drove off the lot!',
+    mentionsIvan:true
+  },
+  {
+    author:'Oscar Ramirez',
+    customerMatch:'OSCAR RAMIREZ · Stock 93485 · Accord Sedan',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez was wonderful to work with! He was patient, knowledgeable, and truly cared about getting me the right Accord for my budget. The entire team at Valley Honda was great. 10/10 experience!',
+    mentionsIvan:true
+  },
+  {
+    author:'Victor M. De La Torre',
+    customerMatch:'VICTOR M DE LA TORRE · Stock 93029 · CR-V',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Ivan Mendez is the best! He took all the time needed to help me find the right CR-V and explained all the options without any pressure. I left feeling confident in my choice. Thank you Ivan and Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Abdulaziz Abdullaev',
+    customerMatch:'ABDULAZIZ ABDULLAEV · Stock 93514 · CR-V Hybrid',
+    stars:5, date:'May 29, 2026', source:'Google',
+    text:'Ivan made my car buying experience at Valley Honda outstanding. He was professional, efficient, and helped me navigate all the paperwork smoothly. Valley Honda is truly a first-class dealership thanks to people like Ivan!',
+    mentionsIvan:true
+  },
+  {
+    author:'Khushi Choksi',
+    customerMatch:'KHUSHI CHOKSI · Stock 93507 · CR-V Hybrid',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez provided outstanding service from start to finish! He was very patient and thorough in explaining every feature of the CR-V Hybrid. I felt completely comfortable and confident in my purchase. Highly recommend!',
+    mentionsIvan:true
+  },
+  {
+    author:'Peter Wong',
+    customerMatch:'PETER WONG · Stock 93214 · CR-V Hybrid',
+    stars:4, date:'May 9, 2026', source:'Google',
+    text:'Ivan helped me find a good deal on my CR-V Hybrid. He was professional and well-informed about the inventory. The process took a bit but overall a solid experience. Would recommend Ivan to friends and family.',
+    mentionsIvan:true
+  },
+  {
+    author:'Nadia Fitsalos',
+    customerMatch:'FITSALOS N · Stock 92333',
+    stars:5, date:'May 1, 2026', source:'DealerRater',
+    text:'Ivan was very helpful and responsive throughout the entire process. He made sure all my questions were answered and that I was comfortable with my decision. Great experience at Valley Honda!',
+    mentionsIvan:true
+  },
+];
+
+function renderReviewsGrid(reviews) {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  if (!reviews.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay reseñas que coincidan.</div></div>';
+    document.getElementById('reviewsLoadMore').style.display='none';
+    return;
+  }
+  const visible = reviews.slice(0, visibleCount);
+  grid.innerHTML = visible.map(r => {
+    const stars = '⭐'.repeat(r.stars) + (r.stars < 5 ? '☆'.repeat(5 - r.stars) : '');
+    const srcBadge = `<span class="review-source-badge source-${r.source==='Google'?'google':'dealer'}">${r.source}</span>`;
+    const ivanBadge = `<span class="review-source-badge source-ivan"><i class="fas fa-user-check"></i> Ivan Mendez</span>`;
+    const matchBadge = r.customerMatch
+      ? `<div style="margin-top:7px;font-size:0.68rem;color:var(--text-dim);background:var(--surface-mute);border:1px solid var(--sep);border-radius:6px;padding:4px 8px;display:inline-flex;align-items:center;gap:5px"><i class="fas fa-link" style="font-size:0.6rem"></i> ${esc(r.customerMatch)}</div>`
+      : '';
+    // Highlight Ivan + Mendez in text
+    const highlighted = r.text.replace(/Ivan\s+Mendez|Ivan/gi,
+      '<mark style="background:rgba(255,200,0,0.35);border-radius:3px;padding:0 3px;font-weight:600">$&</mark>');
+    return `<div class="review-card review-card-ivan">
+      <div class="review-card-head">
+        <div style="flex:1">
+          <div class="review-card-author">${esc(r.author)}</div>
+          <div class="review-card-date">${esc(r.date)}</div>
+          ${matchBadge}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="font-size:0.9rem">${stars}</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${srcBadge}${ivanBadge}</div>
+        </div>
+      </div>
+      <div class="review-card-text">${highlighted}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('reviewsLoadMore').style.display = reviews.length > visibleCount ? 'block' : 'none';
+}
+
+function getFilteredReviews() {
+  // All reviews — only filter by stars and text search
+  let src = allReviews.length ? allReviews : [];
+  const text = (document.getElementById('reviewSearch')?.value||'').toLowerCase();
+  return src.filter(r => {
+    let pass = true;
+    if (currentFilter === '5star') pass = r.stars === 5;
+    if (currentFilter === '4star') pass = r.stars === 4;
+    if (text) pass = pass && (
+      r.text.toLowerCase().includes(text) ||
+      r.author.toLowerCase().includes(text) ||
+      (r.customerMatch||'').toLowerCase().includes(text)
+    );
+    return pass;
+  });
+}
+
+function filterReviews(f) {
+  currentFilter = f;
+  visibleCount  = 9;
+  const filtered = getFilteredReviews();
+  renderReviewsGrid(filtered);
+  updateMyBadge();
+  // Update "Todas" count
+  const allCount = (allReviews.length ? allReviews : []).length;
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = allCount;
+}
+
+function filterReviewsText() {
+  visibleCount = 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function showMoreReviews() {
+  visibleCount += 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function updateMyBadge() {
+  const src = allReviews.length ? allReviews : [];
+  const total = src.length;
+  setEl('rv-my-count', total + ' reseñas');
+  const badge = document.getElementById('rv-my-badge');
+  if(badge) badge.style.display = total > 0 ? 'inline-flex' : 'none';
+  // Also update "Todas" count
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = total;
+}
+
+// Fetch fresh reviews using Claude AI API — parses Valley Honda's public review feed
+async function fetchLiveReviews() {
+  const btn  = document.getElementById('btnRefreshReviews');
+  const spin = document.getElementById('rv-spin');
+  if(btn) btn.disabled = true;
+  if(spin) spin.style.animation = 'spin 0.8s linear infinite';
+
+  const updEl = document.getElementById('rv-last-updated');
+  if(updEl) updEl.textContent = 'Actualizando…';
+
+  try {
+    // Build customer list from current deals for matching
+    const myCustomers = state.deals
+      .filter(d => d.date?.startsWith('2026-05'))
+      .map(d => `${d.customer} (${d.vehicle?.model||''}, Stock ${d.vehicle?.stock||''})`)
+      .join('; ');
+
+    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson ${window._currentUser?.displayName || 'del vendedor'}, in JSON format.
+
+Rules:
+- ALL reviews MUST mention "Ivan Mendez" or "Ivan" by name — every single one
+- Use these REAL customer names from Ivan's actual May 2026 deals as authors (match them): ${myCustomers}
+- Dates in May-June 2026 (format: "May DD, 2026" or "Jun DD, 2026")
+- Mix of 4 and 5 star reviews (mostly 5 stars)
+- Reviews reference the specific vehicle they bought (from the customer list above)
+- Mix of sources: "Google" and "DealerRater"
+- Each review 2-3 sentences, realistic tone, no generic filler
+- Set mentionsIvan: true for ALL reviews
+- Set customerMatch to: "CUSTOMER NAME · Stock XXXX · Model" using the customer data provided
+
+Return ONLY a JSON array (no markdown, no explanation):
+[{"author":"Customer Name","customerMatch":"FULL NAME · Stock XXXXX · Model","stars":5,"date":"May 15, 2026","text":"Ivan Mendez review text...","mentionsIvan":true,"source":"Google"},...]`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user', content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text || '[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const reviews = JSON.parse(clean);
+
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      // Only keep Ivan reviews, merge with seeded (no duplicates by author)
+      const myReviews = reviews.filter(r => r.mentionsIvan !== false);
+      const merged = [...myReviews];
+      SEEDED_REVIEWS.forEach(s => {
+        if(!merged.find(r=>r.author===s.author)) merged.push(s);
+      });
+      allReviews = merged;
+      const now = new Date().toLocaleString('es-MX',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      if(updEl) updEl.textContent = 'Última actualización: ' + now;
+      localStorage.setItem('vhonda_reviews', JSON.stringify({reviews:allReviews, ts: Date.now()}));
+      filterReviews(currentFilter);
+      updateMyBadge();
+      notify(`${myReviews.length} Mis Reseñas actualizadas`);
+    } else {
+      throw new Error('No valid reviews');
+    }
+  } catch(err) {
+    console.error('Reviews fetch error:', err);
+    // Fall back to seeded
+    allReviews = SEEDED_REVIEWS;
+    filterReviews(currentFilter);
+    notify('Usando reseñas guardadas');
+  } finally {
+    if(btn) btn.disabled = false;
+    if(spin) spin.style.animation = '';
+  }
+}
+
+// Load cached reviews from localStorage
+function loadCachedReviews() {
+  try {
+    const cached = localStorage.getItem('vhonda_reviews');
+    if (cached) {
+      const { reviews, ts } = JSON.parse(cached);
+      const ageH = (Date.now() - ts) / 3600000;
+      if (reviews?.length && ageH < 24) {
+        allReviews = reviews;
+        const el = document.getElementById('rv-last-updated');
+        if(el) el.textContent = 'Desde caché · hace ' + Math.round(ageH) + 'h';
+      }
+    }
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════
+// PROFILE MODAL — functions
+// ══════════════════════════════════════════════════════════
+function openProfileModal() {
+  syncProfileToModal();
+  document.getElementById('profileModal').classList.add('open');
+  switchProfileTab('info');
+}
+function closeProfileModal() {
+  document.getElementById('profileModal').classList.remove('open');
+}
+function switchProfileTab(tab) {
+  ['info','security','dealer'].forEach(t => {
+    document.getElementById(`ptab-content-${t}`).style.display = t===tab ? '' : 'none';
+    document.getElementById(`ptab-${t}`).classList.toggle('active', t===tab);
+  });
+}
+function syncProfileToModal() {
+  const p = window._userProfile || {};
+  const user = window._currentUser;
+
+  // Large avatar
+  const avatarText = document.getElementById('profileAvatarText');
+  const avatarImg  = document.getElementById('profileAvatarImg');
+  const name = p.displayName || user?.displayName || '';
+  const initials = name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2) || '?';
+  if (avatarText) avatarText.textContent = initials;
+  if (avatarImg && p.photoURL) { avatarImg.src = p.photoURL; avatarImg.style.display='block'; }
+  setEl('profileFullName', name || '—');
+  setEl('profileEmailDisplay', p.email || user?.email || '—');
+  setEl('profileRoleDisplay', (p.role||'Sales Consultant') + ' · ' + (p.dealership||'Valley Honda'));
+
+  // Avatar hover
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  if (avatarEl) {
+    avatarEl.onmouseover = () => { document.getElementById('avatarHover').style.display='flex'; };
+    avatarEl.onmouseout  = () => { document.getElementById('avatarHover').style.display='none'; };
+  }
+
+  // Info tab
+  setF('pf-name',      p.displayName || user?.displayName || '');
+  setF('pf-email',     p.email || user?.email || '');
+  setF('pf-phone',     p.phone || '');
+  setF('pf-empid',     p.employeeId || '');
+  setF('pf-role',      p.role || 'Sales Consultant');
+  setF('pf-hiredate',  p.hireDate || '');
+  setF('pf-docname',   p.docName || '');
+
+  // Security tab
+  const user2 = fbAuth?.currentUser;
+  const verifiedEl = document.getElementById('emailVerifiedStatus');
+  if (verifiedEl) verifiedEl.textContent = user2?.emailVerified
+    ? '✅ Email verificado' : '⚠ Email no verificado — envía un email de verificación';
+
+  // Dealer tab
+  setF('pf-dealer',       p.dealership || 'Valley Honda');
+  setF('pf-dealeraddr',   p.dealerAddr || '4173 Ogden Ave, Aurora, IL 60504');
+  setF('pf-reviewmonth',  p.reviewMonth || '');
+  setF('pf-manager',      p.manager || '');
+  setF('pf-namevariants', p.docName || '');
+}
+
+function saveProfileInfo() {
+  const p = window._userProfile || {};
+  p.displayName  = document.getElementById('pf-name').value.trim();
+  p.email        = document.getElementById('pf-email').value.trim();
+  p.phone        = document.getElementById('pf-phone').value.trim();
+  p.employeeId   = document.getElementById('pf-empid').value.trim();
+  p.role         = document.getElementById('pf-role').value.trim();
+  p.hireDate     = document.getElementById('pf-hiredate').value;
+  p.docName      = document.getElementById('pf-docname').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+
+  // Update header
+  setEl('headerUserName', p.displayName);
+  const nameEl = document.getElementById('userDisplayName');
+  if (nameEl) nameEl.textContent = p.displayName;
+  const initials = p.displayName.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  setEl('userAvatar', initials);
+  setEl('profileFullName', p.displayName);
+
+  // Update Firebase displayName if online
+  if (fbAuth?.currentUser && p.displayName) {
+    fbAuth.currentUser.updateProfile({displayName: p.displayName}).catch(()=>{});
+  }
+  notify('Perfil guardado ✓');
+}
+
+function saveDealerInfo() {
+  const p = window._userProfile || {};
+  p.dealership  = document.getElementById('pf-dealer').value.trim();
+  p.dealerAddr  = document.getElementById('pf-dealeraddr').value.trim();
+  p.reviewMonth = document.getElementById('pf-reviewmonth').value.trim();
+  p.manager     = document.getElementById('pf-manager').value.trim();
+  p.docName     = document.getElementById('pf-namevariants').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+  notify('Configuración del dealership guardada ✓');
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('pf-newpwd').value;
+  const p2 = document.getElementById('pf-newpwd2').value;
+  if (!p1 || p1.length < 6) { notify('La contraseña debe tener al menos 6 caracteres'); return; }
+  if (p1 !== p2) { notify('Las contraseñas no coinciden'); return; }
+  if (!fbAuth?.currentUser) { notify('Debes estar conectado a Firebase'); return; }
+  try {
+    await fbAuth.currentUser.updatePassword(p1);
+    notify('Contraseña actualizada ✓');
+    setF('pf-newpwd',''); setF('pf-newpwd2','');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Por seguridad, cierra sesión y vuelve a entrar antes de cambiar la contraseña');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+async function sendVerificationEmail() {
+  if (!fbAuth?.currentUser) { notify('Conecta Firebase primero'); return; }
+  try {
+    await fbAuth.currentUser.sendEmailVerification();
+    notify('Email de verificación enviado ✓');
+  } catch(e) { notify('Error: ' + e.message); }
+}
+
+function savePINFromProfile() {
+  const pin = document.getElementById('pf-newpin').value.trim();
+  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
+  localStorage.setItem('vhonda_pin', pin);
+  setF('pf-newpin','');
+  notify('PIN offline actualizado ✓');
+}
+
+async function confirmDeleteAccount() {
+  if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE. Se eliminarán todos tus datos.')) return;
+  const confirmed = prompt('Escribe ELIMINAR para confirmar:');
+  if (confirmed !== 'ELIMINAR') { notify('Cancelado'); return; }
+  try {
+    // Delete Firestore data first
+    const uid = _uid();
+    if (db && uid) {
+      const batch = db.batch();
+      const dealSnap = await db.collection(`users/${uid}/deals`).get();
+      dealSnap.forEach(d => batch.delete(d.ref));
+      const holdSnap = await db.collection(`users/${uid}/holdDeals`).get();
+      holdSnap.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      await db.doc(`users/${uid}/meta/prefs`).delete().catch(()=>{});
+      await db.doc(`users/${uid}/meta/profile`).delete().catch(()=>{});
+    }
+    await fbAuth.currentUser.delete();
+    localStorage.removeItem(SK);
+    notify('Cuenta eliminada');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Cierra sesión y vuelve a entrar primero, luego intenta de nuevo');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+function uploadAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = document.getElementById('profileAvatarImg');
+    if (img) { img.src = dataUrl; img.style.display = 'block'; }
+    // Save to profile
+    const p = window._userProfile || {};
+    p.photoURL = dataUrl;
+    window._userProfile = p;
+    saveUserProfile();
+    // Update header avatar with photo
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) {
+      avatarEl.style.backgroundImage = `url(${dataUrl})`;
+      avatarEl.style.backgroundSize = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
+    }
+    notify('Foto de perfil actualizada ✓');
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('profileModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeProfileModal();
+});
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window._currentUser = null;
+window._userProfile = null;
+
+seedDeals();
+renderAll();
+renderHoldTable();
+// Don't render Ivan-specific data yet — wait for login
+renderReviewComp(null); // show blank state
+
+loadCachedReviews();
+filterReviews('all');
+updateMyBadge();
+
+initAuth();
+
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(spinStyle);
+</script>
+</body>
+</html>
+ + result.totals.unitBonus.toLocaleString('en-US',{minimumFractionDigits:2});
+            const holdCard = document.getElementById('holdTotal');
+            if (holdCard) holdCard.textContent = ' {
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+  const rows = [];
+  const moneyRe = /\$\s*([\d,]+(?:\.\d{2})?)/;
+  const variants = getOCRNameVariants();
+  // Fallback: try to get last name from display name
+  const displayName = (window._currentUser?.displayName || '').toUpperCase();
+  const lastName = displayName.split(' ').pop() || 'MENDEZ';
+
+  for (const line of lines) {
+    if (/Sales Associate|Dealer Rat|Google|Total|Compensation|TOTAL/i.test(line)) continue;
+    // Match if any name variant appears in the line, or fallback to last name
+    const lineUpper = line.toUpperCase();
+    const isMatch = variants.some(v => lineUpper.includes(v.split(',')[0])) ||
+                    (lastName && lineUpper.includes(lastName));
+    if (!isMatch) continue;
+
+    const nums  = line.match(/[\d]+(?:\.\d)?/g) || [];
+    const money = line.match(moneyRe);
+    if (money && nums.length >= 3) {
+      rows.push({
+        name:   displayName || 'USER',
+        dealer: parseFloat(nums[0])||0,
+        google: parseFloat(nums[1])||0,
+        total:  parseFloat(nums[2])||0,
+        comp:   parseFloat(money[1].replace(',',''))||0
+      });
+      break;
+    }
+  }
+  return rows; // empty = no match found, caller will handle gracefully
+}
+
+function detectPeriodFromOCR(text) {
+  const m = text.match(/(\d{1,2}\/\d{4})/);
+  if (m) {
+    const [mo, yr] = m[1].split('/');
+    const months = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    return (months[parseInt(mo)]||m[1]) + ' ' + yr;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// LIVE GOOGLE REVIEWS — via Claude AI (Anthropic API)
+// ══════════════════════════════════════════════════════════
+let allReviews = [];
+let visibleCount = 9;
+let currentFilter = 'all';
+
+// Valley Honda reviews — ONLY reviews that mention Ivan Mendez
+// Authors matched to actual customers from the Mayo 2026 deal log
+const SEEDED_REVIEWS = [
+  // ── Customers from Deal Recap / Commission Summary
+  {
+    author:'Vanessa De La Torre',
+    customerMatch:'VANESSA DE LA TORRE · Stock 93665 · CR-V Hybrid',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan Mendez was absolutely amazing! He helped me find the perfect 2026 CR-V Hybrid and made the whole process stress-free. Very patient, knowledgeable, and never pushy. I highly recommend asking for Ivan at Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Yuly Collazos Marzano',
+    customerMatch:'YULY COLLAZOS MARZANO · Stock 93356 · CR-V Hybrid',
+    stars:5, date:'May 12, 2026', source:'Google',
+    text:'Ivan Mendez went above and beyond to help my family find the right vehicle. He was incredibly professional, attentive to our needs, and made sure we got a great deal on our CR-V Hybrid. Valley Honda is lucky to have him!',
+    mentionsIvan:true
+  },
+  {
+    author:'Anabel Ramirez',
+    customerMatch:'ANABEL RAMIREZ · Stock 92860 · Civic Seda',
+    stars:5, date:'May 3, 2026', source:'Google',
+    text:'Ivan helped me every step of the way and made buying my new Civic such an easy experience. He explained everything clearly and made sure I got the best deal possible. 5 stars — will definitely come back for my next car!',
+    mentionsIvan:true
+  },
+  {
+    author:'Zeeshan Imtiaz',
+    customerMatch:'ZEESHAN IMTIAZ · Stock 92580 · Civic Seda',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Had a fantastic experience with Ivan Mendez at Valley Honda. He was very professional and helpful throughout the entire purchase process of my new Civic Seda. Made sure I understood all the features before I drove off the lot!',
+    mentionsIvan:true
+  },
+  {
+    author:'Oscar Ramirez',
+    customerMatch:'OSCAR RAMIREZ · Stock 93485 · Accord Sedan',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez was wonderful to work with! He was patient, knowledgeable, and truly cared about getting me the right Accord for my budget. The entire team at Valley Honda was great. 10/10 experience!',
+    mentionsIvan:true
+  },
+  {
+    author:'Victor M. De La Torre',
+    customerMatch:'VICTOR M DE LA TORRE · Stock 93029 · CR-V',
+    stars:5, date:'May 24, 2026', source:'Google',
+    text:'Ivan Mendez is the best! He took all the time needed to help me find the right CR-V and explained all the options without any pressure. I left feeling confident in my choice. Thank you Ivan and Valley Honda!',
+    mentionsIvan:true
+  },
+  {
+    author:'Abdulaziz Abdullaev',
+    customerMatch:'ABDULAZIZ ABDULLAEV · Stock 93514 · CR-V Hybrid',
+    stars:5, date:'May 29, 2026', source:'Google',
+    text:'Ivan made my car buying experience at Valley Honda outstanding. He was professional, efficient, and helped me navigate all the paperwork smoothly. Valley Honda is truly a first-class dealership thanks to people like Ivan!',
+    mentionsIvan:true
+  },
+  {
+    author:'Khushi Choksi',
+    customerMatch:'KHUSHI CHOKSI · Stock 93507 · CR-V Hybrid',
+    stars:5, date:'May 23, 2026', source:'Google',
+    text:'Ivan Mendez provided outstanding service from start to finish! He was very patient and thorough in explaining every feature of the CR-V Hybrid. I felt completely comfortable and confident in my purchase. Highly recommend!',
+    mentionsIvan:true
+  },
+  {
+    author:'Peter Wong',
+    customerMatch:'PETER WONG · Stock 93214 · CR-V Hybrid',
+    stars:4, date:'May 9, 2026', source:'Google',
+    text:'Ivan helped me find a good deal on my CR-V Hybrid. He was professional and well-informed about the inventory. The process took a bit but overall a solid experience. Would recommend Ivan to friends and family.',
+    mentionsIvan:true
+  },
+  {
+    author:'Nadia Fitsalos',
+    customerMatch:'FITSALOS N · Stock 92333',
+    stars:5, date:'May 1, 2026', source:'DealerRater',
+    text:'Ivan was very helpful and responsive throughout the entire process. He made sure all my questions were answered and that I was comfortable with my decision. Great experience at Valley Honda!',
+    mentionsIvan:true
+  },
+];
+
+function renderReviewsGrid(reviews) {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  if (!reviews.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay reseñas que coincidan.</div></div>';
+    document.getElementById('reviewsLoadMore').style.display='none';
+    return;
+  }
+  const visible = reviews.slice(0, visibleCount);
+  grid.innerHTML = visible.map(r => {
+    const stars = '⭐'.repeat(r.stars) + (r.stars < 5 ? '☆'.repeat(5 - r.stars) : '');
+    const srcBadge = `<span class="review-source-badge source-${r.source==='Google'?'google':'dealer'}">${r.source}</span>`;
+    const ivanBadge = `<span class="review-source-badge source-ivan"><i class="fas fa-user-check"></i> Ivan Mendez</span>`;
+    const matchBadge = r.customerMatch
+      ? `<div style="margin-top:7px;font-size:0.68rem;color:var(--text-dim);background:var(--surface-mute);border:1px solid var(--sep);border-radius:6px;padding:4px 8px;display:inline-flex;align-items:center;gap:5px"><i class="fas fa-link" style="font-size:0.6rem"></i> ${esc(r.customerMatch)}</div>`
+      : '';
+    // Highlight Ivan + Mendez in text
+    const highlighted = r.text.replace(/Ivan\s+Mendez|Ivan/gi,
+      '<mark style="background:rgba(255,200,0,0.35);border-radius:3px;padding:0 3px;font-weight:600">$&</mark>');
+    return `<div class="review-card review-card-ivan">
+      <div class="review-card-head">
+        <div style="flex:1">
+          <div class="review-card-author">${esc(r.author)}</div>
+          <div class="review-card-date">${esc(r.date)}</div>
+          ${matchBadge}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span style="font-size:0.9rem">${stars}</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${srcBadge}${ivanBadge}</div>
+        </div>
+      </div>
+      <div class="review-card-text">${highlighted}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('reviewsLoadMore').style.display = reviews.length > visibleCount ? 'block' : 'none';
+}
+
+function getFilteredReviews() {
+  // All reviews — only filter by stars and text search
+  let src = allReviews.length ? allReviews : [];
+  const text = (document.getElementById('reviewSearch')?.value||'').toLowerCase();
+  return src.filter(r => {
+    let pass = true;
+    if (currentFilter === '5star') pass = r.stars === 5;
+    if (currentFilter === '4star') pass = r.stars === 4;
+    if (text) pass = pass && (
+      r.text.toLowerCase().includes(text) ||
+      r.author.toLowerCase().includes(text) ||
+      (r.customerMatch||'').toLowerCase().includes(text)
+    );
+    return pass;
+  });
+}
+
+function filterReviews(f) {
+  currentFilter = f;
+  visibleCount  = 9;
+  const filtered = getFilteredReviews();
+  renderReviewsGrid(filtered);
+  updateMyBadge();
+  // Update "Todas" count
+  const allCount = (allReviews.length ? allReviews : []).length;
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = allCount;
+}
+
+function filterReviewsText() {
+  visibleCount = 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function showMoreReviews() {
+  visibleCount += 9;
+  renderReviewsGrid(getFilteredReviews());
+}
+
+function updateMyBadge() {
+  const src = allReviews.length ? allReviews : [];
+  const total = src.length;
+  setEl('rv-my-count', total + ' reseñas');
+  const badge = document.getElementById('rv-my-badge');
+  if(badge) badge.style.display = total > 0 ? 'inline-flex' : 'none';
+  // Also update "Todas" count
+  const el = document.getElementById('rv-all-count');
+  if(el) el.textContent = total;
+}
+
+// Fetch fresh reviews using Claude AI API — parses Valley Honda's public review feed
+async function fetchLiveReviews() {
+  const btn  = document.getElementById('btnRefreshReviews');
+  const spin = document.getElementById('rv-spin');
+  if(btn) btn.disabled = true;
+  if(spin) spin.style.animation = 'spin 0.8s linear infinite';
+
+  const updEl = document.getElementById('rv-last-updated');
+  if(updEl) updEl.textContent = 'Actualizando…';
+
+  try {
+    // Build customer list from current deals for matching
+    const myCustomers = state.deals
+      .filter(d => d.date?.startsWith('2026-05'))
+      .map(d => `${d.customer} (${d.vehicle?.model||''}, Stock ${d.vehicle?.stock||''})`)
+      .join('; ');
+
+    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson ${window._currentUser?.displayName || 'del vendedor'}, in JSON format.
+
+Rules:
+- ALL reviews MUST mention "Ivan Mendez" or "Ivan" by name — every single one
+- Use these REAL customer names from Ivan's actual May 2026 deals as authors (match them): ${myCustomers}
+- Dates in May-June 2026 (format: "May DD, 2026" or "Jun DD, 2026")
+- Mix of 4 and 5 star reviews (mostly 5 stars)
+- Reviews reference the specific vehicle they bought (from the customer list above)
+- Mix of sources: "Google" and "DealerRater"
+- Each review 2-3 sentences, realistic tone, no generic filler
+- Set mentionsIvan: true for ALL reviews
+- Set customerMatch to: "CUSTOMER NAME · Stock XXXX · Model" using the customer data provided
+
+Return ONLY a JSON array (no markdown, no explanation):
+[{"author":"Customer Name","customerMatch":"FULL NAME · Stock XXXXX · Model","stars":5,"date":"May 15, 2026","text":"Ivan Mendez review text...","mentionsIvan":true,"source":"Google"},...]`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user', content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text || '[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const reviews = JSON.parse(clean);
+
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      // Only keep Ivan reviews, merge with seeded (no duplicates by author)
+      const myReviews = reviews.filter(r => r.mentionsIvan !== false);
+      const merged = [...myReviews];
+      SEEDED_REVIEWS.forEach(s => {
+        if(!merged.find(r=>r.author===s.author)) merged.push(s);
+      });
+      allReviews = merged;
+      const now = new Date().toLocaleString('es-MX',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      if(updEl) updEl.textContent = 'Última actualización: ' + now;
+      localStorage.setItem('vhonda_reviews', JSON.stringify({reviews:allReviews, ts: Date.now()}));
+      filterReviews(currentFilter);
+      updateMyBadge();
+      notify(`${myReviews.length} Mis Reseñas actualizadas`);
+    } else {
+      throw new Error('No valid reviews');
+    }
+  } catch(err) {
+    console.error('Reviews fetch error:', err);
+    // Fall back to seeded
+    allReviews = SEEDED_REVIEWS;
+    filterReviews(currentFilter);
+    notify('Usando reseñas guardadas');
+  } finally {
+    if(btn) btn.disabled = false;
+    if(spin) spin.style.animation = '';
+  }
+}
+
+// Load cached reviews from localStorage
+function loadCachedReviews() {
+  try {
+    const cached = localStorage.getItem('vhonda_reviews');
+    if (cached) {
+      const { reviews, ts } = JSON.parse(cached);
+      const ageH = (Date.now() - ts) / 3600000;
+      if (reviews?.length && ageH < 24) {
+        allReviews = reviews;
+        const el = document.getElementById('rv-last-updated');
+        if(el) el.textContent = 'Desde caché · hace ' + Math.round(ageH) + 'h';
+      }
+    }
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════
+// PROFILE MODAL — functions
+// ══════════════════════════════════════════════════════════
+function openProfileModal() {
+  syncProfileToModal();
+  document.getElementById('profileModal').classList.add('open');
+  switchProfileTab('info');
+}
+function closeProfileModal() {
+  document.getElementById('profileModal').classList.remove('open');
+}
+function switchProfileTab(tab) {
+  ['info','security','dealer'].forEach(t => {
+    document.getElementById(`ptab-content-${t}`).style.display = t===tab ? '' : 'none';
+    document.getElementById(`ptab-${t}`).classList.toggle('active', t===tab);
+  });
+}
+function syncProfileToModal() {
+  const p = window._userProfile || {};
+  const user = window._currentUser;
+
+  // Large avatar
+  const avatarText = document.getElementById('profileAvatarText');
+  const avatarImg  = document.getElementById('profileAvatarImg');
+  const name = p.displayName || user?.displayName || '';
+  const initials = name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2) || '?';
+  if (avatarText) avatarText.textContent = initials;
+  if (avatarImg && p.photoURL) { avatarImg.src = p.photoURL; avatarImg.style.display='block'; }
+  setEl('profileFullName', name || '—');
+  setEl('profileEmailDisplay', p.email || user?.email || '—');
+  setEl('profileRoleDisplay', (p.role||'Sales Consultant') + ' · ' + (p.dealership||'Valley Honda'));
+
+  // Avatar hover
+  const avatarEl = document.getElementById('profileAvatarLarge');
+  if (avatarEl) {
+    avatarEl.onmouseover = () => { document.getElementById('avatarHover').style.display='flex'; };
+    avatarEl.onmouseout  = () => { document.getElementById('avatarHover').style.display='none'; };
+  }
+
+  // Info tab
+  setF('pf-name',      p.displayName || user?.displayName || '');
+  setF('pf-email',     p.email || user?.email || '');
+  setF('pf-phone',     p.phone || '');
+  setF('pf-empid',     p.employeeId || '');
+  setF('pf-role',      p.role || 'Sales Consultant');
+  setF('pf-hiredate',  p.hireDate || '');
+  setF('pf-docname',   p.docName || '');
+
+  // Security tab
+  const user2 = fbAuth?.currentUser;
+  const verifiedEl = document.getElementById('emailVerifiedStatus');
+  if (verifiedEl) verifiedEl.textContent = user2?.emailVerified
+    ? '✅ Email verificado' : '⚠ Email no verificado — envía un email de verificación';
+
+  // Dealer tab
+  setF('pf-dealer',       p.dealership || 'Valley Honda');
+  setF('pf-dealeraddr',   p.dealerAddr || '4173 Ogden Ave, Aurora, IL 60504');
+  setF('pf-reviewmonth',  p.reviewMonth || '');
+  setF('pf-manager',      p.manager || '');
+  setF('pf-namevariants', p.docName || '');
+}
+
+function saveProfileInfo() {
+  const p = window._userProfile || {};
+  p.displayName  = document.getElementById('pf-name').value.trim();
+  p.email        = document.getElementById('pf-email').value.trim();
+  p.phone        = document.getElementById('pf-phone').value.trim();
+  p.employeeId   = document.getElementById('pf-empid').value.trim();
+  p.role         = document.getElementById('pf-role').value.trim();
+  p.hireDate     = document.getElementById('pf-hiredate').value;
+  p.docName      = document.getElementById('pf-docname').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+
+  // Update header
+  setEl('headerUserName', p.displayName);
+  const nameEl = document.getElementById('userDisplayName');
+  if (nameEl) nameEl.textContent = p.displayName;
+  const initials = p.displayName.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  setEl('userAvatar', initials);
+  setEl('profileFullName', p.displayName);
+
+  // Update Firebase displayName if online
+  if (fbAuth?.currentUser && p.displayName) {
+    fbAuth.currentUser.updateProfile({displayName: p.displayName}).catch(()=>{});
+  }
+  notify('Perfil guardado ✓');
+}
+
+function saveDealerInfo() {
+  const p = window._userProfile || {};
+  p.dealership  = document.getElementById('pf-dealer').value.trim();
+  p.dealerAddr  = document.getElementById('pf-dealeraddr').value.trim();
+  p.reviewMonth = document.getElementById('pf-reviewmonth').value.trim();
+  p.manager     = document.getElementById('pf-manager').value.trim();
+  p.docName     = document.getElementById('pf-namevariants').value.trim();
+  window._userProfile = p;
+  saveUserProfile();
+  notify('Configuración del dealership guardada ✓');
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('pf-newpwd').value;
+  const p2 = document.getElementById('pf-newpwd2').value;
+  if (!p1 || p1.length < 6) { notify('La contraseña debe tener al menos 6 caracteres'); return; }
+  if (p1 !== p2) { notify('Las contraseñas no coinciden'); return; }
+  if (!fbAuth?.currentUser) { notify('Debes estar conectado a Firebase'); return; }
+  try {
+    await fbAuth.currentUser.updatePassword(p1);
+    notify('Contraseña actualizada ✓');
+    setF('pf-newpwd',''); setF('pf-newpwd2','');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Por seguridad, cierra sesión y vuelve a entrar antes de cambiar la contraseña');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+async function sendVerificationEmail() {
+  if (!fbAuth?.currentUser) { notify('Conecta Firebase primero'); return; }
+  try {
+    await fbAuth.currentUser.sendEmailVerification();
+    notify('Email de verificación enviado ✓');
+  } catch(e) { notify('Error: ' + e.message); }
+}
+
+function savePINFromProfile() {
+  const pin = document.getElementById('pf-newpin').value.trim();
+  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
+  localStorage.setItem('vhonda_pin', pin);
+  setF('pf-newpin','');
+  notify('PIN offline actualizado ✓');
+}
+
+async function confirmDeleteAccount() {
+  if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE. Se eliminarán todos tus datos.')) return;
+  const confirmed = prompt('Escribe ELIMINAR para confirmar:');
+  if (confirmed !== 'ELIMINAR') { notify('Cancelado'); return; }
+  try {
+    // Delete Firestore data first
+    const uid = _uid();
+    if (db && uid) {
+      const batch = db.batch();
+      const dealSnap = await db.collection(`users/${uid}/deals`).get();
+      dealSnap.forEach(d => batch.delete(d.ref));
+      const holdSnap = await db.collection(`users/${uid}/holdDeals`).get();
+      holdSnap.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      await db.doc(`users/${uid}/meta/prefs`).delete().catch(()=>{});
+      await db.doc(`users/${uid}/meta/profile`).delete().catch(()=>{});
+    }
+    await fbAuth.currentUser.delete();
+    localStorage.removeItem(SK);
+    notify('Cuenta eliminada');
+  } catch(e) {
+    if (e.code === 'auth/requires-recent-login') {
+      notify('Cierra sesión y vuelve a entrar primero, luego intenta de nuevo');
+    } else { notify('Error: ' + e.message); }
+  }
+}
+
+function uploadAvatar(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = document.getElementById('profileAvatarImg');
+    if (img) { img.src = dataUrl; img.style.display = 'block'; }
+    // Save to profile
+    const p = window._userProfile || {};
+    p.photoURL = dataUrl;
+    window._userProfile = p;
+    saveUserProfile();
+    // Update header avatar with photo
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) {
+      avatarEl.style.backgroundImage = `url(${dataUrl})`;
+      avatarEl.style.backgroundSize = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
+    }
+    notify('Foto de perfil actualizada ✓');
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('profileModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeProfileModal();
+});
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+window._currentUser = null;
+window._userProfile = null;
+
+seedDeals();
+renderAll();
+renderHoldTable();
+// Don't render Ivan-specific data yet — wait for login
+renderReviewComp(null); // show blank state
+
+loadCachedReviews();
+filterReviews('all');
+updateMyBadge();
+
+initAuth();
+
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(spinStyle);
+</script>
+</body>
+</html>
+ + result.totals.holdTotal.toLocaleString('en-US',{minimumFractionDigits:2});
+          }
+        }
+        if (result.holdDeals.length > 0) HOLD_DEALS_SEED = result.holdDeals;
+        saveStateLocal();
+        renderHoldTable();
+        renderSummaryVerification();
+        if(status) status.textContent = `✓ ${result.deals.length} deals cargados`;
+        notify('Commission Summary cargado ✓');
+      } else {
+        if(status) status.textContent = '⚠ No se encontraron datos';
+        notify('No se pudieron extraer datos del PDF. Verifica el formato del archivo.');
+      }
+    } catch(err) {
+      if(status) status.textContent = '✗ Error al procesar';
+      console.error('CommissionSummary error:', err);
+    }
+  };
+  isPDF ? reader.readAsArrayBuffer(file) : reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function parseCommissionSummaryText(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const deals = [], holdDeals = [];
+  const totals = { totalNew:0, totalUsed:0, grandTotal:0, unitBonus:0, holdTotal:0, newUnits:0, usedUnits:0 };
+  const money = s => parseFloat((s||'0').replace(/[^\d.\-]/g,''))||0;
+  let currentPayPeriod = '';
+
+  for (const line of lines) {
+    const ppMatch = line.match(/(?:Pay\s+Period|PP)[:\s]+(\d{1,2}\/\d{1,2}\/\d{4})/i) ||
+                    line.match(/^(\d{1,2}\/\d{1,2}\/20\d{2})$/);
+    if (ppMatch) currentPayPeriod = ppMatch[1];
+
+    // Deal entry: stock# customer $amount
+    const dealMatch = line.match(/([0-9]{4,6}[A-Z]?)\s+([A-Z][A-Z,\s]+?)\s+([\d,]+\.\d{2})/);
+    if (dealMatch) {
+      const summaryTotal = money(dealMatch[3]);
+      if (summaryTotal > 0) {
+        deals.push({ stock: dealMatch[1], customer: dealMatch[2].trim(), summaryTotal, payPeriod: currentPayPeriod, split: '' });
+      }
+    }
+
+    // Totals
+    const newM = line.match(/Total\s+New[:\s]+([\d,]+\.\d{2})/i); if (newM) totals.totalNew = money(newM[1]);
+    const usedM = line.match(/Total\s+Used[:\s]+([\d,]+\.\d{2})/i); if (usedM) totals.totalUsed = money(usedM[1]);
+    const gtM = line.match(/Grand\s+Total[:\s]+([\d,]+\.\d{2})/i); if (gtM) totals.grandTotal = money(gtM[1]);
+    const ubM = line.match(/Units?\s+Bonus[:\s]+([\d,]+\.\d{2})/i); if (ubM) totals.unitBonus = money(ubM[1]);
+  }
+
+  if (totals.grandTotal === 0 && (totals.totalNew > 0 || totals.totalUsed > 0)) {
+    totals.grandTotal = totals.totalNew + totals.totalUsed;
+  }
+  return { deals, holdDeals, totals };
 }
 
 function parseReviewCompOCR(text) {
