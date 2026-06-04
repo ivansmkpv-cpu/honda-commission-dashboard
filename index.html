@@ -977,7 +977,7 @@ header{
   <!-- TRADING CHART — Cumulative earnings over time -->
   <div class="glass panel" style="margin-bottom:12px">
     <div class="panel-head">
-      <div class="panel-title"><i class="fas fa-chart-area"></i> Evolución de Comisiones — Mayo 2026</div>
+      <div class="panel-title"><i class="fas fa-chart-area"></i> Evolución de Comisiones</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div id="tradingLegend" style="display:flex;gap:14px;font-size:0.72rem;color:var(--text-dim)"></div>
         <div style="font-size:0.72rem;color:var(--text-faint)" id="tradingPeriodLabel"></div>
@@ -1015,7 +1015,7 @@ header{
     <!-- SUMMARY VERIFICATION BANNER -->
     <div class="glass panel" style="margin-bottom:12px">
       <div class="panel-head">
-        <div class="panel-title"><i class="fas fa-file-check"></i> Commission Summary Verification — Mayo 2026</div>
+        <div class="panel-title"><i class="fas fa-file-check"></i> Commission Summary Verification</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <span class="summary-stat-pill" id="sv-mismatches">— mismatches</span>
           <span class="summary-stat-pill" id="sv-matched">— matched</span>
@@ -1099,7 +1099,7 @@ header{
     <!-- REVIEW COMPENSATION TABLE -->
     <div class="glass panel" style="margin-bottom:12px">
       <div class="panel-head">
-        <div class="panel-title"><i class="fas fa-star"></i> Online Review Compensation — Mayo 2026</div>
+        <div class="panel-title"><i class="fas fa-star"></i> Online Review Compensation</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <button class="btn" onclick="document.getElementById('review-scan-input').click()">
             <i class="fas fa-camera"></i> Scan Compensation Sheet
@@ -1160,8 +1160,8 @@ header{
       <div class="panel-head">
         <div class="panel-title">
           <i class="fab fa-google" style="color:#4285f4"></i> Google Reviews — Valley Honda Aurora
-          <span id="rv-ivan-badge" style="display:none" class="review-source-badge source-google">
-            <i class="fas fa-user"></i> Ivan mencionado
+          <span id="rv-my-badge" style="display:none" class="review-source-badge source-google">
+            <i class="fas fa-user"></i> Yo mencionado
           </span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -1182,8 +1182,8 @@ header{
             <div style="font-family:var(--font-head);font-weight:800;font-size:1.4rem">12,500+</div>
           </div>
           <div>
-            <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Reseñas de Ivan</div>
-            <div style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:#8a6a00" id="rv-ivan-count">—</div>
+            <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Mis Reseñas</div>
+            <div style="font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:#8a6a00" id="rv-my-count">—</div>
           </div>
           <div style="flex:1;min-width:180px">
             <div style="font-size:0.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em">Dirección</div>
@@ -1257,7 +1257,7 @@ header{
         </div>
         <div class="form-full">
           <label class="form-label">Email</label>
-          <input class="form-input" id="pf-email" type="email" placeholder="ivan@valleyhonda.com"/>
+          <input class="form-input" id="pf-email" type="email" placeholder="usuario@valleyhonda.com"/>
         </div>
         <div>
           <label class="form-label">Teléfono</label>
@@ -1397,7 +1397,7 @@ header{
       <div>
         <label class="auth-label">Email</label>
         <input class="auth-input" id="authEmail" type="email"
-          placeholder="ivan@valleyhonda.com" autocomplete="email"/>
+          placeholder="usuario@valleyhonda.com" autocomplete="email"/>
       </div>
       <div>
         <label class="auth-label">Contraseña</label>
@@ -1690,10 +1690,10 @@ const DEFAULT_PIN = '1234';
 let pinBuffer = '';
 
 const OFFLINE_USER = {
-  uid:         'ivan-mendez-local',
-  displayName: 'Oscar Ivan Mendez',
-  initials:    'IM',
-  email:       'ivan@valleyhonda.com',
+  uid:         'offline-user',
+  displayName: 'Usuario Offline',
+  initials:    '--',
+  email:       'usuario@valleyhonda.com',
   isOffline:   true
 };
 
@@ -1901,7 +1901,7 @@ function initFirebase() {
 // ══════════════════════════════════════════════════════════
 // SESSION MANAGEMENT
 // ══════════════════════════════════════════════════════════
-function onLoginSuccess(user) {
+function onLoginSuccess(user) {  // Reset per-user data to avoid showing previous user's data  COMMISSION_SUMMARY = [];  SUMMARY_TOTALS = { totalNew:0, totalUsed:0, grandTotal:0, unitBonus:0, holdTotal:0, newUnits:0, usedUnits:0 };  allReviews = [];  // Reset per-user data to avoid showing previous user's data  COMMISSION_SUMMARY = [];  SUMMARY_TOTALS = { totalNew:0, totalUsed:0, grandTotal:0, unitBonus:0, holdTotal:0, newUnits:0, usedUnits:0 };  // Reset per-user data to avoid showing previous user's data
   // Reveal main dashboard
   const mainHeader = document.getElementById('mainHeader');
   if (mainHeader) mainHeader.style.visibility = 'visible';
@@ -2003,7 +2003,7 @@ function subscribeFirestore(uid) {
       const deals = [];
       snap.forEach(doc => deals.push({ id: doc.id, ...doc.data() }));
 
-      // First time: if Firestore is empty but localStorage has data → migrate up
+      // First time: if Firestore is empty but localStorage has data → migrate uph
       if (deals.length === 0 && state.deals.length > 0) {
         await seedFirestoreFromLocal(uid);
         return; // snapshot will re-fire after seeding
@@ -2908,7 +2908,7 @@ document.getElementById('dealModal').addEventListener('click',e=>{if(e.target===
 // SUMMARY VERIFICATION COUNTER
 // ══════════════════════════════════
 function renderSummaryVerification() {
-  const deals = getMonthDeals('2026-05');
+  const deals = getMonthDeals(state.selectedMonth);
   let matched = 0, mismatched = 0;
   deals.forEach(d => {
     const r = checkCommissionMatch(d);
@@ -2932,7 +2932,7 @@ function renderSummaryVerification() {
 // Each entry: stock, customer, summaryTotal (AM+FAI+Comm),
 //             payPeriod, splitDeal, holdReason
 // ══════════════════════════════════════════════════════════
-const COMMISSION_SUMMARY = [
+let COMMISSION_SUMMARY = [
   // ── Pay Period 5/9/2026 ──────────────────────────────
   {stock:'92333',  customer:'FITSALOS,N',    summaryTotal:39.30,   payPeriod:'5/9/2026',  split:'MALIK'},
   {stock:'92896',  customer:'PEREZ,A',       summaryTotal:415.18,  payPeriod:'5/9/2026',  split:''},
@@ -2956,7 +2956,7 @@ const COMMISSION_SUMMARY = [
 ];
 
 // SUMMARY TOTALS from commission.pdf
-const SUMMARY_TOTALS = {
+let SUMMARY_TOTALS = {
   totalNew:  4412.36,
   totalUsed: 1169.78,
   grandTotal:5582.14,
@@ -3056,7 +3056,7 @@ function getOCRNameVariants() {
 // ══════════════════════════════════
 // SEED — Only for Ivan's known UID / offline, blank for others
 // ══════════════════════════════════
-const IVAN_OFFLINE_UID = 'ivan-mendez-local';
+const IVAN_OFFLINE_UID = 'offline-user';
 
 function seedDeals(){
   if (state.deals.length > 0) return; // already has data
@@ -3652,8 +3652,8 @@ function renderReviewsGrid(reviews) {
 }
 
 function getFilteredReviews() {
-  // All reviews are Ivan's — only filter by stars and text search
-  let src = allReviews.length ? allReviews : SEEDED_REVIEWS;
+  // All reviews — only filter by stars and text search
+  let src = allReviews.length ? allReviews : [];
   const text = (document.getElementById('reviewSearch')?.value||'').toLowerCase();
   return src.filter(r => {
     let pass = true;
@@ -3673,7 +3673,7 @@ function filterReviews(f) {
   visibleCount  = 9;
   const filtered = getFilteredReviews();
   renderReviewsGrid(filtered);
-  updateIvanBadge();
+  updateMyBadge();
   // Update "Todas" count
   const allCount = (allReviews.length ? allReviews : SEEDED_REVIEWS).length;
   const el = document.getElementById('rv-all-count');
@@ -3690,11 +3690,11 @@ function showMoreReviews() {
   renderReviewsGrid(getFilteredReviews());
 }
 
-function updateIvanBadge() {
+function updateMyBadge() {
   const src = allReviews.length ? allReviews : SEEDED_REVIEWS;
   const total = src.length;
-  setEl('rv-ivan-count', total + ' reseñas');
-  const badge = document.getElementById('rv-ivan-badge');
+  setEl('rv-my-count', total + ' reseñas');
+  const badge = document.getElementById('rv-my-badge');
   if(badge) badge.style.display = total > 0 ? 'inline-flex' : 'none';
   // Also update "Todas" count
   const el = document.getElementById('rv-all-count');
@@ -3750,8 +3750,8 @@ Return ONLY a JSON array (no markdown, no explanation):
 
     if (Array.isArray(reviews) && reviews.length > 0) {
       // Only keep Ivan reviews, merge with seeded (no duplicates by author)
-      const ivanOnly = reviews.filter(r => r.mentionsIvan !== false);
-      const merged = [...ivanOnly];
+      const myReviews = reviews.filter(r => r.mentionsIvan !== false);
+      const merged = [...myReviews];
       SEEDED_REVIEWS.forEach(s => {
         if(!merged.find(r=>r.author===s.author)) merged.push(s);
       });
@@ -3760,8 +3760,8 @@ Return ONLY a JSON array (no markdown, no explanation):
       if(updEl) updEl.textContent = 'Última actualización: ' + now;
       localStorage.setItem('vhonda_reviews', JSON.stringify({reviews:allReviews, ts: Date.now()}));
       filterReviews(currentFilter);
-      updateIvanBadge();
-      notify(`${ivanOnly.length} reseñas de Ivan actualizadas`);
+      updateMyBadge();
+      notify(`${myReviews.length} Mis Reseñas actualizadas`);
     } else {
       throw new Error('No valid reviews');
     }
@@ -3998,7 +3998,7 @@ renderReviewComp(null); // show blank state
 
 loadCachedReviews();
 filterReviews('all');
-updateIvanBadge();
+updateMyBadge();
 
 initAuth();
 
