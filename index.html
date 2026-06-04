@@ -705,31 +705,6 @@ header{
 .auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text-faint);font-size:0.72rem}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--sep)}
 
-/* ─── PIN PAD ─── */
-.pin-dot{
-  width:14px;height:14px;border-radius:50%;
-  border:2px solid var(--border-line);
-  background:transparent;transition:all 0.15s;
-}
-.pin-dot.filled{background:var(--ink);border-color:var(--ink)}
-.pin-dot.error{background:#e03;border-color:#e03;animation:shake 0.4s ease}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.pin-pad{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:8px;max-width:220px;margin:16px auto 0;
-}
-.pin-key{
-  aspect-ratio:1;border-radius:12px;
-  border:1px solid var(--glass-border);
-  background:var(--glass-bg);
-  color:var(--text);font-family:var(--font-head);
-  font-size:1.1rem;font-weight:600;cursor:pointer;
-  transition:all 0.12s;display:flex;align-items:center;justify-content:center;
-}
-.pin-key:hover{background:var(--glass-bg-hover);border-color:var(--ink)}
-.pin-key:active{transform:scale(0.93)}
-.pin-key.pin-del{font-size:0.9rem;color:var(--text-dim)}
-.pin-key.pin-del:hover{color:#e03;border-color:#e03}
 .google-icon{width:18px;height:18px}
 
 /* ─── SYNC INDICATOR ─── */
@@ -1315,30 +1290,7 @@ header{
             <i class="fas fa-paper-plane"></i> Enviar email de verificación
           </button>
         </div>
-        <!-- Offline PIN -->
-        <div class="option-card">
-          <div class="option-card-head"><i class="fas fa-mobile-alt" style="color:var(--text-dim)"></i> PIN Offline</div>
-          <div class="option-card-desc">Accede sin internet con un PIN de 4 dígitos.</div>
-          <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-            <input class="form-input" id="pf-newpin" type="text" maxlength="4" pattern="\d{4}" placeholder="Nuevo PIN (4 dígitos)" style="max-width:160px"/>
-            <button class="btn" onclick="savePINFromProfile()"><i class="fas fa-save"></i> Guardar PIN</button>
-          </div>
-        </div>
-        <!-- Danger zone -->
-        <div class="option-card" style="border-color:rgba(220,0,30,0.2)">
-          <div class="option-card-head" style="color:#e03"><i class="fas fa-exclamation-triangle"></i> Zona de peligro</div>
-          <div class="option-card-desc">Estas acciones son irreversibles.</div>
-          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-            <button class="btn" onclick="confirmDeleteAccount()" style="color:#e03;border-color:rgba(220,0,30,0.3)">
-              <i class="fas fa-user-times"></i> Eliminar cuenta
-            </button>
-            <button class="btn" onclick="signOut()" style="color:var(--text-dim)">
-              <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+            </div>
 
     <!-- TAB: DEALER -->
     <div id="ptab-content-dealer" style="display:none;margin-top:14px">
@@ -1440,25 +1392,6 @@ header{
       <span id="authToggleText">¿No tienes cuenta? <b style="color:var(--ink)">Crear cuenta</b></span>
     </div>
 
-    <!-- Fallback offline PIN -->
-    <details style="margin-top:16px">
-      <summary style="font-size:0.68rem;color:var(--text-faint);cursor:pointer;text-align:center;list-style:none">
-        Sin internet — acceso offline ▾
-      </summary>
-      <div style="margin-top:10px;text-align:center">
-        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px" id="pinDots">
-          <div class="pin-dot" id="pd0"></div>
-          <div class="pin-dot" id="pd1"></div>
-          <div class="pin-dot" id="pd2"></div>
-          <div class="pin-dot" id="pd3"></div>
-        </div>
-        <div class="pin-pad" id="pinPad"></div>
-        <div style="font-size:0.67rem;color:var(--text-faint);margin-top:8px">
-          PIN offline: <b style="letter-spacing:0.15em">1234</b> ·
-          <span style="cursor:pointer;text-decoration:underline" onclick="showChangePIN()">cambiar</span>
-        </div>
-      </div>
-    </details>
   </div>
 </div>
 
@@ -1687,85 +1620,6 @@ const FIREBASE_CONFIGURED = true; // credentials are set — Firebase is active
 let db = null, fbAuth = null, unsubscribeDeals = null;
 
 // ══════════════════════════════════════════════════════════
-// OFFLINE / PIN FALLBACK SESSION
-// Used when Firebase is not configured or user has no internet
-// ══════════════════════════════════════════════════════════
-const OFFLINE_SESSION_KEY = 'vhonda_offline_session_v1';
-const DEFAULT_PIN = '1234';
-let pinBuffer = '';
-
-const OFFLINE_USER = {
-  uid:         'offline-user',
-  displayName: 'Usuario Offline',
-  initials:    '--',
-  email:       'usuario@valleyhonda.com',
-  isOffline:   true
-};
-
-function getStoredPIN() {
-  return localStorage.getItem('vhonda_pin') || DEFAULT_PIN;
-}
-function hasOfflineSession() {
-  try {
-    const s = JSON.parse(localStorage.getItem(OFFLINE_SESSION_KEY) || 'null');
-    return s && Date.now() < s.exp;
-  } catch { return false; }
-}
-function createOfflineSession() {
-  localStorage.setItem(OFFLINE_SESSION_KEY,
-    JSON.stringify({ exp: Date.now() + 12 * 3600 * 1000 }));
-}
-function clearOfflineSession() {
-  localStorage.removeItem(OFFLINE_SESSION_KEY);
-}
-
-function submitPIN() {
-  if (pinBuffer === getStoredPIN()) {
-    createOfflineSession();
-    onLoginSuccess(OFFLINE_USER);
-  } else {
-    [0,1,2,3].forEach(i => {
-      const d = document.getElementById('pd' + i);
-      if (d) { d.classList.add('error'); setTimeout(() => d.classList.remove('error','filled'), 600); }
-    });
-    pinBuffer = '';
-    const e = document.getElementById('authError');
-    if (e) { e.textContent = 'PIN incorrecto'; e.style.display = 'block';
-      setTimeout(() => e.style.display = 'none', 2200); }
-  }
-}
-function pinPress(digit) {
-  if (pinBuffer.length >= 4) return;
-  pinBuffer += digit;
-  updatePinDots();
-  if (pinBuffer.length === 4) setTimeout(submitPIN, 120);
-}
-function pinDel() {
-  pinBuffer = pinBuffer.slice(0,-1);
-  updatePinDots();
-}
-function updatePinDots() {
-  for (let i = 0; i < 4; i++) {
-    const d = document.getElementById('pd' + i);
-    if (d) d.classList.toggle('filled', i < pinBuffer.length);
-  }
-}
-function buildPinPad() {
-  const pad = document.getElementById('pinPad');
-  if (!pad) return;
-  pad.innerHTML = [1,2,3,4,5,6,7,8,9,'⌫',0,'→'].map(k =>
-    k==='⌫' ? `<button class="pin-key pin-del" onclick="pinDel()">⌫</button>` :
-    k==='→' ? `<button class="pin-key" onclick="submitPIN()" style="font-size:1.1rem">→</button>` :
-    `<button class="pin-key" onclick="pinPress('${k}')">${k}</button>`
-  ).join('');
-}
-function showChangePIN() {
-  const p = prompt('Nuevo PIN (4 dígitos):');
-  if (p && /^\d{4}$/.test(p)) { localStorage.setItem('vhonda_pin', p); notify('PIN actualizado ✓'); }
-  else if (p) alert('Debe ser exactamente 4 dígitos.');
-}
-
-// ══════════════════════════════════════════════════════════
 // FIREBASE AUTH — Email/Password + Google
 // ══════════════════════════════════════════════════════════
 let authMode = 'login'; // 'login' | 'register'
@@ -1819,10 +1673,12 @@ async function submitAuth() {
     const msgs = {
       'auth/user-not-found':       'No existe cuenta con ese email.',
       'auth/wrong-password':       'Contraseña incorrecta.',
+      'auth/invalid-credential':   'Email o contraseña incorrectos.',
       'auth/email-already-in-use': 'Ese email ya está registrado.',
       'auth/weak-password':        'La contraseña debe tener mínimo 6 caracteres.',
       'auth/invalid-email':        'Email inválido.',
       'auth/too-many-requests':    'Demasiados intentos. Espera unos minutos.',
+      'auth/network-request-failed': 'Error de red. Verifica tu conexión.',
     };
     showAuthErr(msgs[err.code] || err.message);
   } finally {
@@ -1831,30 +1687,58 @@ async function submitAuth() {
 }
 
 async function signInGoogle() {
-  if (!FIREBASE_CONFIGURED) {
-    showAuthErr('Firebase no configurado. Usa el acceso offline.');
-    return;
-  }
+  if (!FIREBASE_CONFIGURED) { showAuthErr('Firebase no configurado.'); return; }
+  const btn = document.getElementById('googleSignInBtn');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; btn.textContent = 'Conectando...'; }
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
     provider.setCustomParameters({ prompt: 'select_account' });
-    await fbAuth.signInWithPopup(provider);
-    // onAuthStateChanged fires
+    try {
+      await fbAuth.signInWithPopup(provider);
+    } catch(popupErr) {
+      if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/popup-closed-by-user' || popupErr.code === 'auth/cancelled-popup-request') {
+        if (btn) btn.textContent = 'Redirigiendo...';
+        await fbAuth.signInWithRedirect(provider);
+        return;
+      }
+      throw popupErr;
+    }
   } catch(err) {
-    if (err.code !== 'auth/popup-closed-by-user') showAuthErr('Error Google: ' + err.message);
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.innerHTML = '<svg class="google-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg> Continuar con Google'; }
+    showAuthErr('Error Google: ' + (err.message || err.code));
   }
 }
 
 async function forgotPassword() {
   const email = document.getElementById('authEmail')?.value.trim();
-  if (!email) { showAuthErr('Escribe tu email arriba primero.'); return; }
+  if (!email) { showAuthErr('Escribe tu email en el campo de arriba primero.'); return; }
   if (!FIREBASE_CONFIGURED) { showAuthErr('Firebase no configurado.'); return; }
+  if (!fbAuth) { showAuthErr('Espera un momento e intenta de nuevo.'); return; }
+  const link = document.querySelector('[onclick="forgotPassword()"]');
+  const origText = link ? link.textContent : '';
+  if (link) link.textContent = 'Enviando...';
   try {
     await fbAuth.sendPasswordResetEmail(email);
-    notify('Email de recuperación enviado a ' + email);
+    if (link) link.textContent = origText;
     showAuthErr('');
+    notify('✓ Email de recuperación enviado a ' + email);
+    const e = document.getElementById('authError');
+    if (e) {
+      e.textContent = '✓ Email enviado a ' + email + '. Revisa tu bandeja de entrada y spam.';
+      e.style.display = 'block'; e.style.color = '#2a9d60';
+      e.style.background = 'rgba(42,157,96,0.08)'; e.style.border = '1px solid rgba(42,157,96,0.3)';
+      setTimeout(() => { if(e){e.style.display='none'; e.style.color=''; e.style.background=''; e.style.border='';} }, 8000);
+    }
   } catch(err) {
-    showAuthErr('Error: ' + err.message);
+    if (link) link.textContent = origText;
+    const msgs = {
+      'auth/user-not-found':  'No existe cuenta con ese email.',
+      'auth/invalid-email':   'El email ingresado no es válido.',
+      'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos.',
+    };
+    showAuthErr(msgs[err.code] || 'Error: ' + err.message);
   }
 }
 
@@ -1870,12 +1754,7 @@ function showAuthErr(msg) {
 // ══════════════════════════════════════════════════════════
 function initFirebase() {
   if (!FIREBASE_CONFIGURED) {
-    // Offline mode — check PIN session
-    if (hasOfflineSession()) {
-      onLoginSuccess(OFFLINE_USER);
-    } else {
-      showAuthOverlay();
-    }
+    showAuthOverlay();
     return;
   }
 
@@ -1887,6 +1766,18 @@ function initFirebase() {
     // Persist login across browser sessions
     fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
+    // Handle Google redirect result (works on GitHub Pages)
+    fbAuth.getRedirectResult().then(result => {
+      if (result && result.user) {
+        const btn = document.getElementById('googleSignInBtn');
+        if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+      }
+    }).catch(err => {
+      if (err.code && err.code !== 'auth/no-auth-event') {
+        showAuthErr('Error Google: ' + (err.message || err.code));
+      }
+    });
+
     // Single source of truth for auth state
     fbAuth.onAuthStateChanged(user => {
       if (user) {
@@ -1897,9 +1788,7 @@ function initFirebase() {
     });
   } catch(err) {
     console.error('Firebase init error:', err);
-    // Fall back to offline PIN
-    if (hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
-    else showAuthOverlay();
+    showAuthOverlay();
   }
 }
 
@@ -1936,7 +1825,7 @@ function onLoginSuccess(user) {  // Reset per-user data to avoid showing previou
   hideAuthOverlay();
   setSyncStatus('ok');
 
-  if (!user.isOffline && db) {
+  if (db) {
     subscribeFirestore(user.uid);
   } else {
     renderAll(); renderHoldTable(); renderSummaryVerification();
@@ -1953,7 +1842,6 @@ function onLogout() {  // Reset all user data on logout  COMMISSION_SUMMARY = []
   const mainHeader = document.getElementById('mainHeader');
   if (mainHeader) mainHeader.style.visibility = 'hidden';
   document.querySelectorAll('.app').forEach(el => el.style.visibility = 'hidden');
-  clearOfflineSession();
   showAuthOverlay();
 }
 
@@ -1967,10 +1855,10 @@ async function signOut() {
 }
 
 function showUserMenu() {
-  const user = fbAuth?.currentUser || OFFLINE_USER;
-  const name = user.displayName || user.email || 'Offline';
-  const isOffline = !fbAuth?.currentUser;
-  const msg = `${name}\n${isOffline ? 'Modo offline (localStorage)' : user.email}\n\n¿Cerrar sesión?`;
+  const user = fbAuth?.currentUser;
+  if (!user) return;
+  const name = user.displayName || user.email || 'Usuario';
+  const msg = `${name}\n${user.email || ''}\n\n¿Cerrar sesión?`;
   if (confirm(msg)) signOut();
 }
 
@@ -1978,7 +1866,6 @@ function showAuthOverlay() {
   const el = document.getElementById('authOverlay');
   if (!el) return;
   el.style.display = 'flex'; el.classList.remove('hidden');
-  pinBuffer = ''; updatePinDots(); buildPinPad();
 }
 function hideAuthOverlay() {
   const el = document.getElementById('authOverlay');
@@ -2120,11 +2007,6 @@ async function savePrefsFirestore() {
   } catch(e) { console.error(e); }
 }
 
-// Alias kept for legacy code that calls loginAsIvan()
-function loginAsIvan() {
-  createOfflineSession();
-  onLoginSuccess(OFFLINE_USER);
-}
 
 // initAuth alias (called from INIT block)
 function initAuth() { initFirebase(); }
@@ -3992,14 +3874,6 @@ async function sendVerificationEmail() {
   } catch(e) { notify('Error: ' + e.message); }
 }
 
-function savePINFromProfile() {
-  const pin = document.getElementById('pf-newpin').value.trim();
-  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
-  localStorage.setItem('vhonda_pin', pin);
-  setF('pf-newpin','');
-  notify('PIN offline actualizado ✓');
-}
-
 async function confirmDeleteAccount() {
   if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE. Se eliminarán todos tus datos.')) return;
   const confirmed = prompt('Escribe ELIMINAR para confirmar:');
@@ -4511,14 +4385,6 @@ async function sendVerificationEmail() {
     await fbAuth.currentUser.sendEmailVerification();
     notify('Email de verificación enviado ✓');
   } catch(e) { notify('Error: ' + e.message); }
-}
-
-function savePINFromProfile() {
-  const pin = document.getElementById('pf-newpin').value.trim();
-  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
-  localStorage.setItem('vhonda_pin', pin);
-  setF('pf-newpin','');
-  notify('PIN offline actualizado ✓');
 }
 
 async function confirmDeleteAccount() {
@@ -5034,14 +4900,6 @@ async function sendVerificationEmail() {
   } catch(e) { notify('Error: ' + e.message); }
 }
 
-function savePINFromProfile() {
-  const pin = document.getElementById('pf-newpin').value.trim();
-  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
-  localStorage.setItem('vhonda_pin', pin);
-  setF('pf-newpin','');
-  notify('PIN offline actualizado ✓');
-}
-
 async function confirmDeleteAccount() {
   if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción es IRREVERSIBLE. Se eliminarán todos tus datos.')) return;
   const confirmed = prompt('Escribe ELIMINAR para confirmar:');
@@ -5553,14 +5411,6 @@ async function sendVerificationEmail() {
     await fbAuth.currentUser.sendEmailVerification();
     notify('Email de verificación enviado ✓');
   } catch(e) { notify('Error: ' + e.message); }
-}
-
-function savePINFromProfile() {
-  const pin = document.getElementById('pf-newpin').value.trim();
-  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
-  localStorage.setItem('vhonda_pin', pin);
-  setF('pf-newpin','');
-  notify('PIN offline actualizado ✓');
 }
 
 async function confirmDeleteAccount() {
@@ -6075,14 +5925,6 @@ async function sendVerificationEmail() {
     await fbAuth.currentUser.sendEmailVerification();
     notify('Email de verificación enviado ✓');
   } catch(e) { notify('Error: ' + e.message); }
-}
-
-function savePINFromProfile() {
-  const pin = document.getElementById('pf-newpin').value.trim();
-  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
-  localStorage.setItem('vhonda_pin', pin);
-  setF('pf-newpin','');
-  notify('PIN offline actualizado ✓');
 }
 
 async function confirmDeleteAccount() {
@@ -6651,14 +6493,6 @@ async function sendVerificationEmail() {
     await fbAuth.currentUser.sendEmailVerification();
     notify('Email de verificación enviado ✓');
   } catch(e) { notify('Error: ' + e.message); }
-}
-
-function savePINFromProfile() {
-  const pin = document.getElementById('pf-newpin').value.trim();
-  if (!/^\d{4}$/.test(pin)) { notify('El PIN debe ser exactamente 4 dígitos'); return; }
-  localStorage.setItem('vhonda_pin', pin);
-  setF('pf-newpin','');
-  notify('PIN offline actualizado ✓');
 }
 
 async function confirmDeleteAccount() {
