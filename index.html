@@ -1721,7 +1721,7 @@ async function signInGoogle() {
   }
 }
 
-async async function forgotPassword() {
+async function forgotPassword() {
   const email = document.getElementById('authEmail')?.value.trim();
   if (!email) { showAuthErr('Escribe tu email arriba primero.'); return; }
   if (!FIREBASE_CONFIGURED) { showAuthErr('Firebase no configurado.'); return; }
