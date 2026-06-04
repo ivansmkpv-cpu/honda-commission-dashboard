@@ -3675,7 +3675,7 @@ function filterReviews(f) {
   renderReviewsGrid(filtered);
   updateMyBadge();
   // Update "Todas" count
-  const allCount = (allReviews.length ? allReviews : SEEDED_REVIEWS).length;
+  const allCount = (allReviews.length ? allReviews : []).length;
   const el = document.getElementById('rv-all-count');
   if(el) el.textContent = allCount;
 }
@@ -3691,7 +3691,7 @@ function showMoreReviews() {
 }
 
 function updateMyBadge() {
-  const src = allReviews.length ? allReviews : SEEDED_REVIEWS;
+  const src = allReviews.length ? allReviews : [];
   const total = src.length;
   setEl('rv-my-count', total + ' reseñas');
   const badge = document.getElementById('rv-my-badge');
