@@ -781,6 +781,9 @@ header{
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:10px}
 
+/* ─── AUTH GUARD — hide dashboard until auth resolves ─── */
+.app, #mainHeader { visibility: hidden; }
+
 /* ─── RESPONSIVE ─── */
 @media(max-width:600px){
   .kpi-grid{grid-template-columns:1fr 1fr}
@@ -794,7 +797,7 @@ header{
 <div class="app">
 
   <!-- HEADER -->
-  <header class="glass">
+  <header class="glass" id="mainHeader">
     <div class="logo">
       <div class="logo-icon">🏎</div>
       <div>
@@ -1215,7 +1218,7 @@ header{
   </div><!-- end review section -->
 
 <!-- ─── FIREBASE AUTH OVERLAY ─── -->
-<div class="auth-overlay" id="authOverlay" style="display:none">
+<div class="auth-overlay" id="authOverlay" style="display:flex">
   <div class="auth-card">
     <div class="auth-logo">🏎</div>
     <div class="auth-title">Valley Honda</div>
@@ -1745,6 +1748,12 @@ function initFirebase() {
 // SESSION MANAGEMENT
 // ══════════════════════════════════════════════════════════
 function onLoginSuccess(user) {
+  // Reveal main dashboard
+  const mainHeader = document.getElementById('mainHeader');
+  if (mainHeader) mainHeader.style.visibility = 'visible';
+  // Also reveal all .app divs
+  document.querySelectorAll('.app').forEach(el => el.style.visibility = 'visible');
+
   // Update header pill
   const pill   = document.getElementById('userPill');
   const avatar = document.getElementById('userAvatar');
@@ -1759,10 +1768,8 @@ function onLoginSuccess(user) {
   setSyncStatus('ok');
 
   if (!user.isOffline && db) {
-    // Firebase user — subscribe to Firestore and migrate local data if needed
     subscribeFirestore(user.uid);
   } else {
-    // Offline — just render from localStorage
     renderAll(); renderHoldTable(); renderSummaryVerification();
   }
 
@@ -1773,6 +1780,10 @@ function onLogout() {
   if (unsubscribeDeals) { unsubscribeDeals(); unsubscribeDeals = null; }
   const pill = document.getElementById('userPill');
   if (pill) pill.style.display = 'none';
+  // Hide dashboard content again
+  const mainHeader = document.getElementById('mainHeader');
+  if (mainHeader) mainHeader.style.visibility = 'hidden';
+  document.querySelectorAll('.app').forEach(el => el.style.visibility = 'hidden');
   clearOfflineSession();
   showAuthOverlay();
 }
