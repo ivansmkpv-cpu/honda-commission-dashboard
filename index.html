@@ -819,7 +819,7 @@ header{
         <i class="fas fa-moon" style="font-size:0.72rem;color:var(--text-faint)"></i>
       </label>
       <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Deal</button>
-      <button class="btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+      <button class="btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>      <button class="btn btn-signout" onclick="signOut()" title="Cerrar sesión" style="background:rgba(220,50,50,0.15);color:#e05555;border:1px solid rgba(220,50,50,0.3);"><i class="fas fa-sign-out-alt"></i> Salir</button>
       <button class="btn btn-icon" onclick="clearAll()" title="Clear all" style="color:var(--text-faint)"><i class="fas fa-trash"></i></button>
     </div>
   </header>
@@ -1901,7 +1901,7 @@ function initFirebase() {
 // ══════════════════════════════════════════════════════════
 // SESSION MANAGEMENT
 // ══════════════════════════════════════════════════════════
-function onLoginSuccess(user) {  // Reset per-user data to avoid showing previous user's data  COMMISSION_SUMMARY = [];  SUMMARY_TOTALS = { totalNew:0, totalUsed:0, grandTotal:0, unitBonus:0, holdTotal:0, newUnits:0, usedUnits:0 };  allReviews = [];  // Reset per-user data to avoid showing previous user's data  COMMISSION_SUMMARY = [];  SUMMARY_TOTALS = { totalNew:0, totalUsed:0, grandTotal:0, unitBonus:0, holdTotal:0, newUnits:0, usedUnits:0 };  // Reset per-user data to avoid showing previous user's data
+function onLoginSuccess(user) {  // Reset per-user data to avoid showing previous user's data  COMMISSION_SUMMARY = [];  SUMMARY_TOTALS = { totalNew:0, totalUsed:0, grandTotal:0, unitBonus:0, holdTotal:0, newUnits:0, usedUnits:0 };  HOLD_DEALS_SEED = [];  allReviews = [];  state = defaultState();  saveState();  // Reset per-user data to avoid showing previous user's data  COMMISSION_SUMMARY = [];  SUMMARY_TOTALS = { totalNew:0, totalUsed:0, grandTotal:0, unitBonus:0, holdTotal:0, newUnits:0, usedUnits:0 };  // Reset per-user data to avoid showing previous user's data
   // Reveal main dashboard
   const mainHeader = document.getElementById('mainHeader');
   if (mainHeader) mainHeader.style.visibility = 'visible';
@@ -1940,7 +1940,7 @@ function onLoginSuccess(user) {  // Reset per-user data to avoid showing previou
   notify(`Bienvenido, ${name.split(' ')[0]} ✓`);
 }
 
-function onLogout() {
+function onLogout() {  // Reset all user data on logout  COMMISSION_SUMMARY = []; SUMMARY_TOTALS = {totalNew:0,totalUsed:0,grandTotal:0,unitBonus:0,holdTotal:0,newUnits:0,usedUnits:0}; HOLD_DEALS_SEED = []; allReviews = []; state = defaultState(); saveState(); window._currentUser = null; window._userProfile = null;  // Reset all user data on logout
   if (unsubscribeDeals) { unsubscribeDeals(); unsubscribeDeals = null; }
   const pill = document.getElementById('userPill');
   if (pill) pill.style.display = 'none';
@@ -2957,15 +2957,15 @@ let COMMISSION_SUMMARY = [
 
 // SUMMARY TOTALS from commission.pdf
 let SUMMARY_TOTALS = {
-  totalNew:  4412.36,
-  totalUsed: 1169.78,
-  grandTotal:5582.14,
-  unitBonus: 900.00,
-  units:     17.5
+  totalNew:  0,
+  totalUsed: 0,
+  grandTotal:0,
+  unitBonus: 0,
+  units:     0
 };
 
 // HOLD FILE from commission.pdf
-const HOLD_DEALS_SEED = [
+let HOLD_DEALS_SEED = [
   {stock:'93665', customer:'VANESSA DE LA TORRE',  summaryTotal:302.75,  holdReason:'DPTS ID#',      date:'2026-05-30', am1:227.75, comm1:75.00,  fi1:0,    model:'2026 Honda CR-V Hybrid'},
   {stock:'93535', customer:'JORDAN CATAPANO',       summaryTotal:75.00,   holdReason:'SERVICE PASS',  date:'2026-05-21', am1:0,      comm1:75.00,  fi1:0,    model:'2026 Honda Civic Hybrid'},
   {stock:'93480', customer:'JULIE OHALLORAN',       summaryTotal:1188.21, holdReason:'TRADE TITLE',   date:'2026-05-26', am1:5.00,   comm1:1183.21,fi1:0,    model:'2026 Honda Pilot'},
@@ -3049,7 +3049,7 @@ function saveUserProfile() {
 function getOCRNameVariants() {
   const profile = window._userProfile;
   if (!profile) return [];
-  const raw = profile.docName || profile.displayName || '';
+  const raw = profile.docName || profile.displayName || window._currentUser?.displayName || '';
   return raw.split('·').map(s => s.trim().toUpperCase()).filter(Boolean);
 }
 
@@ -3718,7 +3718,7 @@ async function fetchLiveReviews() {
       .map(d => `${d.customer} (${d.vehicle?.model||''}, Stock ${d.vehicle?.stock||''})`)
       .join('; ');
 
-    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson Ivan Mendez, in JSON format.
+    const prompt = `You are a data assistant. Generate 12 realistic customer reviews for Valley Honda (Aurora, IL) salesperson ${window._currentUser?.displayName || 'del vendedor'}, in JSON format.
 
 Rules:
 - ALL reviews MUST mention "Ivan Mendez" or "Ivan" by name — every single one
