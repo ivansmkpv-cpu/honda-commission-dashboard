@@ -228,8 +228,10 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .auth-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-faint);padding:4px}
 .auth-btn{width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;font-family:inherit;margin-top:4px}
 .auth-btn:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(230,57,0,0.3)}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed}
 .google-btn{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border-line);background:var(--input-bg);color:var(--text);font-size:0.82rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.15s;font-family:inherit;margin-bottom:12px}
 .google-btn:hover{background:var(--glass-bg-hover);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.google-btn:disabled{opacity:0.6;cursor:not-allowed}
 .google-icon{width:18px;height:18px;flex-shrink:0}
 .auth-divider{text-align:center;color:var(--text-faint);font-size:0.7rem;margin:12px 0;position:relative}
 .auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border-line)}
@@ -237,6 +239,7 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .auth-divider::after{right:0}
 .auth-forgot{font-size:0.68rem;color:var(--text-dim);cursor:pointer;text-decoration:underline;text-align:right;margin-top:4px;display:block}
 .auth-err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:8px 12px;font-size:0.72rem;color:var(--red);display:none;margin-bottom:12px}
+.auth-status{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:8px 12px;font-size:0.72rem;color:var(--blue);display:none;margin-bottom:12px}
 .pin-section{padding:10px 0}
 .pin-dots{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
 .pin-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border-line);background:transparent;transition:all 0.15s}
@@ -308,14 +311,10 @@ details[open] summary{color:var(--text)}
 </style>
 </head>
 <body>
-<!-- ============================================================
-MAIN APP
-============================================================ -->
 <div class="app">
-<!-- HEADER -->
 <header class="glass" id="mainHeader">
 <div class="header-logo">
-<span class="logo-icon"></span>
+<span class="logo-icon">🏎</span>
 <div>
 <div class="logo-text">Commission Dashboard</div>
 <div class="logo-sub" id="headerUserName">·</div>
@@ -335,7 +334,6 @@ MAIN APP
 <i class="fas fa-chevron-down" style="font-size:0.55rem;opacity:0.5"></i>
 </div>
 <div class="user-menu" id="userMenu">
-<div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
 <div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
 <div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
 <div class="user-menu-sep"></div>
@@ -344,7 +342,6 @@ MAIN APP
 </div>
 </div>
 </header>
-<!-- KPI CARDS -->
 <div class="kpi-grid">
 <div class="kpi-card glass">
 <div class="kpi-label">MTD Payout</div>
@@ -383,9 +380,7 @@ MAIN APP
 <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
 </div>
 </div>
-<!-- MAIN GRID -->
 <div class="main-grid">
-<!-- LEFT: DEAL LOG -->
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-list-ul" style="color:var(--accent);font-size:0.85rem"></i>
@@ -434,9 +429,7 @@ MAIN APP
 </div>
 </div>
 </div>
-<!-- RIGHT COLUMN -->
 <div class="right-col">
-<!-- OCR SCAN PANEL -->
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-camera" style="color:var(--accent);font-size:0.85rem"></i>
@@ -465,7 +458,6 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
-<!-- PAY PLAN SIDEBAR -->
 <div class="glass pay-plan-panel" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-medal" style="color:var(--accent);font-size:0.85rem"></i>
@@ -494,7 +486,6 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
-<!-- TRADING CHART -->
 <div class="glass" style="overflow:hidden;margin-bottom:20px">
 <div class="panel-head">
 <i class="fas fa-chart-area" style="color:var(--accent);font-size:0.85rem"></i>
@@ -514,7 +505,6 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
-<!-- BOTTOM CHARTS GRID -->
 <div class="bottom-grid">
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
@@ -541,13 +531,9 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
-<!-- ============================================================
-SECTION 2: SUMMARY VERIFICATION + HOLD FILE
-============================================================ -->
 <div class="page-divider"></div>
 <div class="app" style="padding-top:0">
 <div class="section-row">
-<!-- COMMISSION SUMMARY VERIFICATION -->
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-check-double" style="color:var(--green);font-size:0.85rem"></i>
@@ -575,13 +561,12 @@ SECTION 2: SUMMARY VERIFICATION + HOLD FILE
 </div>
 <div id="svTableWrap">
 <div class="blank-state">
-<div class="blank-state-icon">📋</div>
+<div class="blank-state-icon"></div>
 <div class="blank-state-text">Scan your Commission Summary to enable verification · Mismatches highlighted automatically</div>
 </div>
 </div>
 </div>
 </div>
-<!-- HOLD FILE -->
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-pause-circle" style="color:var(--orange);font-size:0.85rem"></i>
@@ -612,13 +597,9 @@ SECTION 2: SUMMARY VERIFICATION + HOLD FILE
 </div>
 </div>
 </div>
-<!-- ============================================================
-SECTION 3: REVIEW COMP + GOOGLE REVIEWS
-============================================================ -->
 <div class="page-divider"></div>
 <div class="app" style="padding-top:0;padding-bottom:40px">
 <div class="section-row">
-<!-- REVIEW COMPENSATION -->
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-file-invoice-dollar" style="color:var(--purple);font-size:0.85rem"></i>
@@ -632,7 +613,6 @@ SECTION 3: REVIEW COMP + GOOGLE REVIEWS
 </div>
 </div>
 </div>
-<!-- GOOGLE REVIEWS -->
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
 <i class="fab fa-google" style="color:var(--blue);font-size:0.85rem"></i>
@@ -662,9 +642,6 @@ SECTION 3: REVIEW COMP + GOOGLE REVIEWS
 </div>
 </div>
 </div>
-<!-- ============================================================
-PROFILE MODAL
-============================================================ -->
 <div class="modal-overlay" id="profileOverlay" onclick="if(event.target===this)closeProfileModal()">
 <div class="modal modal-wide">
 <div class="modal-head">
@@ -739,9 +716,6 @@ PROFILE MODAL
 </div>
 </div>
 </div>
-<!-- ============================================================
-AUTH OVERLAY
-============================================================ -->
 <div class="auth-overlay" id="authOverlay" style="display:flex">
 <div class="auth-box glass">
 <div class="auth-logo">
@@ -753,8 +727,9 @@ AUTH OVERLAY
 <button class="auth-tab active" id="authTabLogin" onclick="toggleAuthMode('login')">Sign In</button>
 <button class="auth-tab" id="authTabRegister" onclick="toggleAuthMode('register')">Create Account</button>
 </div>
+<div class="auth-status" id="authStatus"></div>
 <div class="auth-err" id="authErr"></div>
-<button class="google-btn" onclick="signInGoogle()">
+<button class="google-btn" onclick="signInGoogle()" id="googleBtn">
 <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
 Continue with Google
 </button>
@@ -787,9 +762,6 @@ Continue with Google
 </details>
 </div>
 </div>
-<!-- ============================================================
-DEAL MODAL
-============================================================ -->
 <div class="modal-overlay" id="dealOverlay" onclick="if(event.target===this)closeModal()">
 <div class="modal modal-wide">
 <div class="modal-head">
@@ -874,9 +846,6 @@ DEAL MODAL
 </div>
 </div>
 </div>
-<!-- ============================================================
-HOLD MODAL
-============================================================ -->
 <div class="modal-overlay" id="holdOverlay" onclick="if(event.target===this)closeHoldModal()">
 <div class="modal">
 <div class="modal-head">
@@ -906,12 +875,8 @@ HOLD MODAL
 </div>
 </div>
 </div>
-<!-- NOTIFICATION -->
 <div class="notif" id="notif"></div>
 <script>
-// ============================================================
-//  CONFIG (replace with your credentials)
-// ============================================================
 const firebaseConfig = {
 apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
 authDomain: "valley-honda-dashboard.firebaseapp.com",
@@ -923,9 +888,7 @@ measurementId: "G-VE12MRTHPJ"
 };
 const FIREBASE_CONFIGURED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
 let db = null, fbAuth = null, unsubscribeDeals = null;
-// ============================================================
-// PAY PLAN 2026
-// ============================================================
+let firebaseInitialized = false;
 const PP = {
 unitTiers: [
 {u:12,b:200},{u:15,b:675},{u:18,b:900},{u:21,b:1150},
@@ -940,9 +903,6 @@ const e = d.extracted||{};
 return (parseFloat(e.commissionNo1)||0)+(parseFloat(e.accessories)||0)
 +(parseFloat(e.aftermarket1)||0)+(parseFloat(e.fBonus1)||0);
 };
-// ============================================================
-// STATE / STORAGE
-// ============================================================
 const SCHEMA_V = 5, SK = 'vhonda_v5';
 const OFFLINE_SESSION_KEY = 'vhonda_offline_session_v1';
 const DEFAULT_PIN = '1234';
@@ -989,9 +949,6 @@ fni:'rgba(59,130,246,0.7)', ub:'rgba(34,197,94,0.7)',
 grid:'rgba(0,0,0,0.06)', tick:'#888', legend:'#555'
 };
 }
-// ============================================================
-// UTILS
-// ============================================================
 const fmt   = n => '$'+(parseFloat(n)||0).toFixed(2);
 const fmtC  = v => v ? `<span style="font-family:var(--font-mono);font-size:0.73rem">${fmt(v)}</span>`
 : `<span style="color:var(--text-faint);font-size:0.64rem">—</span>`;
@@ -1005,9 +962,6 @@ el.textContent = msg;
 el.classList.add('show');
 setTimeout(()=>el.classList.remove('show'), dur);
 }
-// ============================================================
-// THEME
-// ============================================================
 function toggleTheme() {
 const cur = document.documentElement.getAttribute('data-theme')||'light';
 const next = cur==='light'?'dark':'light';
@@ -1017,9 +971,6 @@ const btn = document.getElementById('themeBtn');
 if(btn) btn.innerHTML = `<i class="fas fa-${next==='dark'?'sun':'moon'}"></i>`;
 renderCharts(); renderTradingChart();
 }
-// ============================================================
-// AUTH — PIN / OFFLINE SESSION
-// ============================================================
 function getStoredPIN() { return localStorage.getItem('vhonda_pin') || DEFAULT_PIN; }
 function hasOfflineSession() {
 try {
@@ -1067,10 +1018,7 @@ pinEntry = '';
 updatePinDots();
 }
 }
-function showChangePIN() { /* handled in profile modal */ }
-// ============================================================
-// AUTH — FIREBASE
-// ============================================================
+function showChangePIN() {}
 function toggleAuthMode(mode) {
 const isReg = mode === 'register';
 document.getElementById('authFieldName').style.display = isReg ? 'block' : 'none';
@@ -1093,15 +1041,27 @@ if(!el) return;
 el.textContent = msg;
 el.style.display = msg ? 'block' : 'none';
 }
+function showAuthStatus(msg) {
+const el = document.getElementById('authStatus');
+if(!el) return;
+el.textContent = msg;
+el.style.display = msg ? 'block' : 'none';
+}
 async function submitAuth() {
 const email = document.getElementById('authEmail')?.value.trim();
 const pw    = document.getElementById('authPassword')?.value;
 const nameF = document.getElementById('authName')?.value.trim();
 const isReg = document.getElementById('authTabRegister')?.classList.contains('active');
+const btn = document.getElementById('authSubmitBtn');
 showAuthErr('');
-if(!FIREBASE_CONFIGURED) {
+showAuthStatus('Processing...');
+btn.disabled = true;
+if(!FIREBASE_CONFIGURED || !firebaseInitialized) {
+console.log('Firebase not initialized, using offline mode');
 createOfflineSession();
 onLoginSuccess({...OFFLINE_USER, displayName: nameF||'User', email});
+btn.disabled = false;
+showAuthStatus('');
 return;
 }
 try {
@@ -1112,34 +1072,63 @@ if(nameF) await cred.user.updateProfile({displayName: nameF});
 } else {
 cred = await fbAuth.signInWithEmailAndPassword(email, pw);
 }
+showAuthStatus('');
 } catch(e) {
+console.error('Auth error:', e);
 const map = {
 'auth/user-not-found':'No account with that email.',
 'auth/wrong-password':'Incorrect password.',
 'auth/invalid-email':'Invalid email address.',
 'auth/email-already-in-use':'Email already registered.',
 'auth/weak-password':'Password must be at least 6 characters.',
+'auth/network-request-failed':'Network error. Check your connection.',
+'auth/too-many-requests':'Too many attempts. Try again later.',
 };
 showAuthErr(map[e.code] || e.message);
+showAuthStatus('');
+} finally {
+btn.disabled = false;
 }
 }
 async function signInGoogle() {
 showAuthErr('');
-if(!FIREBASE_CONFIGURED) { createOfflineSession(); onLoginSuccess(OFFLINE_USER); return; }
+showAuthStatus('Connecting to Google...');
+const btn = document.getElementById('googleBtn');
+btn.disabled = true;
+if(!FIREBASE_CONFIGURED || !firebaseInitialized) {
+console.log('Firebase not initialized, using offline mode');
+createOfflineSession();
+onLoginSuccess(OFFLINE_USER);
+btn.disabled = false;
+showAuthStatus('');
+return;
+}
 try {
 const provider = new firebase.auth.GoogleAuthProvider();
 provider.setCustomParameters({prompt:'select_account'});
 await fbAuth.signInWithPopup(provider);
-} catch(e) { showAuthErr(e.message); }
+showAuthStatus('');
+} catch(e) {
+console.error('Google auth error:', e);
+showAuthErr(e.message);
+showAuthStatus('');
+} finally {
+btn.disabled = false;
+}
 }
 async function forgotPassword() {
 const email = document.getElementById('authEmail')?.value.trim();
-if(!email||!FIREBASE_CONFIGURED) { showAuthErr('Enter your email first.'); return; }
+if(!email||!FIREBASE_CONFIGURED || !firebaseInitialized) { showAuthErr('Enter your email first.'); return; }
+showAuthStatus('Sending reset email...');
 try {
 await fbAuth.sendPasswordResetEmail(email);
 showAuthErr('');
+showAuthStatus('');
 notify('Password reset email sent ✓');
-} catch(e) { showAuthErr(e.message); }
+} catch(e) {
+showAuthErr(e.message);
+showAuthStatus('');
+}
 }
 function showAuthOverlay() {
 const o = document.getElementById('authOverlay');
@@ -1153,28 +1142,42 @@ o.style.transition='opacity 0.3s';
 setTimeout(()=>{ o.style.display='none'; o.style.opacity=''; o.style.transition=''; },320);
 }
 function initFirebase() {
+console.log('Initializing Firebase...');
 if(!FIREBASE_CONFIGURED) {
+console.log('Firebase not configured');
 if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
 else showAuthOverlay();
 return;
 }
 try {
-if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+if(firebase.apps.length === 0) {
+firebase.initializeApp(firebaseConfig);
+console.log('Firebase initialized');
+} else {
+console.log('Firebase already initialized');
+}
 db = firebase.firestore();
 fbAuth = firebase.auth();
-fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+firebaseInitialized = true;
+console.log('Firebase services ready');
+fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => {
+console.warn('Persistence error:', e);
+});
 fbAuth.onAuthStateChanged(user => {
+console.log('Auth state changed:', user ? 'Logged in' : 'Logged out');
 if(user) onLoginSuccess(user);
 else onLogout();
 });
 } catch(err) {
-console.warn('Firebase init failed:', err);
+console.error('Firebase init failed:', err);
+firebaseInitialized = false;
 if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
 else showAuthOverlay();
 }
 }
 function initAuth() { initFirebase(); }
 function onLoginSuccess(user) {
+console.log('Login success:', user);
 document.getElementById('mainHeader').style.visibility='visible';
 document.querySelectorAll('.app').forEach(el=>el.style.visibility='visible');
 const name = user.displayName||user.email?.split('@')[0]||'User';
@@ -1189,12 +1192,18 @@ setEl('headerUserName', name);
 window._currentUser = user;
 loadUserProfile(user.uid||'offline');
 hideAuthOverlay();
-setSyncStatus('syncing');
-if(!user.isOffline && db) subscribeFirestore(user.uid);
-else { renderAll(); renderHoldTable(); renderSummaryVerification(); }
+setSyncStatus('ok');
+if(!user.isOffline && db && firebaseInitialized) {
+console.log('Subscribing to Firestore');
+subscribeFirestore(user.uid);
+} else {
+console.log('Using local data only');
+renderAll(); renderHoldTable(); renderSummaryVerification();
+}
 notify(`Welcome, ${name.split(' ')[0]} ✓`);
 }
 function onLogout() {
+console.log('Logout');
 if(unsubscribeDeals){ unsubscribeDeals(); unsubscribeDeals=null; }
 const pill = document.getElementById('userPill');
 if(pill) pill.style.display='none';
@@ -1205,8 +1214,16 @@ showAuthOverlay();
 }
 async function signOut() {
 closeUserMenu();
-if(fbAuth) await fbAuth.signOut().catch(()=>{});
-else { onLogout(); }
+if(fbAuth && firebaseInitialized) {
+try {
+await fbAuth.signOut();
+} catch(e) {
+console.error('Sign out error:', e);
+onLogout();
+}
+} else {
+onLogout();
+}
 }
 function showUserMenu() {
 const m = document.getElementById('userMenu');
@@ -1216,9 +1233,6 @@ function closeUserMenu() {
 const m = document.getElementById('userMenu');
 if(m) m.classList.remove('open');
 }
-// ============================================================
-// FIRESTORE SYNC
-// ============================================================
 function setSyncStatus(status) {
 const dot = document.getElementById('syncDot');
 if(!dot) return;
@@ -1227,12 +1241,19 @@ dot.className = `sync-dot ${status}`;
 function _uid() { return fbAuth?.currentUser?.uid||null; }
 async function subscribeFirestore(uid) {
 setSyncStatus('syncing');
+try {
 unsubscribeDeals = db.collection(`users/${uid}/deals`).orderBy('date','desc')
 .onSnapshot(async snap => {
 const deals = [];
 snap.forEach(doc => deals.push({id:doc.id,...doc.data()}));
-// Si hay datos locales pero la nube está vacía (y no es la primera carga), podríamos sincronizar,
-// pero para evitar bugs, aquí priorizamos LO QUE DICE LA NUBE.
+if(deals.length===0 && state.deals.length>0) {
+saveStateLocal();
+renderAll();
+renderHoldTable();
+renderSummaryVerification();
+setSyncStatus('ok');
+return;
+}
 state.deals = deals;
 const hSnap = await db.collection(`users/${uid}/holdDeals`).get();
 state.holdDeals = [];
@@ -1254,42 +1275,15 @@ if(n){setEl('headerUserName',n);setEl('userDisplayName',n);}
 saveStateLocal();
 renderAll(); renderHoldTable(); renderSummaryVerification();
 setSyncStatus('ok');
-}, ()=>setSyncStatus('error'));
+}, (error) => {
+console.error('Firestore subscription error:', error);
+setSyncStatus('error');
+});
+} catch(err) {
+console.error('Firestore setup error:', err);
+setSyncStatus('error');
 }
-
-// Función para forzar sincronización manual
-async function manualSync() {
-  closeUserMenu();
-  const uid = _uid();
-  if(!uid) return;
-  setSyncStatus('syncing');
-  notify('Syncing to cloud...');
-  
-  try {
-    // Subir todos los deals locales
-    if(state.deals.length > 0) {
-      const batch = db.batch();
-      state.deals.forEach(d => {
-        batch.set(db.doc(`users/${uid}/deals/${d.id}`), d);
-      });
-      await batch.commit();
-    }
-    // Subir holds locales
-    if(state.holdDeals.length > 0) {
-      const batch = db.batch();
-      state.holdDeals.forEach(h => {
-        batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`), h);
-      });
-      await batch.commit();
-    }
-    notify('Sync complete ✓');
-  } catch(err) {
-    console.error(err);
-    notify('Sync failed ✗');
-  }
-  setSyncStatus('ok');
 }
-
 async function seedFirestoreFromLocal(uid) {
 if(!db||!state.deals.length) return;
 const batch = db.batch();
@@ -1320,9 +1314,6 @@ reviewCompData:state.reviewCompData||null, commissionSummary:state.commissionSum
 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
 },{merge:true});
 }
-// ============================================================
-// RENDER
-// ============================================================
 function renderAll() {
 renderDate(); renderMonthTabs(); renderKPIs(); renderTable();
 renderSidebar(); renderCharts(); renderTradingChart();
@@ -1423,14 +1414,12 @@ tbody.innerHTML=rows+`<tr class="totals-row">
 function renderSidebar() {
 const mDeals = getMonthDeals(state.selectedMonth);
 const units = mDeals.length;
-// Dots
 const dotsEl = document.getElementById('ppDots');
 if(dotsEl) {
 dotsEl.innerHTML = Array.from({length:30},(_,i)=>
 `<div class="pp-dot${i<units?' filled':''}"></div>`).join('');
 }
 setEl('ppDotsLabel', `${units} / 30 units`);
-// Pills
 const pillsEl = document.getElementById('ppTierPills');
 if(pillsEl) {
 pillsEl.innerHTML = PP.unitTiers.map(t=>{
@@ -1438,7 +1427,6 @@ const cls = units>=t.u?'achieved':(units>=t.u-3?'active':'');
 return `<div class="pp-pill ${cls}">${t.u}u · $${t.b}</div>`;
 }).join('');
 }
-// Tier bars
 const barsEl = document.getElementById('ppTierBars');
 if(barsEl) {
 barsEl.innerHTML = PP.unitTiers.map(t=>{
@@ -1484,13 +1472,11 @@ grid:{color:cc.grid},border:{display:false}}
 }
 });
 }
-// Legend
 const leg = document.getElementById('earningsLegend');
 if(leg) {
 const items=[['Commission',cc.comm],['Aftermarket',cc.aftmkt],['F&I',cc.fni],['Unit Bonus',cc.ub]];
 leg.innerHTML=items.map(([l,c])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div>${l}</div>`).join('');
 }
-// Donut
 const mDeals = getMonthDeals(state.selectedMonth);
 const mComm=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0);
 const mAft=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0);
@@ -1518,7 +1504,6 @@ tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}`}}}
 function renderTradingChart() {
 const mDeals = getMonthDeals(state.selectedMonth);
 const cc = chartColors();
-// Build daily data
 const dayMap = {};
 mDeals.forEach(d => {
 const date = d.date;
@@ -1659,13 +1644,13 @@ wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">📋</div
 <div class="blank-state-text">Scan your Commission Summary to enable verification · Mismatches highlighted automatically</div></div>`;
 return;
 }
-if(!deals.length){wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No deals this month</div></div>`;return;}
+if(!deals.length){wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon"></div><div class="blank-state-text">No deals this month</div></div>`;return;}
 wrap.innerHTML=`<div style="overflow-x:auto"><table class="sv-table">
 <thead><tr><th>Vehicle / Stock</th><th>Customer</th><th>My Total</th><th>Summary</th><th>Match</th></tr></thead>
 <tbody>${rows.map(({d,cm})=>{
 const total=calcPayout(d);
 const cls=cm.matched===true?'sv-matched':cm.matched===false?'sv-mismatch':'sv-unknown';
-const icon=cm.matched===true?'✓':cm.matched===false?` ${fmt(cm.diff)}`:'—';
+const icon=cm.matched===true?'✓':cm.matched===false?`⚠ ${fmt(cm.diff)}`:'—';
 return `<tr>
 <td><div style="font-weight:600;font-size:0.72rem">${esc(d.vehicle?.model||'—')}</div>
 <div style="font-size:0.62rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</div></td>
@@ -1676,9 +1661,6 @@ return `<tr>
 </tr>`;
 }).join('')}</tbody></table></div>`;
 }
-// ============================================================
-// SEARCH
-// ============================================================
 function filterDeals() {
 const type = document.getElementById('searchType')?.value||'all';
 const query = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
@@ -1724,9 +1706,6 @@ const sel=document.getElementById('searchType');
 if(sel) sel.value='all';
 filterDeals();
 }
-// ============================================================
-// OCR
-// ============================================================
 let _tessReady2=null,_pdfjsReady2=null;
 function loadTesseract() {
 if(_tessReady2) return _tessReady2;
@@ -1829,19 +1808,16 @@ function parseOCRText(text) {
 const lines=text.split('\n');
 const find=(re)=>{for(const l of lines){const m=l.match(re);if(m)return m;}return null;};
 const findNum=(re)=>{const m=find(re);if(!m)return 0;const nums=m[0].match(/[\-]?\d+\.\d{2}/g);return nums?parseFloat(nums[0]):0;};
-// Deal / Stock / Model / Customer
 const dealM=find(/Deal\s*#?\s*(\d+)/i);
 const dealNo=dealM?dealM[1]:'';
 const stockM=find(/Stock\s*#?\s*(\d+)/i);
 const stockNo=stockM?stockM[1]:'';
 let model='';
-const modelM=find(/Description\s+(.+)/i)||find(/(20\d\d\s+HONDA\s+\S+[^
-]+)/i);
+const modelM=find(/Description\s+(.+)/i)||find(/(20\d\d\s+HONDA\s+\S+[^\n]+)/i);
 if(modelM) model=modelM[1]?.trim()||'';
 let customer='';
 const custM=find(/Customer\s+([A-Z][A-Z\s,]+?)(?:\s{2,}|Mgr|$)/i);
 if(custM) customer=custM[1]?.trim()||'';
-// Commission & Accessories (same line)
 let commissionNo1=0, accessories=0;
 for(const l of lines){
 if(/Commission\s*No\.?\s*1/i.test(l)){
@@ -1859,7 +1835,6 @@ let profitOfSale=0;
 for(const l of lines){ if(/Profit\s+of\s+Sale/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])profitOfSale=parseFloat(n[0]);break;} }
 let amProfit=0;
 for(const l of lines){ if(/Accessory.?Aftermarket\s+Profit/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])amProfit=parseFloat(n[0]);break;} }
-// Date
 let dateStr=new Date().toISOString().slice(0,10);
 const dateM=find(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
 if(dateM){
@@ -1905,9 +1880,6 @@ split:null
 }
 return rows;
 }
-// ============================================================
-// COMMISSION MATCH
-// ============================================================
 function checkCommissionMatch(deal) {
 if(deal.ignoreMismatch) return {matched:true,summaryTotal:null,diff:0,payPeriod:deal.payPeriodOverride||null,split:deal.splitWith||null};
 const stock=(deal.vehicle?.stock||'').toUpperCase().replace(/\s/g,'');
@@ -1916,13 +1888,10 @@ if(!entry) return {matched:null,summaryTotal:null,diff:null,payPeriod:deal.payPe
 const diff=Math.abs(calcPayout(deal)-entry.summaryTotal);
 return {matched:diff<=0.50,summaryTotal:entry.summaryTotal,diff,payPeriod:deal.payPeriodOverride||entry.payPeriod,split:deal.splitWith||entry.split};
 }
-// ============================================================
-// DEAL MODAL
-// ============================================================
 function openAddModal(ocrData) {
 editingId=null;
 clearForm();
-setEl('dealModalTitle','Add Deal'); // via innerHTML update
+setEl('dealModalTitle','Add Deal');
 document.querySelector('.modal-title').innerHTML='<i class="fas fa-plus" style="color:var(--accent);margin-right:6px"></i>Add Deal';
 setF('dm-date',new Date().toISOString().slice(0,10));
 setF('dm-status','Pending');
@@ -2066,22 +2035,17 @@ payPeriodOverride:periodVal||undefined,
 splitWith:splitVal||undefined,
 holdReason:holdReason||undefined
 };
-
 if(editingId){
-  const idx=state.deals.findIndex(d=>d.id===editingId);
-  if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
-} else { 
-  state.deals.unshift(deal); 
-}
+const idx=state.deals.findIndex(d=>d.id===editingId);
+if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
+} else { state.deals.unshift(deal); }
 saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
-
-// Esperamos a que Firestore confirme antes de notificar
 try {
-  await saveDealFirestore(deal);
-  notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
+await saveDealFirestore(deal);
+notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
 } catch(err) {
-  console.error(err);
-  notify('Saved locally, but sync failed ✗');
+console.error('Firestore save error:', err);
+notify('Saved locally, sync failed ✗');
 }
 }
 async function deleteDeal(id) {
@@ -2089,11 +2053,11 @@ if(!confirm('Delete this deal?')) return;
 state.deals=state.deals.filter(d=>d.id!==id);
 saveStateLocal(); renderAll(); renderSummaryVerification();
 try {
-  await deleteDealFirestore(id);
-  notify('Deal deleted ✓');
+await deleteDealFirestore(id);
+notify('Deal deleted ✓');
 } catch(err) {
-  console.error('Error deleting deal:', err);
-  notify('Error deleting deal ✗');
+console.error('Error deleting deal:', err);
+notify('Error deleting deal ✗');
 }
 }
 function clearAll() {
@@ -2105,9 +2069,6 @@ const uid=_uid();
 if(db&&uid) mDeals.forEach(id=>deleteDealFirestore(id));
 notify('Cleared ✓');
 }
-// ============================================================
-// HOLD FILE
-// ============================================================
 function openHoldModal(id) {
 editingHoldId=id||null;
 if(id){
@@ -2180,16 +2141,13 @@ if(!confirm('Delete this hold?')) return;
 state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
 saveStateLocal(); renderHoldTable(); renderSummaryVerification();
 try {
-  await deleteHoldFirestore(id);
-  notify('Hold deleted ✓');
+await deleteHoldFirestore(id);
+notify('Hold deleted ✓');
 } catch(err) {
-  console.error('Error deleting hold:', err);
-  notify('Error deleting hold ✗');
+console.error('Error deleting hold:', err);
+notify('Error deleting hold ✗');
 }
 }
-// ============================================================
-// USER PROFILE
-// ============================================================
 function nameToDocVariants(name) {
 const parts=name.toUpperCase().trim().split(/\s+/);
 if(parts.length<2) return name.toUpperCase();
@@ -2264,10 +2222,9 @@ if(bigAv){
 if(p.photoURL){bigAv.style.backgroundImage=`url(${p.photoURL})`;bigAv.style.backgroundSize='cover';document.getElementById('profileAvatarInitials').textContent='';}
 else{bigAv.style.backgroundImage='';document.getElementById('profileAvatarInitials').textContent=initials;}
 }
-// Verification status
 const verif=document.getElementById('pf-verif-status');
 const user=fbAuth?.currentUser;
-if(verif&&user) verif.textContent='Status: '+(user.emailVerified?'✓ Verified':' Not verified');
+if(verif&&user) verif.textContent='Status: '+(user.emailVerified?'✓ Verified':'✗ Not verified');
 else if(verif) verif.textContent='Status: Offline mode';
 }
 function saveProfileInfo() {
@@ -2293,7 +2250,7 @@ notify('Dealership info saved ✓');
 async function changePassword() {
 const p1=document.getElementById('pf-pw1')?.value;
 const p2=document.getElementById('pf-pw2')?.value;
-if(!p1||p1!==p2){notify('Passwords do not match ✗');return;}
+if(!p1||p1!==p2){notify('Passwords do not match ');return;}
 if(!fbAuth?.currentUser){notify('Not signed in');return;}
 try{
 await fbAuth.currentUser.updatePassword(p1);
@@ -2355,9 +2312,6 @@ notify('Avatar updated ✓');
 };
 reader.readAsDataURL(file);
 }
-// ============================================================
-// REVIEW COMPENSATION
-// ============================================================
 function detectPeriodFromOCR(text) {
 const m=text.match(/([A-Z][a-z]+\s+\d{4})/);
 return m?m[1]:'';
@@ -2404,9 +2358,6 @@ body.innerHTML=`<div class="rv-row"><span class="rv-label">Compensation</span><s
 <div class="rv-row" style="border-bottom:none"><span class="rv-label">Total Review Score</span><span class="rv-val" style="color:var(--accent);font-size:1rem">${rv.total||'—'}</span></div>
 ${rv.rank?`<div style="margin-top:12px;text-align:center;font-size:0.7rem;color:var(--text-dim)">Rank: <strong style="color:var(--ink)">#${rv.rank}</strong></div>`:''}`;
 }
-// ============================================================
-// GOOGLE REVIEWS
-// ============================================================
 function loadCachedReviews() {
 try {
 const cached=JSON.parse(localStorage.getItem('vhonda_reviews_cache')||'{}');
@@ -2435,7 +2386,7 @@ if(!grid) return;
 const filtered=getFilteredReviews();
 const visible=filtered.slice(0,reviewsVisible);
 if(!filtered.length){
-grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon"></div><div class="blank-state-text">No reviews found</div></div>`;
+grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No reviews found</div></div>`;
 return;
 }
 const userName=window._currentUser?.displayName||'';
@@ -2518,9 +2469,6 @@ notify(`${reviewsAll.length} reviews generated ✓`);
 } catch(e){ notify('Reviews error: '+e.message); }
 finally { if(btn) btn.disabled=false; if(icon) icon.style.animation=''; }
 }
-// ============================================================
-// EXPORT
-// ============================================================
 function exportCSV() {
 const mDeals=getMonthDeals(state.selectedMonth);
 const header=['Date','Customer','Stock #','Vehicle','Commission','Accessories','Aftermarket','F&I Bonus','Profit of Sale','Total Payout','Status','Pay Period','Split'];
@@ -2538,9 +2486,6 @@ a.href=url; a.download=`commission_${state.selectedMonth}.csv`; a.click();
 URL.revokeObjectURL(url);
 notify('CSV exported ✓');
 }
-// ============================================================
-// HELPERS
-// ============================================================
 function getLast6Months() {
 const months=[];
 const now=new Date();
@@ -2555,9 +2500,6 @@ if(state.deals.length>0) return;
 state.selectedMonth=new Date().toISOString().slice(0,7);
 saveStateLocal();
 }
-// ============================================================
-// CLEANUP LEGACY DATA
-// ============================================================
 function cleanupLegacyData() {
 const LEGACY_KEYS = [
 'salesTracker',
@@ -2572,7 +2514,6 @@ const LEGACY_KEYS = [
 'user_data'
 ];
 const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
-// Solo ejecutar una vez
 if (localStorage.getItem(CLEANUP_FLAG)) return;
 let removed = 0;
 LEGACY_KEYS.forEach(key => {
@@ -2582,7 +2523,6 @@ removed++;
 console.log(`[Cleanup] Eliminado: ${key}`);
 }
 });
-// También buscar cualquier clave que contenga patrones sospechosos
 const keysToRemove = [];
 for (let i = 0; i < localStorage.length; i++) {
 const key = localStorage.key(i);
@@ -2605,12 +2545,8 @@ if (removed > 0) {
 console.log(`[Cleanup] Total eliminado: ${removed} claves legacy`);
 notify(`Limpiados ${removed} datos antiguos ✓`);
 }
-// Marcar como completado
 localStorage.setItem(CLEANUP_FLAG, 'true');
 }
-// ============================================================
-// INIT
-// ============================================================
 window._currentUser=null;
 window._userProfile=null;
 cleanupLegacyData();
@@ -2621,7 +2557,6 @@ document.documentElement.setAttribute('data-theme',saved);
 const btn=document.getElementById('themeBtn');
 if(btn) btn.innerHTML=`<i class="fas fa-${saved==='dark'?'sun':'moon'}"></i>`;
 })();
-// Close user menu on outside click
 document.addEventListener('click', e=>{
 const menu=document.getElementById('userMenu');
 const pill=document.getElementById('userPill');
