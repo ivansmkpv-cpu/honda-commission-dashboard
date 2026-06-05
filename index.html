@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Commission Dashboard</title>
+<title>Dealership Commission Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -12,41 +12,41 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 :root {
-  --bg:#f0eeeb;--bg-grad:linear-gradient(135deg,#f0eeeb 0%,#e8e5e0 100%);
-  --glass-bg:rgba(255,255,255,0.55);--glass-bg-hover:rgba(255,255,255,0.72);
-  --glass-border:rgba(255,255,255,0.8);--glass-border2:rgba(0,0,0,0.08);
-  --glass-shadow:0 4px 24px rgba(0,0,0,0.07),0 1px 4px rgba(0,0,0,0.05);
-  --glass-shadow-hover:0 8px 32px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06);
-  --panel-head-bg:rgba(255,255,255,0.35);--blur:blur(18px) saturate(180%);
-  --text:#0e0e0e;--text-dim:#5a5a5a;--text-faint:#aaaaaa;
-  --ink:#0e0e0e;--ink-inv:#ffffff;
-  --surface-mute:rgba(0,0,0,0.04);--surface-row:rgba(0,0,0,0.025);
-  --border-line:rgba(0,0,0,0.1);--sep:rgba(0,0,0,0.07);
-  --modal-overlay:rgba(20,20,20,0.35);--modal-bg:rgba(255,255,255,0.82);
-  --notif-bg:rgba(255,255,255,0.9);--input-bg:rgba(255,255,255,0.7);
-  --scrollbar:rgba(0,0,0,0.15);--month-tab-bg:rgba(0,0,0,0.06);
-  --ocr-dash:rgba(0,0,0,0.25);--progress-bg:rgba(0,0,0,0.08);
-  --chart-tick:#888;--chart-grid:rgba(0,0,0,0.06);--chart-legend:#555;
-  --radius:14px;--font-head:'Inter',sans-serif;--font-mono:'DM Mono',monospace;--font-body:'Inter',sans-serif;
-  --accent:#e63900;--accent2:#ff5722;--green:#22c55e;--orange:#f97316;--blue:#3b82f6;
-  --red:#ef4444;--yellow:#eab308;--purple:#8b5cf6;
+--bg:#f0eeeb;--bg-grad:linear-gradient(135deg,#f0eeeb 0%,#e8e5e0 100%);
+--glass-bg:rgba(255,255,255,0.55);--glass-bg-hover:rgba(255,255,255,0.72);
+--glass-border:rgba(255,255,255,0.8);--glass-border2:rgba(0,0,0,0.08);
+--glass-shadow:0 4px 24px rgba(0,0,0,0.07),0 1px 4px rgba(0,0,0,0.05);
+--glass-shadow-hover:0 8px 32px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06);
+--panel-head-bg:rgba(255,255,255,0.35);--blur:blur(18px) saturate(180%);
+--text:#0e0e0e;--text-dim:#5a5a5a;--text-faint:#aaaaaa;
+--ink:#0e0e0e;--ink-inv:#ffffff;
+--surface-mute:rgba(0,0,0,0.04);--surface-row:rgba(0,0,0,0.025);
+--border-line:rgba(0,0,0,0.1);--sep:rgba(0,0,0,0.07);
+--modal-overlay:rgba(20,20,20,0.35);--modal-bg:rgba(255,255,255,0.82);
+--notif-bg:rgba(255,255,255,0.9);--input-bg:rgba(255,255,255,0.7);
+--scrollbar:rgba(0,0,0,0.15);--month-tab-bg:rgba(0,0,0,0.06);
+--ocr-dash:rgba(0,0,0,0.25);--progress-bg:rgba(0,0,0,0.08);
+--chart-tick:#888;--chart-grid:rgba(0,0,0,0.06);--chart-legend:#555;
+--radius:14px;--font-head:'Inter',sans-serif;--font-mono:'DM Mono',monospace;--font-body:'Inter',sans-serif;
+--accent:#e63900;--accent2:#ff5722;--green:#22c55e;--orange:#f97316;--blue:#3b82f6;
+--red:#ef4444;--yellow:#eab308;--purple:#8b5cf6;
 }
 [data-theme="dark"] {
-  --bg:#0c0c0e;--bg-grad:linear-gradient(135deg,#0c0c0e 0%,#131318 100%);
-  --glass-bg:rgba(255,255,255,0.055);--glass-bg-hover:rgba(255,255,255,0.09);
-  --glass-border:rgba(255,255,255,0.12);--glass-border2:rgba(255,255,255,0.06);
-  --glass-shadow:0 4px 24px rgba(0,0,0,0.4),0 1px 4px rgba(0,0,0,0.3);
-  --glass-shadow-hover:0 12px 40px rgba(0,0,0,0.5);
-  --panel-head-bg:rgba(255,255,255,0.04);
-  --text:#f0f0f0;--text-dim:rgba(255,255,255,0.5);--text-faint:rgba(255,255,255,0.22);
-  --ink:#ffffff;--ink-inv:#0c0c0e;
-  --surface-mute:rgba(255,255,255,0.04);--surface-row:rgba(255,255,255,0.025);
-  --border-line:rgba(255,255,255,0.08);--sep:rgba(255,255,255,0.07);
-  --modal-overlay:rgba(0,0,0,0.65);--modal-bg:rgba(18,18,22,0.88);
-  --notif-bg:rgba(22,22,28,0.92);--input-bg:rgba(255,255,255,0.06);
-  --scrollbar:rgba(255,255,255,0.12);--month-tab-bg:rgba(255,255,255,0.06);
-  --ocr-dash:rgba(255,255,255,0.22);--progress-bg:rgba(255,255,255,0.08);
-  --chart-tick:rgba(255,255,255,0.35);--chart-grid:rgba(255,255,255,0.05);--chart-legend:rgba(255,255,255,0.45);
+--bg:#0c0c0e;--bg-grad:linear-gradient(135deg,#0c0c0e 0%,#131318 100%);
+--glass-bg:rgba(255,255,255,0.055);--glass-bg-hover:rgba(255,255,255,0.09);
+--glass-border:rgba(255,255,255,0.12);--glass-border2:rgba(255,255,255,0.06);
+--glass-shadow:0 4px 24px rgba(0,0,0,0.4),0 1px 4px rgba(0,0,0,0.3);
+--glass-shadow-hover:0 12px 40px rgba(0,0,0,0.5);
+--panel-head-bg:rgba(255,255,255,0.04);
+--text:#f0f0f0;--text-dim:rgba(255,255,255,0.5);--text-faint:rgba(255,255,255,0.22);
+--ink:#ffffff;--ink-inv:#0c0c0e;
+--surface-mute:rgba(255,255,255,0.04);--surface-row:rgba(255,255,255,0.025);
+--border-line:rgba(255,255,255,0.08);--sep:rgba(255,255,255,0.07);
+--modal-overlay:rgba(0,0,0,0.65);--modal-bg:rgba(18,18,22,0.88);
+--notif-bg:rgba(22,22,28,0.92);--input-bg:rgba(255,255,255,0.06);
+--scrollbar:rgba(255,255,255,0.12);--month-tab-bg:rgba(255,255,255,0.06);
+--ocr-dash:rgba(255,255,255,0.22);--progress-bg:rgba(255,255,255,0.08);
+--chart-tick:rgba(255,255,255,0.35);--chart-grid:rgba(255,255,255,0.05);--chart-legend:rgba(255,255,255,0.45);
 }
 .app,#mainHeader{visibility:hidden}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -309,7 +309,7 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 summary{cursor:pointer;font-size:0.72rem;color:var(--text-dim);font-weight:600;user-select:none}
 details[open] summary{color:var(--text)}
 
-/*  SEARCH: MOBILE RESPONSIVE FIXES */
+/* 🔍 SEARCH: MOBILE RESPONSIVE */
 @media(max-width:600px) {
   #mainHeader { flex-wrap: wrap; padding: 8px 10px; gap: 6px; position: relative; top: 0; }
   .header-logo .logo-text { font-size: 0.72rem; }
@@ -531,7 +531,7 @@ details[open] summary{color:var(--text)}
 ondragover="event.preventDefault();this.classList.add('drag-over')"
 ondragleave="this.classList.remove('drag-over')"
 ondrop="handleDrop(event)">
-<div class="ocr-zone-icon"></div>
+<div class="ocr-zone-icon">📄</div>
 <div class="ocr-zone-label">Drop image or PDF here</div>
 <div class="ocr-zone-sub">or click to browse · JPG, PNG, PDF</div>
 <div class="ocr-progress" id="ocrProgress">
@@ -973,7 +973,7 @@ Continue with Google
 </div>
 <div class="notif" id="notif"></div>
 <script>
-// 🔍 SEARCH: FIREBASE CONFIGURATION
+// 🔍 SEARCH: FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
   authDomain: "valley-honda-dashboard.firebaseapp.com",
@@ -988,7 +988,7 @@ let db = null, fbAuth = null, unsubscribeDeals = null;
 let authInitialized = false;
 let currentAuthUser = null;
 
-// 🔍 SEARCH: PAY PLAN 2026 CONFIG
+// 🔍 SEARCH: PAY PLAN 2026
 const PP = {
   unitTiers: [
     {u:12,b:200},{u:15,b:675},{u:18,b:900},{u:21,b:1150},
@@ -1094,7 +1094,7 @@ function buildPinPad() {
   const dots = document.getElementById('pinDots');
   if(!pad||!dots) return;
   dots.innerHTML = Array.from({length:4},(_,i)=>`<div class="pin-dot" id="pdot${i}"></div>`).join('');
-  const keys = [1,2,3,4,5,6,7,8,9,'',0,''];
+  const keys = [1,2,3,4,5,6,7,8,9,'',0,'⌫'];
   pad.innerHTML = keys.map(k=>k===''?'<div></div>'
     :`<button class="pin-key" onclick="${k==='⌫'?'pinDel()':'pinPress('+k+')'}">${k}</button>`
   ).join('');
@@ -1126,7 +1126,7 @@ function submitPIN() {
   }
 }
 
-// 🔍 SEARCH: AUTHENTICATION LOGIC
+// 🔍 SEARCH: AUTH LOGIC
 function toggleAuthMode(mode) {
   const isReg = mode === 'register';
   document.getElementById('authFieldName').style.display = isReg ? 'block' : 'none';
@@ -1255,30 +1255,27 @@ function initFirebase() {
     if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     fbAuth = firebase.auth();
-    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(() => { setupAuthListener(); })
-      .catch((err) => { setupAuthListener(); });
+    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+    fbAuth.onAuthStateChanged(user => {
+      if(user && currentAuthUser && currentAuthUser.uid === user.uid) return;
+      if(user) {
+        currentAuthUser = user;
+        authInitialized = true;
+        onLoginSuccess(user);
+      } else if(authInitialized) {
+        currentAuthUser = null;
+        onLogout();
+      } else {
+        authInitialized = true;
+        if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
+        else showAuthOverlay();
+      }
+    });
   } catch(err) {
+    console.warn('Firebase init failed:', err);
     if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
     else showAuthOverlay();
   }
-}
-function setupAuthListener() {
-  fbAuth.onAuthStateChanged(user => {
-    if(user && currentAuthUser && currentAuthUser.uid === user.uid) return;
-    if(user) {
-      currentAuthUser = user;
-      authInitialized = true;
-      onLoginSuccess(user);
-    } else if(authInitialized) {
-      currentAuthUser = null;
-      onLogout();
-    } else {
-      authInitialized = true;
-      if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
-      else showAuthOverlay();
-    }
-  });
 }
 function initAuth() { initFirebase(); }
 function onLoginSuccess(user) {
@@ -1298,11 +1295,8 @@ function onLoginSuccess(user) {
   loadUserProfile(user.uid||'offline');
   hideAuthOverlay();
   setSyncStatus('ok');
-  if(!user.isOffline && db) {
-    subscribeFirestore(user.uid);
-  } else {
-    renderAll(); renderHoldTable(); renderSummaryVerification();
-  }
+  if(!user.isOffline && db) subscribeFirestore(user.uid);
+  else { renderAll(); renderHoldTable(); renderSummaryVerification(); }
   notify(`Welcome, ${name.split(' ')[0]} ✓`);
 }
 function onLogout() {
@@ -1337,20 +1331,17 @@ function setSyncStatus(status) {
 }
 function _uid() { return fbAuth?.currentUser?.uid||null; }
 
-// Cleans undefined values to prevent Firestore errors
+// 🔍 IMPORTANTE: Limpia valores undefined para evitar errores de Firestore
 function cleanForFirestore(obj) {
   if (obj === null || obj === undefined) return null;
   if (typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(item => cleanForFirestore(item));
   const cleaned = {};
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       const value = obj[key];
       if (value !== undefined) {
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-          cleaned[key] = cleanForFirestore(value);
-        } else {
-          cleaned[key] = value;
-        }
+        cleaned[key] = cleanForFirestore(value);
       }
     }
   }
@@ -1364,7 +1355,13 @@ async function subscribeFirestore(uid) {
       const deals = [];
       snap.forEach(doc => deals.push({id:doc.id,...doc.data()}));
       if(deals.length===0 && state.deals.length>0) {
-        saveStateLocal(); renderAll(); renderHoldTable(); renderSummaryVerification(); setSyncStatus('ok'); return;
+        // Usuario nuevo - no seedear, empezar limpio
+        saveStateLocal();
+        renderAll();
+        renderHoldTable();
+        renderSummaryVerification();
+        setSyncStatus('ok');
+        return;
       }
       state.deals = deals;
       const hSnap = await db.collection(`users/${uid}/holdDeals`).get();
@@ -1387,9 +1384,10 @@ async function subscribeFirestore(uid) {
       saveStateLocal();
       renderAll(); renderHoldTable(); renderSummaryVerification();
       setSyncStatus('ok');
-    }, (error) => { console.error('Firestore error:', error); setSyncStatus('error'); });
+    }, ()=>setSyncStatus('error'));
 }
 
+// 🔍 SEARCH: MANUAL SYNC (botón Sync Now)
 async function manualSync() {
   closeUserMenu();
   const uid = _uid();
@@ -1409,7 +1407,8 @@ async function manualSync() {
     }
     notify('Sync complete ✓');
   } catch(err) {
-    notify('Sync failed ');
+    console.error('[Sync] Error:', err);
+    notify('Sync failed ✗');
   }
   setSyncStatus('ok');
 }
@@ -1432,14 +1431,14 @@ async function deleteHoldFirestore(id) {
 }
 async function savePrefsFirestore() {
   const uid = _uid(); if(!db||!uid) return;
-  await db.doc(`users/${uid}/meta/prefs`).set({
+  await db.doc(`users/${uid}/meta/prefs`).set(cleanForFirestore({
     selectedMonth:state.selectedMonth, reviewPeriod:state.reviewPeriod||'',
     reviewCompData:state.reviewCompData||null, commissionSummary:state.commissionSummary||[],
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true});
+  }),{merge:true});
 }
 
-// 🔍 SEARCH: RENDERING
+// 🔍 SEARCH: RENDER
 function renderAll() {
   renderDate(); renderMonthTabs(); renderKPIs(); renderTable();
   renderSidebar(); renderCharts(); renderTradingChart();
@@ -1463,20 +1462,19 @@ function renderMonthTabs() {
     return `<div class="month-tab${m===state.selectedMonth?' active':''}" onclick="selectMonth('${m}')">${label}</div>`;
   }).join('');
 }
+
+// 🔍 IMPORTANTE: selectMonth ahora actualiza también las reviews
 function selectMonth(m) {
   state.selectedMonth = m;
   saveState();
-  renderMonthTabs(); 
-  renderKPIs(); 
-  renderTable(); 
-  renderSidebar(); 
-  renderTradingChart(); 
-  renderSummaryVerification();
-  renderCharts(); // 🔍 Actualiza gráficos al cambiar mes
-  // 🔍 AGREGADO: Actualiza reviews al cambiar mes
+  renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderTradingChart(); renderSummaryVerification();
+  renderCharts();
+  // 🔍 Actualizar reviews al cambiar mes
   renderReviewsGrid();
   updateUserMentionBadge();
+  updateReviewsMonthLabel();
 }
+
 function renderKPIs() {
   const mDeals = getMonthDeals(state.selectedMonth);
   const units = mDeals.length;
@@ -1504,7 +1502,7 @@ function renderTable() {
   const badge = document.getElementById('dealCountBadge');
   if(badge) badge.textContent = `${mDeals.length} deal${mDeals.length!==1?'s':''}`;
   if(!mDeals.length) {
-    tbody.innerHTML=`<tr><td colspan="11" class="empty-table"><i class="fas fa-inbox" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:8px"></i>No deals for this month</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="11" class="empty-table"><i class="fas fa-inbox" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:8px"></i>No deals for this month · Scan a deal sheet to get started</td></tr>`;
     return;
   }
   let totComm=0,totAft=0,totFni=0,totAcc=0,totTotal=0;
@@ -1525,11 +1523,16 @@ function renderTable() {
     const sClass=d.status?'status-'+(d.status.replace(/\s/g,'-')):'status-Pending';
     return `<tr class="${isMismatch?'mismatch-row':''}" data-id="${esc(d.id)}">
     <td style="color:var(--text-faint);font-size:0.65rem">${i+1}</td>
-    <td style="max-width:160px"><div style="font-weight:600;font-size:0.73rem">${rdot}${esc(d.vehicle?.model||'—')}${mmBadge}</div>
-    <div style="font-size:0.65rem;color:var(--text-dim)">${esc(d.customer||'—')}${period}${split}</div></td>
+    <td style="max-width:160px">
+    <div style="font-weight:600;font-size:0.73rem">${rdot}${esc(d.vehicle?.model||'—')}${mmBadge}</div>
+    <div style="font-size:0.65rem;color:var(--text-dim)">${esc(d.customer||'—')}${period}${split}</div>
+    </td>
     <td style="font-family:var(--font-mono);font-size:0.7rem">${esc(d.vehicle?.stock||'—')}</td>
     <td style="font-size:0.65rem;color:var(--text-dim)">${esc(d.date||'—')}</td>
-    <td>${fmtC(comm)}</td><td>${fmtC(aft)}</td><td>${fmtC(fni)}</td><td>${fmtC(acc)}</td>
+    <td>${fmtC(comm)}</td>
+    <td>${fmtC(aft)}</td>
+    <td>${fmtC(fni)}</td>
+    <td>${fmtC(acc)}</td>
     <td style="font-family:var(--font-mono);font-weight:600">${fmt(total)}</td>
     <td><span class="status-badge ${sClass}">${esc(d.status||'Pending')}</span></td>
     <td><button class="act-btn" onclick="openEditModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
@@ -1546,7 +1549,8 @@ function renderSidebar() {
   const units = mDeals.length;
   const dotsEl = document.getElementById('ppDots');
   if(dotsEl) {
-    dotsEl.innerHTML = Array.from({length:30},(_,i)=>`<div class="pp-dot${i<units?' filled':''}"></div>`).join('');
+    dotsEl.innerHTML = Array.from({length:30},(_,i)=>
+    `<div class="pp-dot${i<units?' filled':''}"></div>`).join('');
   }
   setEl('ppDotsLabel', `${units} / 30 units`);
   const pillsEl = document.getElementById('ppTierPills');
@@ -1575,25 +1579,28 @@ function renderCharts() {
   const months = getLast6Months();
   const labels = months.map(m=>new Date(m+'-01').toLocaleDateString('en-US',{month:'short'}));
   const commData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0));
-  const aftData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
-  const fniData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
-  const ubData = months.map(m=>getUB(getMonthDeals(m).length));
+  const aftData  = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
+  const fniData  = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
+  const ubData   = months.map(m=>getUB(getMonthDeals(m).length));
   const ectx = document.getElementById('earningsChart');
   if(ectx) {
     if(earningsChartObj) earningsChartObj.destroy();
     earningsChartObj = new Chart(ectx, {
       type:'bar',
-      data:{ labels, datasets:[
+      data:{ labels,
+      datasets:[
         {label:'Commission',data:commData,backgroundColor:cc.comm,borderRadius:4},
         {label:'Aftermarket',data:aftData,backgroundColor:cc.aftmkt,borderRadius:4},
         {label:'F&I',data:fniData,backgroundColor:cc.fni,borderRadius:4},
         {label:'Unit Bonus',data:ubData,backgroundColor:cc.ub,borderRadius:4}
-      ]},
+      ]
+      },
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`}}},
         scales:{
           x:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick},grid:{display:false}},
-          y:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}}
+          y:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},
+          grid:{color:cc.grid},border:{display:false}}
         }
       }
     });
@@ -1614,8 +1621,12 @@ function renderCharts() {
     if(mixChartObj) mixChartObj.destroy();
     mixChartObj = new Chart(mctx, {
       type:'doughnut',
-      data:{labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
-      datasets:[{data:[mComm,mAft,mFni,mAcc,mUb],backgroundColor:[cc.comm,cc.aftmkt,cc.fni,'rgba(234,179,8,0.7)',cc.ub],borderWidth:0,hoverOffset:6}]},
+      data:{
+      labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
+      datasets:[{data:[mComm,mAft,mFni,mAcc,mUb],
+      backgroundColor:[cc.comm,cc.aftmkt,cc.fni,'rgba(234,179,8,0.7)',cc.ub],
+      borderWidth:0,hoverOffset:6}]
+      },
       options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
         plugins:{legend:{position:'bottom',labels:{font:{family:"'DM Mono',monospace",size:10},color:cc.legend,boxWidth:10,padding:8}},
         tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}`}}}}
@@ -1649,7 +1660,9 @@ function renderTradingChart() {
   if(tradingChartObj) tradingChartObj.destroy();
   const tooltip = document.getElementById('tradingTooltip');
   tradingChartObj = new Chart(ctx, {
-    data:{labels: days, datasets:[
+    data:{
+    labels: days,
+    datasets:[
       { type:'line', label:'Cumulative', data:cumulative, yAxisID:'yCum',
         borderColor:cc.comm, borderWidth:2, pointRadius:0, pointHoverRadius:4,
         fill:true, backgroundColor:(context)=>{
@@ -1661,11 +1674,18 @@ function renderTradingChart() {
           return g;
         }, tension:0.4 },
       { type:'bar', label:'Daily', data:daily, yAxisID:'yDaily',
-        backgroundColor:isDark()?'rgba(59,130,246,0.5)':'rgba(59,130,246,0.45)', borderRadius:3, borderSkipped:false }
-    ]},
-    options:{responsive:true, maintainAspectRatio:false, animation:{duration:900,easing:'easeInOutQuart'},
-      interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{enabled:false,external:(context)=>{
+        backgroundColor:isDark()?'rgba(59,130,246,0.5)':'rgba(59,130,246,0.45)',
+        borderRadius:3, borderSkipped:false }
+    ]
+    },
+    options:{
+    responsive:true, maintainAspectRatio:false,
+    animation:{duration:900,easing:'easeInOutQuart'},
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{enabled:false,
+      external:(context)=>{
         if(!tooltip) return;
         if(context.tooltip.opacity===0){tooltip.style.display='none';return;}
         const d=context.tooltip.dataPoints;
@@ -1678,12 +1698,14 @@ function renderTradingChart() {
           tooltip.style.left=Math.min(context.tooltip.caretX+12, ctx.parentElement.offsetWidth-180)+'px';
           tooltip.style.top=Math.max(context.tooltip.caretY-30,0)+'px';
         }
-      }}},
-      scales:{
-        yCum:{position:'left',ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}},
-        yDaily:{position:'right',grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},border:{display:false}},
-        x:{ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,maxTicksLimit:10},grid:{display:false}}
       }
+      }
+    },
+    scales:{
+      yCum:{position:'left',ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}},
+      yDaily:{position:'right',grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},border:{display:false}},
+      x:{ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,maxTicksLimit:10},grid:{display:false}}
+    }
     }
   });
 }
@@ -1715,11 +1737,14 @@ function renderHoldTable() {
     <td style="font-size:0.7rem">${fmtC(aft+fni)}</td>
     <td style="font-family:var(--font-mono);font-weight:600">${fmt(total)}</td>
     <td style="font-size:0.65rem;color:var(--text-dim);max-width:100px">${esc(d.holdReason||d.reason||'—')}</td>
-    <td><button class="act-btn" onclick="openHoldModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
+    <td>
+    <button class="act-btn" onclick="openHoldModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
     <button class="act-btn" style="color:var(--green)" onclick="releaseHold('${esc(d.id)}')" title="Release to Active"><i class="fas fa-check"></i></button>
-    <button class="act-btn del" onclick="deleteHold('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button></td>
+    <button class="act-btn del" onclick="deleteHold('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button>
+    </td>
     </tr>`;
-  }).join('')+`<tr class="totals-row"><td colspan="5">HOLD TOTAL (${h.length})</td><td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
+  }).join('')+
+  `<tr class="totals-row"><td colspan="5">HOLD TOTAL (${h.length})</td><td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
   if(holdTotalEl) holdTotalEl.textContent=fmt(totTotal);
 }
 function renderSummaryVerification() {
@@ -1769,7 +1794,7 @@ function renderSummaryVerification() {
   }).join('')}</tbody></table></div>`;
 }
 
-// 🔍 SEARCH: SEARCH & OCR
+// 🔍 SEARCH: SEARCH DEALS
 function filterDeals() {
   const type = document.getElementById('searchType')?.value||'all';
   const query = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
@@ -1794,7 +1819,8 @@ function filterDeals() {
         case 'payperiod': show=(d.payPeriodOverride||'').toLowerCase().includes(query);break;
         case 'amount': show=calcPayout(d)>=parseFloat(query)||0;break;
         case 'mismatch': show=checkCommissionMatch(d).matched===false;break;
-        default: show=[d.customer,d.vehicle?.model,d.vehicle?.stock,d.date,d.status].some(v=>v?.toLowerCase().includes(query));
+        default: show=[d.customer,d.vehicle?.model,d.vehicle?.stock,d.date,d.status]
+        .some(v=>v?.toLowerCase().includes(query));
       }
     } else if(type==='mismatch') { show=checkCommissionMatch(d).matched===false; }
     if(show) count++;
@@ -1814,6 +1840,8 @@ function clearSearch() {
   if(sel) sel.value='all';
   filterDeals();
 }
+
+// 🔍 SEARCH: OCR
 let _tessReady2=null,_pdfjsReady2=null;
 function loadTesseract() {
   if(_tessReady2) return _tessReady2;
@@ -1915,6 +1943,7 @@ function handleDrop(event) {
 function parseOCRText(text) {
   const lines=text.split('\n');
   const find=(re)=>{for(const l of lines){const m=l.match(re);if(m)return m;}return null;};
+  const findNum=(re)=>{const m=find(re);if(!m)return 0;const nums=m[0].match(/[\-]?\d+\.\d{2}/g);return nums?parseFloat(nums[0]):0;};
   const dealM=find(/Deal\s*#?\s*(\d+)/i);
   const dealNo=dealM?dealM[1]:'';
   const stockM=find(/Stock\s*#?\s*(\d+)/i);
@@ -1996,7 +2025,7 @@ function checkCommissionMatch(deal) {
   return {matched:diff<=0.50,summaryTotal:entry.summaryTotal,diff,payPeriod:deal.payPeriodOverride||entry.payPeriod,split:deal.splitWith||entry.split};
 }
 
-// 🔍 SEARCH: MODAL & DEAL ACTIONS
+// 🔍 SEARCH: DEAL MODAL
 function openAddModal(ocrData) {
   editingId=null;
   clearForm();
@@ -2108,6 +2137,8 @@ function moveCurrentToHold() {
   saveHoldFirestore(hDeal); deleteDealFirestore(editingId);
   notify('Moved to Hold File ✓');
 }
+
+// 🔍 IMPORTANTE: saveDeal ahora usa async/await para esperar confirmación de Firestore
 async function saveDeal() {
   const id = editingId||crypto.randomUUID();
   const stock=document.getElementById('dm-stock')?.value.trim()||'';
@@ -2151,6 +2182,8 @@ async function saveDeal() {
     notify('Saved locally, sync failed ✗');
   }
 }
+
+// 🔍 IMPORTANTE: deleteDeal ahora usa async/await
 async function deleteDeal(id) {
   if(!confirm('Delete this deal?')) return;
   state.deals=state.deals.filter(d=>d.id!==id);
@@ -2172,6 +2205,8 @@ function clearAll() {
   if(db&&uid) mDeals.forEach(id=>deleteDealFirestore(id));
   notify('Cleared ✓');
 }
+
+// 🔍 SEARCH: HOLD FILE
 function openHoldModal(id) {
   editingHoldId=id||null;
   if(id){
@@ -2239,6 +2274,8 @@ function releaseHold(id) {
   saveDealFirestore(active); deleteHoldFirestore(id);
   notify('Released to Active ✓');
 }
+
+// 🔍 IMPORTANTE: deleteHold ahora usa async/await
 async function deleteHold(id) {
   if(!confirm('Delete this hold?')) return;
   state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
@@ -2248,11 +2285,11 @@ async function deleteHold(id) {
     notify('Hold deleted ✓');
   } catch(err) {
     console.error('Error deleting hold:', err);
-    notify('Error deleting hold ');
+    notify('Error deleting hold ✗');
   }
 }
 
-// 🔍 SEARCH: PROFILE & USER
+// 🔍 SEARCH: USER PROFILE
 function nameToDocVariants(name) {
   const parts=name.toUpperCase().trim().split(/\s+/);
   if(parts.length<2) return name.toUpperCase();
@@ -2285,7 +2322,7 @@ function saveUserProfile() {
     if(av){av.textContent='';av.style.backgroundImage=`url(${window._userProfile.photoURL})`;av.style.backgroundSize='cover';}
   }
   if(db&&_uid()){
-    db.doc(`users/${_uid()}/meta/profile`).set(window._userProfile,{merge:true}).catch(()=>{});
+    db.doc(`users/${_uid()}/meta/profile`).set(cleanForFirestore(window._userProfile),{merge:true}).catch(()=>{});
   }
 }
 function getOCRNameVariants() {
@@ -2418,7 +2455,11 @@ function uploadAvatar(event) {
   reader.readAsDataURL(file);
 }
 
-// 🔍 SEARCH: REVIEWS & EXPORT
+// 🔍 SEARCH: REVIEW COMPENSATION
+function detectPeriodFromOCR(text) {
+  const m=text.match(/([A-Z][a-z]+\s+\d{4})/);
+  return m?m[1]:'';
+}
 function parseReviewCompOCR(text) {
   const variants=getOCRNameVariants();
   const lastName=(window._currentUser?.displayName||'').toUpperCase().split(' ').pop();
@@ -2461,6 +2502,8 @@ function renderReviewComp(data) {
   <div class="rv-row" style="border-bottom:none"><span class="rv-label">Total Review Score</span><span class="rv-val" style="color:var(--accent);font-size:1rem">${rv.total||'—'}</span></div>
   ${rv.rank?`<div style="margin-top:12px;text-align:center;font-size:0.7rem;color:var(--text-dim)">Rank: <strong style="color:var(--ink)">#${rv.rank}</strong></div>`:''}`;
 }
+
+// 🔍 SEARCH: GOOGLE REVIEWS
 function loadCachedReviews() {
   try {
     const cached=JSON.parse(localStorage.getItem('vhonda_reviews_cache')||'{}');
@@ -2471,7 +2514,8 @@ function loadCachedReviews() {
     }
   } catch{}
 }
-// 🔍 SEARCH: parseReviewMonth - Convierte "June 15, 2026" a "2026-06"
+
+// 🔍 NUEVO: Convierte fecha "June 15, 2026" a "2026-06"
 function parseReviewMonth(dateStr) {
   if (!dateStr) return null;
   const monthNames = ["January", "February", "March", "April", "May", "June",
@@ -2486,9 +2530,11 @@ function parseReviewMonth(dateStr) {
   if (monthIndex === -1) return null;
   return `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
 }
-  function getFilteredReviews() {
+
+// 🔍 IMPORTANTE: Ahora filtra reviews por mes seleccionado
+function getFilteredReviews() {
   return reviewsAll.filter(r=>{
-        // 🔍 FILTRO POR MES
+    // 🔍 FILTRO POR MES SELECCIONADO
     const reviewMonth = parseReviewMonth(r.date);
     if (reviewMonth && reviewMonth !== state.selectedMonth) return false;
     
@@ -2502,13 +2548,14 @@ function parseReviewMonth(dateStr) {
     return r.text?.toLowerCase().includes(q)||r.author?.toLowerCase().includes(q);
   });
 }
+
 function renderReviewsGrid() {
   const grid=document.getElementById('reviewsGrid');
   if(!grid) return;
   const filtered=getFilteredReviews();
   const visible=filtered.slice(0,reviewsVisible);
   if(!filtered.length){
-    grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon"></div><div class="blank-state-text">No reviews found</div></div>`;
+    grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No reviews found for this month</div></div>`;
     return;
   }
   const userName=window._currentUser?.displayName||'';
@@ -2532,6 +2579,7 @@ function renderReviewsGrid() {
   const showMore=document.getElementById('showMoreWrap');
   if(showMore) showMore.style.display=filtered.length>reviewsVisible?'block':'none';
 }
+
 function filterReviews(f) {
   currentFilter=f; reviewsVisible=12;
   document.querySelectorAll('.review-filter-btn').forEach(btn=>{
@@ -2546,13 +2594,29 @@ function filterReviews(f) {
 }
 function filterReviewsText(val) { currentSearchText=val; reviewsVisible=12; renderReviewsGrid(); }
 function showMoreReviews() { reviewsVisible+=12; renderReviewsGrid(); }
+
 function updateUserMentionBadge() {
-  const mentions=reviewsAll.filter(r=>r.mentionsUser).length;
-  setEl('revCountAll',reviewsAll.length);
-  setEl('revCount5',reviewsAll.filter(r=>r.stars===5).length);
-  setEl('revCount4',reviewsAll.filter(r=>r.stars===4).length);
+  const filtered = getFilteredReviews();
+  const mentions=filtered.filter(r=>r.mentionsUser).length;
+  setEl('revCountAll',filtered.length);
+  setEl('revCount5',filtered.filter(r=>r.stars===5).length);
+  setEl('revCount4',filtered.filter(r=>r.stars===4).length);
   setEl('revCountMention',mentions);
 }
+
+// 🔍 NUEVO: Actualiza el label del mes en el header de Reviews
+function updateReviewsMonthLabel() {
+  const label = document.getElementById('reviewsMonthLabel');
+  if (!label) return;
+  
+  const [year, month] = state.selectedMonth.split('-');
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthName = monthNames[parseInt(month) - 1];
+  
+  label.textContent = `${monthName} ${year}`;
+}
+
 async function fetchLiveReviews() {
   const btn=document.getElementById('fetchReviewsBtn');
   const icon=document.getElementById('fetchReviewsIcon');
@@ -2591,6 +2655,8 @@ Each object: {author, date, stars, text, source, mentionsUser, customerMatch}`;
   } catch(e){ notify('Reviews error: '+e.message); }
   finally { if(btn) btn.disabled=false; if(icon) icon.style.animation=''; }
 }
+
+// 🔍 SEARCH: EXPORT
 function exportCSV() {
   const mDeals=getMonthDeals(state.selectedMonth);
   const header=['Date','Customer','Stock #','Vehicle','Commission','Accessories','Aftermarket','F&I Bonus','Profit of Sale','Total Payout','Status','Pay Period','Split'];
@@ -2609,7 +2675,7 @@ function exportCSV() {
   notify('CSV exported ✓');
 }
 
-// 🔍 SEARCH: INITIALIZATION
+// 🔍 SEARCH: HELPERS
 function getLast6Months() {
   const months=[];
   const now=new Date();
@@ -2624,8 +2690,21 @@ function seedDeals() {
   state.selectedMonth=new Date().toISOString().slice(0,7);
   saveStateLocal();
 }
+
+// 🔍 SEARCH: CLEANUP LEGACY DATA
 function cleanupLegacyData() {
-  const LEGACY_KEYS = ['salesTracker','autotrack_v1','vhd_v3','vhonda_dashboard_v3','vhd_th','vhonda_deals','vhonda_state','dashboard_data','deals_data','user_data'];
+  const LEGACY_KEYS = [
+    'salesTracker',
+    'autotrack_v1',
+    'vhd_v3',
+    'vhonda_dashboard_v3',
+    'vhd_th',
+    'vhonda_deals',
+    'vhonda_state',
+    'dashboard_data',
+    'deals_data',
+    'user_data'
+  ];
   const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
   if (localStorage.getItem(CLEANUP_FLAG)) return;
   let removed = 0;
@@ -2633,23 +2712,35 @@ function cleanupLegacyData() {
     if (localStorage.getItem(key) !== null) {
       localStorage.removeItem(key);
       removed++;
+      console.log(`[Cleanup] Eliminado: ${key}`);
     }
   });
   const keysToRemove = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && (key.startsWith('sales')||key.startsWith('autotrack')||key.startsWith('vhd_')||key.includes('ivan')||key.includes('IVAN'))) {
+    if (key && (
+      key.startsWith('sales') ||
+      key.startsWith('autotrack') ||
+      key.startsWith('vhd_') ||
+      key.includes('ivan') ||
+      key.includes('IVAN')
+    )) {
       keysToRemove.push(key);
     }
   }
   keysToRemove.forEach(key => {
     localStorage.removeItem(key);
     removed++;
+    console.log(`[Cleanup] Patrón eliminado: ${key}`);
   });
-  if (removed > 0) notify(`Limpiados ${removed} datos antiguos ✓`);
+  if (removed > 0) {
+    console.log(`[Cleanup] Total eliminado: ${removed} claves legacy`);
+    notify(`Limpiados ${removed} datos antiguos ✓`);
+  }
   localStorage.setItem(CLEANUP_FLAG, 'true');
 }
 
+// 🔍 SEARCH: INIT
 window._currentUser=null;
 window._userProfile=null;
 cleanupLegacyData();
@@ -2672,6 +2763,7 @@ renderReviewComp(null);
 loadCachedReviews();
 filterReviews('all');
 updateUserMentionBadge();
+updateReviewsMonthLabel(); // 🔍 AGREGADO: Inicializa el label del mes
 buildPinPad();
 initAuth();
 const spinStyle=document.createElement('style');
