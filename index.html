@@ -315,7 +315,7 @@ MAIN APP
 <!-- HEADER -->
 <header class="glass" id="mainHeader">
 <div class="header-logo">
-<span class="logo-icon">🏎</span>
+<span class="logo-icon"></span>
 <div>
 <div class="logo-text">Commission Dashboard</div>
 <div class="logo-sub" id="headerUserName">·</div>
@@ -335,6 +335,7 @@ MAIN APP
 <i class="fas fa-chevron-down" style="font-size:0.55rem;opacity:0.5"></i>
 </div>
 <div class="user-menu" id="userMenu">
+<div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
 <div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
 <div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
 <div class="user-menu-sep"></div>
@@ -1188,7 +1189,7 @@ setEl('headerUserName', name);
 window._currentUser = user;
 loadUserProfile(user.uid||'offline');
 hideAuthOverlay();
-setSyncStatus('ok');
+setSyncStatus('syncing');
 if(!user.isOffline && db) subscribeFirestore(user.uid);
 else { renderAll(); renderHoldTable(); renderSummaryVerification(); }
 notify(`Welcome, ${name.split(' ')[0]} ✓`);
@@ -1230,15 +1231,8 @@ unsubscribeDeals = db.collection(`users/${uid}/deals`).orderBy('date','desc')
 .onSnapshot(async snap => {
 const deals = [];
 snap.forEach(doc => deals.push({id:doc.id,...doc.data()}));
-if(deals.length===0 && state.deals.length>0) {
-// Usuario nuevo - no seedear, empezar limpio
-saveStateLocal();
-renderAll();
-renderHoldTable();
-renderSummaryVerification();
-setSyncStatus('ok');
-return;
-}
+// Si hay datos locales pero la nube está vacía (y no es la primera carga), podríamos sincronizar,
+// pero para evitar bugs, aquí priorizamos LO QUE DICE LA NUBE.
 state.deals = deals;
 const hSnap = await db.collection(`users/${uid}/holdDeals`).get();
 state.holdDeals = [];
@@ -1262,6 +1256,40 @@ renderAll(); renderHoldTable(); renderSummaryVerification();
 setSyncStatus('ok');
 }, ()=>setSyncStatus('error'));
 }
+
+// Función para forzar sincronización manual
+async function manualSync() {
+  closeUserMenu();
+  const uid = _uid();
+  if(!uid) return;
+  setSyncStatus('syncing');
+  notify('Syncing to cloud...');
+  
+  try {
+    // Subir todos los deals locales
+    if(state.deals.length > 0) {
+      const batch = db.batch();
+      state.deals.forEach(d => {
+        batch.set(db.doc(`users/${uid}/deals/${d.id}`), d);
+      });
+      await batch.commit();
+    }
+    // Subir holds locales
+    if(state.holdDeals.length > 0) {
+      const batch = db.batch();
+      state.holdDeals.forEach(h => {
+        batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`), h);
+      });
+      await batch.commit();
+    }
+    notify('Sync complete ✓');
+  } catch(err) {
+    console.error(err);
+    notify('Sync failed ✗');
+  }
+  setSyncStatus('ok');
+}
+
 async function seedFirestoreFromLocal(uid) {
 if(!db||!state.deals.length) return;
 const batch = db.batch();
@@ -1637,7 +1665,7 @@ wrap.innerHTML=`<div style="overflow-x:auto"><table class="sv-table">
 <tbody>${rows.map(({d,cm})=>{
 const total=calcPayout(d);
 const cls=cm.matched===true?'sv-matched':cm.matched===false?'sv-mismatch':'sv-unknown';
-const icon=cm.matched===true?'✓':cm.matched===false?`⚠ ${fmt(cm.diff)}`:'—';
+const icon=cm.matched===true?'✓':cm.matched===false?` ${fmt(cm.diff)}`:'—';
 return `<tr>
 <td><div style="font-weight:600;font-size:0.72rem">${esc(d.vehicle?.model||'—')}</div>
 <div style="font-size:0.62rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</div></td>
@@ -2008,7 +2036,7 @@ if(!editingId) return;
 const deal=state.deals.find(d=>d.id===editingId);
 if(deal){ deal.status='Pending'; saveState(); renderAll(); notify('Set to Active ✓'); }
 }
-function saveDeal() {
+async function saveDeal() {
 const id = editingId||crypto.randomUUID();
 const stock=document.getElementById('dm-stock')?.value.trim()||'';
 const model=document.getElementById('dm-vehicle')?.value.trim()||'';
@@ -2038,24 +2066,35 @@ payPeriodOverride:periodVal||undefined,
 splitWith:splitVal||undefined,
 holdReason:holdReason||undefined
 };
+
 if(editingId){
-const idx=state.deals.findIndex(d=>d.id===editingId);
-if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
-} else { state.deals.unshift(deal); }
-saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
-saveDealFirestore(deal);
-notify(editingId?'Deal updated ✓':'Deal saved ✓');
+  const idx=state.deals.findIndex(d=>d.id===editingId);
+  if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
+} else { 
+  state.deals.unshift(deal); 
 }
-function deleteDeal(id) {
+saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
+
+// Esperamos a que Firestore confirme antes de notificar
+try {
+  await saveDealFirestore(deal);
+  notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
+} catch(err) {
+  console.error(err);
+  notify('Saved locally, but sync failed ✗');
+}
+}
+async function deleteDeal(id) {
 if(!confirm('Delete this deal?')) return;
 state.deals=state.deals.filter(d=>d.id!==id);
 saveStateLocal(); renderAll(); renderSummaryVerification();
-deleteDealFirestore(id).then(() => {
-notify('Deal deleted');
-}).catch(err => {
-console.error('Error deleting deal:', err);
-notify('Error deleting deal');
-});
+try {
+  await deleteDealFirestore(id);
+  notify('Deal deleted ✓');
+} catch(err) {
+  console.error('Error deleting deal:', err);
+  notify('Error deleting deal ✗');
+}
 }
 function clearAll() {
 if(!confirm('Clear ALL deals and data for this month? This cannot be undone.')) return;
@@ -2136,16 +2175,17 @@ saveStateLocal(); renderAll(); renderHoldTable(); renderSummaryVerification();
 saveDealFirestore(active); deleteHoldFirestore(id);
 notify('Released to Active ✓');
 }
-function deleteHold(id) {
+async function deleteHold(id) {
 if(!confirm('Delete this hold?')) return;
 state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
 saveStateLocal(); renderHoldTable(); renderSummaryVerification();
-deleteHoldFirestore(id).then(() => {
-notify('Hold deleted');
-}).catch(err => {
-console.error('Error deleting hold:', err);
-notify('Error deleting hold');
-});
+try {
+  await deleteHoldFirestore(id);
+  notify('Hold deleted ✓');
+} catch(err) {
+  console.error('Error deleting hold:', err);
+  notify('Error deleting hold ✗');
+}
 }
 // ============================================================
 // USER PROFILE
@@ -2227,7 +2267,7 @@ else{bigAv.style.backgroundImage='';document.getElementById('profileAvatarInitia
 // Verification status
 const verif=document.getElementById('pf-verif-status');
 const user=fbAuth?.currentUser;
-if(verif&&user) verif.textContent='Status: '+(user.emailVerified?'✓ Verified':'✗ Not verified');
+if(verif&&user) verif.textContent='Status: '+(user.emailVerified?'✓ Verified':' Not verified');
 else if(verif) verif.textContent='Status: Offline mode';
 }
 function saveProfileInfo() {
@@ -2395,7 +2435,7 @@ if(!grid) return;
 const filtered=getFilteredReviews();
 const visible=filtered.slice(0,reviewsVisible);
 if(!filtered.length){
-grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No reviews found</div></div>`;
+grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon"></div><div class="blank-state-text">No reviews found</div></div>`;
 return;
 }
 const userName=window._currentUser?.displayName||'';
