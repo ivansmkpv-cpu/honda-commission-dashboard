@@ -710,7 +710,8 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <div class="panel-head">
 <i class="fab fa-google" style="color:var(--blue);font-size:0.85rem"></i>
 <span class="panel-title">Customer Reviews</span>
-<button class="btn btn-sm" style="margin-left:auto" onclick="fetchLiveReviews()" id="fetchReviewsBtn">
+<span id="reviewsMonthLabel" style="margin-left:auto;font-size:0.65rem;color:var(--text-dim)"></span>
+<button class="btn btn-sm" style="margin-left:8px" onclick="fetchLiveReviews()" id="fetchReviewsBtn">
 <i class="fas fa-sync" id="fetchReviewsIcon"></i> Generate
 </button>
 </div>
@@ -1465,7 +1466,16 @@ function renderMonthTabs() {
 function selectMonth(m) {
   state.selectedMonth = m;
   saveState();
-  renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderTradingChart(); renderSummaryVerification();
+  renderMonthTabs(); 
+  renderKPIs(); 
+  renderTable(); 
+  renderSidebar(); 
+  renderTradingChart(); 
+  renderSummaryVerification();
+  renderCharts(); // 🔍 Actualiza gráficos al cambiar mes
+  // 🔍 AGREGADO: Actualiza reviews al cambiar mes
+  renderReviewsGrid();
+  updateUserMentionBadge();
 }
 function renderKPIs() {
   const mDeals = getMonthDeals(state.selectedMonth);
@@ -2461,8 +2471,27 @@ function loadCachedReviews() {
     }
   } catch{}
 }
-function getFilteredReviews() {
+// 🔍 SEARCH: parseReviewMonth - Convierte "June 15, 2026" a "2026-06"
+function parseReviewMonth(dateStr) {
+  if (!dateStr) return null;
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+  const parts = dateStr.split(' ');
+  if (parts.length < 3) return null;
+  
+  const monthName = parts[0];
+  const year = parts[2];
+  const monthIndex = monthNames.indexOf(monthName);
+  
+  if (monthIndex === -1) return null;
+  return `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+}
+  function getFilteredReviews() {
   return reviewsAll.filter(r=>{
+        // 🔍 FILTRO POR MES
+    const reviewMonth = parseReviewMonth(r.date);
+    if (reviewMonth && reviewMonth !== state.selectedMonth) return false;
+    
     if(currentFilter==='5') return r.stars===5;
     if(currentFilter==='4') return r.stars===4;
     if(currentFilter==='mention') return r.mentionsUser;
