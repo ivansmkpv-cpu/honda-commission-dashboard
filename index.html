@@ -1260,7 +1260,13 @@ async function subscribeFirestore(uid) {
       const deals = [];
       snap.forEach(doc => deals.push({id:doc.id,...doc.data()}));
       if(deals.length===0 && state.deals.length>0) {
-        await seedFirestoreFromLocal(uid); return;
+        // Usuario nuevo - no seedear, empezar limpio
+  saveStateLocal(); 
+  renderAll(); 
+  renderHoldTable(); 
+  renderSummaryVerification();
+  setSyncStatus('ok');
+  return;
       }
       state.deals = deals;
       const hSnap = await db.collection(`users/${uid}/holdDeals`).get();
