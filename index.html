@@ -2550,12 +2550,72 @@ function seedDeals() {
   state.selectedMonth=new Date().toISOString().slice(0,7);
   saveStateLocal();
 }
+// ============================================================
+// CLEANUP LEGACY DATA
+// ============================================================
+function cleanupLegacyData() {
+  const LEGACY_KEYS = [
+    'salesTracker',
+    'autotrack_v1',
+    'vhd_v3',
+    'vhonda_dashboard_v3',
+    'vhd_th',
+    'vhonda_deals',
+    'vhonda_state',
+    'dashboard_data',
+    'deals_data',
+    'user_data'
+  ];
+  
+  const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
+  
+  // Solo ejecutar una vez
+  if (localStorage.getItem(CLEANUP_FLAG)) return;
+  
+  let removed = 0;
+  LEGACY_KEYS.forEach(key => {
+    if (localStorage.getItem(key) !== null) {
+      localStorage.removeItem(key);
+      removed++;
+      console.log(`[Cleanup] Eliminado: ${key}`);
+    }
+  });
+  
+  // También buscar cualquier clave que contenga patrones sospechosos
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (
+      key.startsWith('sales') || 
+      key.startsWith('autotrack') ||
+      key.startsWith('vhd_') ||
+      key.includes('ivan') ||
+      key.includes('IVAN')
+    )) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(key => {
+    localStorage.removeItem(key);
+    removed++;
+    console.log(`[Cleanup] Patrón eliminado: ${key}`);
+  });
+  
+  if (removed > 0) {
+    console.log(`[Cleanup] Total eliminado: ${removed} claves legacy`);
+    notify(`Limpiados ${removed} datos antiguos ✓`);
+  }
+  
+  // Marcar como completado
+  localStorage.setItem(CLEANUP_FLAG, 'true');
+}
 
 // ============================================================
 // INIT
 // ============================================================
 window._currentUser=null;
 window._userProfile=null;
+cleanupLegacyData();  
 state=loadState();
 
 (function initTheme(){
