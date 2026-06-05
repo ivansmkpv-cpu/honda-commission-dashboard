@@ -693,6 +693,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <div class="page-divider"></div>
 <div class="app" style="padding-top:0;padding-bottom:40px">
 <div class="section-row">
+<!-- REVIEW COMPENSATION -->
 <div class="glass" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-file-invoice-dollar" style="color:var(--purple);font-size:0.85rem"></i>
@@ -700,7 +701,16 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <span id="rv-my-name-label" style="margin-left:auto;font-size:0.65rem;color:var(--text-dim)">Scan your sheet</span>
 </div>
 <div class="panel-body" id="rvBody">
-<div class="blank-state">
+<div class="ocr-zone" id="reviewOcrZone" onclick="document.getElementById('reviewOcrInput').click()"
+ondragover="event.preventDefault();this.classList.add('drag-over')"
+ondragleave="this.classList.remove('drag-over')"
+ondrop="handleReviewOCRDrop(event)">
+<div class="ocr-zone-icon">📄</div>
+<div class="ocr-zone-label">Drop review comp sheet here</div>
+<div class="ocr-zone-sub">or click to browse · JPG, PNG, PDF</div>
+</div>
+<input type="file" id="reviewOcrInput" accept="image/*,.pdf" style="display:none" onchange="handleReviewOCRFile(event)"/>
+<div class="blank-state" id="reviewBlankState">
 <div class="blank-state-icon">📸</div>
 <div class="blank-state-text">Scan your compensation sheet to see your data here</div>
 </div>
