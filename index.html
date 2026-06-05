@@ -305,36 +305,19 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .page-divider{height:1px;background:var(--border-line);max-width:1600px;margin:0 auto 20px}
 summary{cursor:pointer;font-size:0.72rem;color:var(--text-dim);font-weight:600;user-select:none}
 details[open] summary{color:var(--text)}
-/* ============================================================
-   MOBILE RESPONSIVE FIXES
-   ============================================================ */
+
+/* 🔍 SEARCH: MOBILE RESPONSIVE */
 @media(max-width:600px) {
-  /* Header compacto */
-  #mainHeader {
-    flex-wrap: wrap;
-    padding: 8px 10px;
-    gap: 6px;
-    position: relative;
-    top: 0;
-  }
+  #mainHeader { flex-wrap: wrap; padding: 8px 10px; gap: 6px; position: relative; top: 0; }
   .header-logo .logo-text { font-size: 0.72rem; }
   .header-logo .logo-sub { font-size: 0.6rem; }
   #currentDateLabel { display: none; }
   .header-sep { display: none; }
-  
-  .header-right {
-    width: 100%;
-    justify-content: flex-end;
-    margin-top: 4px;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
+  .header-right { width: 100%; justify-content: flex-end; margin-top: 4px; flex-wrap: wrap; gap: 4px; }
   .header-right .btn { padding: 5px 8px; font-size: 0.65rem; }
   .header-right .btn-accent { padding: 5px 10px; }
   .user-name { max-width: 80px; font-size: 0.65rem; }
   .user-avatar { width: 24px; height: 24px; font-size: 0.6rem; }
-  
-  /* KPIs más compactos */
   .kpi-grid { gap: 8px; margin-bottom: 12px; }
   .kpi-card { padding: 10px 12px; }
   .kpi-value { font-size: 1.1rem; }
@@ -342,50 +325,24 @@ details[open] summary{color:var(--text)}
   .kpi-label { font-size: 0.6rem; }
   .kpi-sub { font-size: 0.58rem; }
   .kpi-icon { font-size: 1rem; right: 10px; }
-  
-  /* App padding reducido */
   .app { padding: 10px 10px 0; }
   .app:last-of-type { padding-bottom: 20px; }
-  
-  /* Main grid a 1 columna */
   .main-grid { gap: 10px; margin-bottom: 12px; }
-  
-  /* Panel heads compactos */
   .panel-head { padding: 10px 12px; }
   .panel-title { font-size: 0.75rem; }
   .panel-body { padding: 10px 12px; }
-  
-  /* Search row compacta */
   .search-row { flex-wrap: wrap; gap: 6px; }
-  .search-row select, .search-row input { 
-    font-size: 0.7rem; 
-    padding: 5px 8px;
-  }
+  .search-row select, .search-row input { font-size: 0.7rem; padding: 5px 8px; }
   .search-row input { min-width: 100%; }
-  
-  /* Month tabs */
   .month-tabs { gap: 3px; margin-bottom: 8px; }
   .month-tab { padding: 3px 8px; font-size: 0.65rem; }
-  
-  /* Tabla con scroll horizontal mejorado */
   .deals-table { font-size: 0.65rem; }
-  .deals-table th { 
-    font-size: 0.58rem; 
-    padding: 5px 6px;
-    white-space: nowrap;
-  }
-  .deals-table td { 
-    padding: 6px 6px; 
-    font-size: 0.65rem;
-  }
+  .deals-table th { font-size: 0.58rem; padding: 5px 6px; white-space: nowrap; }
+  .deals-table td { padding: 6px 6px; font-size: 0.65rem; }
   .deals-table .totals-row td { font-size: 0.68rem; }
-  
-  /* OCR zone */
   .ocr-zone { padding: 20px 12px; }
   .ocr-zone-icon { font-size: 1.4rem; }
   .ocr-zone-label { font-size: 0.7rem; }
-  
-  /* Pay plan sidebar */
   .pp-dots { padding: 10px 12px 6px; gap: 3px; }
   .pp-dot { width: 8px; height: 8px; }
   .pp-tier-pills { padding: 0 12px 8px; gap: 3px; }
@@ -393,76 +350,46 @@ details[open] summary{color:var(--text)}
   .pp-tier-bars { padding: 0 12px 10px; }
   .pp-section { padding: 8px 12px; }
   .pp-row { font-size: 0.62rem; }
-  
-  /* Charts */
   .chart-wrap { height: 200px; }
   .trading-chart-wrap { height: 220px; }
   .chart-container { padding: 10px 12px; }
   .chart-legend-manual { font-size: 0.58rem; padding: 0 12px 8px; gap: 6px; }
-  
-  /* Bottom grid */
   .bottom-grid { gap: 10px; margin-bottom: 12px; }
   .section-row { gap: 10px; margin-bottom: 12px; }
-  
-  /* SV grid */
   .sv-card { padding: 8px 10px; }
   .sv-card-val { font-size: 0.95rem; }
   .sv-card-label { font-size: 0.58rem; }
-  
-  /* Reviews */
   .reviews-grid { grid-template-columns: 1fr; gap: 8px; }
   .review-card { padding: 10px 12px; }
   .reviews-filters { gap: 4px; }
   .review-filter-btn { font-size: 0.6rem; padding: 3px 8px; }
-  
-  /* Hold table */
   .hold-table { font-size: 0.65rem; }
   .hold-table th, .hold-table td { padding: 5px 6px; }
-  
-  /* Buttons más grandes para touch */
   .btn { min-height: 36px; }
   .act-btn { width: 32px; height: 32px; }
   .btn-sm { min-height: 32px; padding: 4px 8px; }
-  
-  /* Modal más ancho en móvil */
   .modal { max-width: 95vw; margin: 10px; }
   .modal-wide { max-width: 95vw; }
   .modal-body { padding: 14px; }
   .modal-head { padding: 12px 14px; }
   .modal-foot { padding: 10px 14px; }
-  
-  /* Form grid a 1 columna en móvil */
   .form-grid { grid-template-columns: 1fr; gap: 8px; }
   .form-input, .form-select { font-size: 0.75rem; padding: 7px 8px; }
-  
-  /* Auth box */
   .auth-box { padding: 24px 18px; margin: 10px; }
   .auth-input { font-size: 0.78rem; }
-  
-  /* Notificación */
   .notif { max-width: 90vw; right: 10px; top: 10px; font-size: 0.7rem; }
-  
-  /* User menu */
   .user-menu { min-width: 160px; right: -10px; }
   .user-menu-item { font-size: 0.7rem; padding: 7px 8px; }
-  
-  /* Profile modal */
   .profile-avatar { width: 60px; height: 60px; font-size: 1.2rem; }
-  
-  /* Pin pad */
   .pin-pad { max-width: 200px; }
   .pin-key { padding: 10px; font-size: 0.9rem; }
 }
-
-/* Para pantallas muy pequeñas (iPhone SE, etc) */
 @media(max-width:380px) {
   .kpi-value.big { font-size: 1.1rem; }
   .kpi-value { font-size: 0.95rem; }
   .header-logo .logo-text { font-size: 0.65rem; }
   .btn { font-size: 0.6rem; padding: 4px 6px; }
 }
-
-/* Landscape en móvil */
 @media(max-height:500px) and (orientation:landscape) {
   #mainHeader { position: static; }
   .kpi-grid { grid-template-columns: repeat(6, 1fr); }
@@ -474,7 +401,7 @@ details[open] summary{color:var(--text)}
 <div class="app">
 <header class="glass" id="mainHeader">
 <div class="header-logo">
-<span class="logo-icon">🏎</span>
+<span class="logo-icon"></span>
 <div>
 <div class="logo-text">Commission Dashboard</div>
 <div class="logo-sub" id="headerUserName">·</div>
@@ -494,6 +421,7 @@ details[open] summary{color:var(--text)}
 <i class="fas fa-chevron-down" style="font-size:0.55rem;opacity:0.5"></i>
 </div>
 <div class="user-menu" id="userMenu">
+<div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
 <div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
 <div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
 <div class="user-menu-sep"></div>
@@ -759,7 +687,6 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
-</div>
 <div class="page-divider"></div>
 <div class="app" style="padding-top:0;padding-bottom:40px">
 <div class="section-row">
@@ -789,7 +716,8 @@ ondrop="handleReviewOCRDrop(event)">
 <div class="panel-head">
 <i class="fab fa-google" style="color:var(--blue);font-size:0.85rem"></i>
 <span class="panel-title">Customer Reviews</span>
-<button class="btn btn-sm" style="margin-left:auto" onclick="fetchLiveReviews()" id="fetchReviewsBtn">
+<span id="reviewsMonthLabel" style="margin-left:auto;font-size:0.65rem;color:var(--text-dim)"></span>
+<button class="btn btn-sm" style="margin-left:8px" onclick="fetchLiveReviews()" id="fetchReviewsBtn">
 <i class="fas fa-sync" id="fetchReviewsIcon"></i> Generate
 </button>
 </div>
@@ -1050,6 +978,7 @@ Continue with Google
 </div>
 <div class="notif" id="notif"></div>
 <script>
+// 🔍 SEARCH: FIREBASE CONFIG
 const firebaseConfig = {
 apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
 authDomain: "valley-honda-dashboard.firebaseapp.com",
@@ -1061,6 +990,8 @@ measurementId: "G-VE12MRTHPJ"
 };
 const FIREBASE_CONFIGURED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
 let db = null, fbAuth = null, unsubscribeDeals = null;
+
+// 🔍 SEARCH: PAY PLAN 2026
 const PP = {
 unitTiers: [
 {u:12,b:200},{u:15,b:675},{u:18,b:900},{u:21,b:1150},
@@ -1075,6 +1006,8 @@ const e = d.extracted||{};
 return (parseFloat(e.commissionNo1)||0)+(parseFloat(e.accessories)||0)
 +(parseFloat(e.aftermarket1)||0)+(parseFloat(e.fBonus1)||0);
 };
+
+// 🔍 SEARCH: STATE / STORAGE
 const SCHEMA_V = 5, SK = 'vhonda_v5';
 const OFFLINE_SESSION_KEY = 'vhonda_offline_session_v1';
 const DEFAULT_PIN = '1234';
@@ -1085,6 +1018,7 @@ let earningsChartObj=null, mixChartObj=null, tradingChartObj=null;
 let _tessReady=null, _pdfjsReady=null;
 let reviewsAll=[], reviewsVisible=12, currentFilter='all', currentSearchText='';
 let pinEntry = '';
+
 function defaultState() {
 return { version:5, deals:[], holdDeals:[], selectedMonth:new Date().toISOString().slice(0,7),
 reviewPeriod:'', reviewCompData:null, commissionSummary:[] };
@@ -1121,12 +1055,12 @@ fni:'rgba(59,130,246,0.7)', ub:'rgba(34,197,94,0.7)',
 grid:'rgba(0,0,0,0.06)', tick:'#888', legend:'#555'
 };
 }
-const fmt   = n => '$'+(parseFloat(n)||0).toFixed(2);
-const fmtC  = v => v ? `<span style="font-family:var(--font-mono);font-size:0.73rem">${fmt(v)}</span>`
+const fmt = n => '$'+(parseFloat(n)||0).toFixed(2);
+const fmtC = v => v ? `<span style="font-family:var(--font-mono);font-size:0.73rem">${fmt(v)}</span>`
 : `<span style="color:var(--text-faint);font-size:0.64rem">—</span>`;
-const esc   = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const setEl = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-const setF  = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
+const setF = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
 const getMonthDeals = m => state.deals.filter(d=>d.date&&d.date.startsWith(m));
 function notify(msg, dur=3200) {
 const el = document.getElementById('notif');
@@ -1134,6 +1068,8 @@ el.textContent = msg;
 el.classList.add('show');
 setTimeout(()=>el.classList.remove('show'), dur);
 }
+
+// 🔍 SEARCH: THEME TOGGLE
 function toggleTheme() {
 const cur = document.documentElement.getAttribute('data-theme')||'light';
 const next = cur==='light'?'dark':'light';
@@ -1143,6 +1079,8 @@ const btn = document.getElementById('themeBtn');
 if(btn) btn.innerHTML = `<i class="fas fa-${next==='dark'?'sun':'moon'}"></i>`;
 renderCharts(); renderTradingChart();
 }
+
+// 🔍 SEARCH: AUTH — PIN / OFFLINE
 function getStoredPIN() { return localStorage.getItem('vhonda_pin') || DEFAULT_PIN; }
 function hasOfflineSession() {
 try {
@@ -1190,6 +1128,8 @@ pinEntry = '';
 updatePinDots();
 }
 }
+
+// 🔍 SEARCH: AUTH — FIREBASE
 function toggleAuthMode(mode) {
 const isReg = mode === 'register';
 document.getElementById('authFieldName').style.display = isReg ? 'block' : 'none';
@@ -1214,7 +1154,7 @@ el.style.display = msg ? 'block' : 'none';
 }
 async function submitAuth() {
 const email = document.getElementById('authEmail')?.value.trim();
-const pw    = document.getElementById('authPassword')?.value;
+const pw = document.getElementById('authPassword')?.value;
 const nameF = document.getElementById('authName')?.value.trim();
 const isReg = document.getElementById('authTabRegister')?.classList.contains('active');
 showAuthErr('');
@@ -1335,12 +1275,32 @@ function closeUserMenu() {
 const m = document.getElementById('userMenu');
 if(m) m.classList.remove('open');
 }
+
+// 🔍 SEARCH: FIRESTORE SYNC
 function setSyncStatus(status) {
 const dot = document.getElementById('syncDot');
 if(!dot) return;
 dot.className = `sync-dot ${status}`;
 }
 function _uid() { return fbAuth?.currentUser?.uid||null; }
+
+//  IMPORTANTE: Limpia valores undefined para evitar errores de Firestore
+function cleanForFirestore(obj) {
+if (obj === null || obj === undefined) return null;
+if (typeof obj !== 'object') return obj;
+if (Array.isArray(obj)) return obj.map(item => cleanForFirestore(item));
+const cleaned = {};
+for (const key in obj) {
+if (obj.hasOwnProperty(key)) {
+const value = obj[key];
+if (value !== undefined) {
+cleaned[key] = cleanForFirestore(value);
+}
+}
+}
+return cleaned;
+}
+
 async function subscribeFirestore(uid) {
 setSyncStatus('syncing');
 unsubscribeDeals = db.collection(`users/${uid}/deals`).orderBy('date','desc')
@@ -1348,6 +1308,7 @@ unsubscribeDeals = db.collection(`users/${uid}/deals`).orderBy('date','desc')
 const deals = [];
 snap.forEach(doc => deals.push({id:doc.id,...doc.data()}));
 if(deals.length===0 && state.deals.length>0) {
+// 🔍 FIX: Usuario nuevo - no seedear, empezar limpio
 saveStateLocal();
 renderAll();
 renderHoldTable();
@@ -1378,15 +1339,36 @@ renderAll(); renderHoldTable(); renderSummaryVerification();
 setSyncStatus('ok');
 }, ()=>setSyncStatus('error'));
 }
-async function seedFirestoreFromLocal(uid) {
-if(!db||!state.deals.length) return;
+
+// 🔍 SEARCH: MANUAL SYNC
+async function manualSync() {
+closeUserMenu();
+const uid = _uid();
+if(!uid || !db) { notify('Not connected to cloud ✗'); return; }
+setSyncStatus('syncing');
+notify('Subiendo datos a la nube...');
+try {
+if(state.deals.length > 0) {
 const batch = db.batch();
-state.deals.forEach(d => batch.set(db.doc(`users/${uid}/deals/${d.id}`),d));
+state.deals.forEach(d => batch.set(db.doc(`users/${uid}/deals/${d.id}`), cleanForFirestore(d)));
 await batch.commit();
 }
+if(state.holdDeals.length > 0) {
+const batch = db.batch();
+state.holdDeals.forEach(h => batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`), cleanForFirestore(h)));
+await batch.commit();
+}
+notify('Sync complete ✓');
+} catch(err) {
+console.error('[Sync] Error:', err);
+notify('Sync failed ');
+}
+setSyncStatus('ok');
+}
+
 async function saveDealFirestore(deal) {
 const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/deals/${deal.id}`).set(deal);
+await db.doc(`users/${uid}/deals/${deal.id}`).set(cleanForFirestore(deal));
 }
 async function deleteDealFirestore(id) {
 const uid = _uid(); if(!db||!uid) return;
@@ -1394,7 +1376,7 @@ await db.doc(`users/${uid}/deals/${id}`).delete();
 }
 async function saveHoldFirestore(h) {
 const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/holdDeals/${h.id}`).set(h);
+await db.doc(`users/${uid}/holdDeals/${h.id}`).set(cleanForFirestore(h));
 }
 async function deleteHoldFirestore(id) {
 const uid = _uid(); if(!db||!uid) return;
@@ -1402,12 +1384,14 @@ await db.doc(`users/${uid}/holdDeals/${id}`).delete();
 }
 async function savePrefsFirestore() {
 const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/meta/prefs`).set({
+await db.doc(`users/${uid}/meta/prefs`).set(cleanForFirestore({
 selectedMonth:state.selectedMonth, reviewPeriod:state.reviewPeriod||'',
 reviewCompData:state.reviewCompData||null, commissionSummary:state.commissionSummary||[],
 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-},{merge:true});
+}),{merge:true});
 }
+
+// 🔍 SEARCH: RENDER
 function renderAll() {
 renderDate(); renderMonthTabs(); renderKPIs(); renderTable();
 renderSidebar(); renderCharts(); renderTradingChart();
@@ -1431,11 +1415,18 @@ const label=new Date(+y,+mo-1,1).toLocaleDateString('en-US',{month:'short',year:
 return `<div class="month-tab${m===state.selectedMonth?' active':''}" onclick="selectMonth('${m}')">${label}</div>`;
 }).join('');
 }
+
+// 🔍 IMPORTANTE: selectMonth actualiza también reviews y gráficos
 function selectMonth(m) {
 state.selectedMonth = m;
 saveState();
 renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderTradingChart(); renderSummaryVerification();
+renderCharts();
+renderReviewsGrid();
+updateUserMentionBadge();
+updateReviewsMonthLabel();
 }
+
 function renderKPIs() {
 const mDeals = getMonthDeals(state.selectedMonth);
 const units = mDeals.length;
@@ -1540,9 +1531,9 @@ const cc = chartColors();
 const months = getLast6Months();
 const labels = months.map(m=>new Date(m+'-01').toLocaleDateString('en-US',{month:'short'}));
 const commData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0));
-const aftData  = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
-const fniData  = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
-const ubData   = months.map(m=>getUB(getMonthDeals(m).length));
+const aftData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
+const fniData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
+const ubData = months.map(m=>getUB(getMonthDeals(m).length));
 const ectx = document.getElementById('earningsChart');
 if(ectx) {
 if(earningsChartObj) earningsChartObj.destroy();
@@ -1590,8 +1581,7 @@ borderWidth:0,hoverOffset:6}]
 },
 options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
 plugins:{legend:{position:'bottom',labels:{font:{family:"'DM Mono',monospace",size:10},color:cc.legend,boxWidth:10,padding:8}},
-tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}`}}}
-}
+tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}`}}}}
 });
 }
 }
@@ -1755,6 +1745,8 @@ return `<tr>
 </tr>`;
 }).join('')}</tbody></table></div>`;
 }
+
+// 🔍 SEARCH: SEARCH DEALS
 function filterDeals() {
 const type = document.getElementById('searchType')?.value||'all';
 const query = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
@@ -1800,6 +1792,8 @@ const sel=document.getElementById('searchType');
 if(sel) sel.value='all';
 filterDeals();
 }
+
+// 🔍 SEARCH: OCR
 let _tessReady2=null,_pdfjsReady2=null;
 function loadTesseract() {
 if(_tessReady2) return _tessReady2;
@@ -1901,7 +1895,6 @@ handleOCRFile(fakeEvent);
 function parseOCRText(text) {
 const lines=text.split('\n');
 const find=(re)=>{for(const l of lines){const m=l.match(re);if(m)return m;}return null;};
-const findNum=(re)=>{const m=find(re);if(!m)return 0;const nums=m[0].match(/[\-]?\d+\.\d{2}/g);return nums?parseFloat(nums[0]):0;};
 const dealM=find(/Deal\s*#?\s*(\d+)/i);
 const dealNo=dealM?dealM[1]:'';
 const stockM=find(/Stock\s*#?\s*(\d+)/i);
@@ -1974,6 +1967,59 @@ split:null
 }
 return rows;
 }
+
+// 🔍 SEARCH: REVIEW COMPENSATION OCR
+async function handleReviewOCRFile(event) {
+const file = event.target.files?.[0];
+if (!file) return;
+event.target.value = '';
+await processReviewOCR(file);
+}
+async function handleReviewOCRDrop(event) {
+event.preventDefault();
+const zone = document.getElementById('reviewOcrZone');
+if (zone) zone.classList.remove('drag-over');
+const file = event.dataTransfer.files?.[0];
+if (!file) return;
+await processReviewOCR(file);
+}
+async function processReviewOCR(file) {
+notify('Processing review compensation sheet…');
+try {
+const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+let dataUrl;
+if (isPDF) {
+const buf = await file.arrayBuffer();
+dataUrl = await pdfToDataUrl(buf, 1);
+} else {
+dataUrl = await new Promise((res, rej) => {
+const r = new FileReader();
+r.onload = () => res(r.result);
+r.onerror = rej;
+r.readAsDataURL(file);
+});
+}
+const data = await runTesseractOnDataUrl(dataUrl, () => {});
+const rows = parseReviewCompOCR(data.text);
+if (rows.length > 0) {
+state.reviewCompData = rows[0];
+const periodMatch = file.name.match(/(\w+\s+\d{4})/) || data.text.match(/([A-Z][a-z]+\s+\d{4})/);
+state.reviewPeriod = periodMatch ? periodMatch[1] : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+saveState();
+renderReviewComp(state.reviewCompData);
+notify('Review compensation loaded ✓');
+const zone = document.getElementById('reviewOcrZone');
+const blank = document.getElementById('reviewBlankState');
+if (zone) zone.style.display = 'none';
+if (blank) blank.style.display = 'none';
+} else {
+notify('No review compensation data found ✗');
+}
+} catch (err) {
+notify('Review OCR failed: ' + err.message);
+}
+}
+
 function checkCommissionMatch(deal) {
 if(deal.ignoreMismatch) return {matched:true,summaryTotal:null,diff:0,payPeriod:deal.payPeriodOverride||null,split:deal.splitWith||null};
 const stock=(deal.vehicle?.stock||'').toUpperCase().replace(/\s/g,'');
@@ -1982,10 +2028,11 @@ if(!entry) return {matched:null,summaryTotal:null,diff:null,payPeriod:deal.payPe
 const diff=Math.abs(calcPayout(deal)-entry.summaryTotal);
 return {matched:diff<=0.50,summaryTotal:entry.summaryTotal,diff,payPeriod:deal.payPeriodOverride||entry.payPeriod,split:deal.splitWith||entry.split};
 }
+
+//  SEARCH: DEAL MODAL
 function openAddModal(ocrData) {
 editingId=null;
 clearForm();
-setEl('dealModalTitle','Add Deal');
 document.querySelector('.modal-title').innerHTML='<i class="fas fa-plus" style="color:var(--accent);margin-right:6px"></i>Add Deal';
 setF('dm-date',new Date().toISOString().slice(0,10));
 setF('dm-status','Pending');
@@ -2094,12 +2141,9 @@ saveStateLocal(); closeModal(); renderAll(); renderHoldTable();
 saveHoldFirestore(hDeal); deleteDealFirestore(editingId);
 notify('Moved to Hold File ✓');
 }
-function moveCurrentToActive() {
-if(!editingId) return;
-const deal=state.deals.find(d=>d.id===editingId);
-if(deal){ deal.status='Pending'; saveState(); renderAll(); notify('Set to Active ✓'); }
-}
-function saveDeal() {
+
+// 🔍 IMPORTANTE: saveDeal con async/await
+async function saveDeal() {
 const id = editingId||crypto.randomUUID();
 const stock=document.getElementById('dm-stock')?.value.trim()||'';
 const model=document.getElementById('dm-vehicle')?.value.trim()||'';
@@ -2134,15 +2178,27 @@ const idx=state.deals.findIndex(d=>d.id===editingId);
 if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
 } else { state.deals.unshift(deal); }
 saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
-saveDealFirestore(deal);
-notify(editingId?'Deal updated ✓':'Deal saved ✓');
+try {
+await saveDealFirestore(deal);
+notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
+} catch(err) {
+console.error('Firestore save error:', err);
+notify('Saved locally, sync failed ✗');
 }
-function deleteDeal(id) {
+}
+
+// 🔍 IMPORTANTE: deleteDeal con async/await
+async function deleteDeal(id) {
 if(!confirm('Delete this deal?')) return;
 state.deals=state.deals.filter(d=>d.id!==id);
 saveStateLocal(); renderAll(); renderSummaryVerification();
-deleteDealFirestore(id);
-notify('Deal deleted');
+try {
+await deleteDealFirestore(id);
+notify('Deal deleted ✓');
+} catch(err) {
+console.error('Error deleting deal:', err);
+notify('Error deleting deal ✗');
+}
 }
 function clearAll() {
 if(!confirm('Clear ALL deals and data for this month? This cannot be undone.')) return;
@@ -2153,6 +2209,8 @@ const uid=_uid();
 if(db&&uid) mDeals.forEach(id=>deleteDealFirestore(id));
 notify('Cleared ✓');
 }
+
+//  SEARCH: HOLD FILE
 function openHoldModal(id) {
 editingHoldId=id||null;
 if(id){
@@ -2220,13 +2278,22 @@ saveStateLocal(); renderAll(); renderHoldTable(); renderSummaryVerification();
 saveDealFirestore(active); deleteHoldFirestore(id);
 notify('Released to Active ✓');
 }
-function deleteHold(id) {
+
+// 🔍 IMPORTANTE: deleteHold con async/await
+async function deleteHold(id) {
 if(!confirm('Delete this hold?')) return;
 state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
 saveStateLocal(); renderHoldTable(); renderSummaryVerification();
-deleteHoldFirestore(id);
-notify('Hold deleted');
+try {
+await deleteHoldFirestore(id);
+notify('Hold deleted ✓');
+} catch(err) {
+console.error('Error deleting hold:', err);
+notify('Error deleting hold ✗');
 }
+}
+
+// 🔍 SEARCH: USER PROFILE
 function nameToDocVariants(name) {
 const parts=name.toUpperCase().trim().split(/\s+/);
 if(parts.length<2) return name.toUpperCase();
@@ -2259,7 +2326,7 @@ const av=document.getElementById('userAvatar');
 if(av){av.textContent='';av.style.backgroundImage=`url(${window._userProfile.photoURL})`;av.style.backgroundSize='cover';}
 }
 if(db&&_uid()){
-db.doc(`users/${_uid()}/meta/profile`).set(window._userProfile,{merge:true}).catch(()=>{});
+db.doc(`users/${_uid()}/meta/profile`).set(cleanForFirestore(window._userProfile),{merge:true}).catch(()=>{});
 }
 }
 function getOCRNameVariants() {
@@ -2347,7 +2414,7 @@ catch(e){notify('Error: '+e.message);}
 }
 function savePINFromProfile() {
 const pin=document.getElementById('pf-pin')?.value;
-if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){notify('PIN must be 4 digits ✗');return;}
+if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){notify('PIN must be 4 digits ');return;}
 localStorage.setItem('vhonda_pin',pin);
 setF('pf-pin','');
 notify('PIN saved ✓');
@@ -2391,6 +2458,8 @@ notify('Avatar updated ✓');
 };
 reader.readAsDataURL(file);
 }
+
+// 🔍 SEARCH: REVIEW COMPENSATION
 function detectPeriodFromOCR(text) {
 const m=text.match(/([A-Z][a-z]+\s+\d{4})/);
 return m?m[1]:'';
@@ -2437,6 +2506,8 @@ body.innerHTML=`<div class="rv-row"><span class="rv-label">Compensation</span><s
 <div class="rv-row" style="border-bottom:none"><span class="rv-label">Total Review Score</span><span class="rv-val" style="color:var(--accent);font-size:1rem">${rv.total||'—'}</span></div>
 ${rv.rank?`<div style="margin-top:12px;text-align:center;font-size:0.7rem;color:var(--text-dim)">Rank: <strong style="color:var(--ink)">#${rv.rank}</strong></div>`:''}`;
 }
+
+// 🔍 SEARCH: GOOGLE REVIEWS
 function loadCachedReviews() {
 try {
 const cached=JSON.parse(localStorage.getItem('vhonda_reviews_cache')||'{}');
@@ -2447,8 +2518,26 @@ updateUserMentionBadge();
 }
 } catch{}
 }
+
+// 🔍 NUEVO: Convierte fecha "June 15, 2026" a "2026-06"
+function parseReviewMonth(dateStr) {
+if (!dateStr) return null;
+const monthNames = ["January", "February", "March", "April", "May", "June",
+"July", "August", "September", "October", "November", "December"];
+const parts = dateStr.split(' ');
+if (parts.length < 3) return null;
+const monthName = parts[0];
+const year = parts[2];
+const monthIndex = monthNames.indexOf(monthName);
+if (monthIndex === -1) return null;
+return `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+}
+
+// 🔍 IMPORTANTE: Filtra reviews por mes seleccionado
 function getFilteredReviews() {
 return reviewsAll.filter(r=>{
+const reviewMonth = parseReviewMonth(r.date);
+if (reviewMonth && reviewMonth !== state.selectedMonth) return false;
 if(currentFilter==='5') return r.stars===5;
 if(currentFilter==='4') return r.stars===4;
 if(currentFilter==='mention') return r.mentionsUser;
@@ -2459,13 +2548,14 @@ const q=currentSearchText.toLowerCase();
 return r.text?.toLowerCase().includes(q)||r.author?.toLowerCase().includes(q);
 });
 }
+
 function renderReviewsGrid() {
 const grid=document.getElementById('reviewsGrid');
 if(!grid) return;
 const filtered=getFilteredReviews();
 const visible=filtered.slice(0,reviewsVisible);
 if(!filtered.length){
-grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No reviews found</div></div>`;
+grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No reviews found for this month</div></div>`;
 return;
 }
 const userName=window._currentUser?.displayName||'';
@@ -2503,13 +2593,27 @@ renderReviewsGrid();
 }
 function filterReviewsText(val) { currentSearchText=val; reviewsVisible=12; renderReviewsGrid(); }
 function showMoreReviews() { reviewsVisible+=12; renderReviewsGrid(); }
+
 function updateUserMentionBadge() {
-const mentions=reviewsAll.filter(r=>r.mentionsUser).length;
-setEl('revCountAll',reviewsAll.length);
-setEl('revCount5',reviewsAll.filter(r=>r.stars===5).length);
-setEl('revCount4',reviewsAll.filter(r=>r.stars===4).length);
+const filtered = getFilteredReviews();
+const mentions=filtered.filter(r=>r.mentionsUser).length;
+setEl('revCountAll',filtered.length);
+setEl('revCount5',filtered.filter(r=>r.stars===5).length);
+setEl('revCount4',filtered.filter(r=>r.stars===4).length);
 setEl('revCountMention',mentions);
 }
+
+// 🔍 NUEVO: Actualiza el label del mes en Reviews
+function updateReviewsMonthLabel() {
+const label = document.getElementById('reviewsMonthLabel');
+if (!label) return;
+const [year, month] = state.selectedMonth.split('-');
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const monthName = monthNames[parseInt(month) - 1];
+label.textContent = `${monthName} ${year}`;
+}
+
 async function fetchLiveReviews() {
 const btn=document.getElementById('fetchReviewsBtn');
 const icon=document.getElementById('fetchReviewsIcon');
@@ -2548,6 +2652,8 @@ notify(`${reviewsAll.length} reviews generated ✓`);
 } catch(e){ notify('Reviews error: '+e.message); }
 finally { if(btn) btn.disabled=false; if(icon) icon.style.animation=''; }
 }
+
+// 🔍 SEARCH: EXPORT
 function exportCSV() {
 const mDeals=getMonthDeals(state.selectedMonth);
 const header=['Date','Customer','Stock #','Vehicle','Commission','Accessories','Aftermarket','F&I Bonus','Profit of Sale','Total Payout','Status','Pay Period','Split'];
@@ -2565,6 +2671,8 @@ a.href=url; a.download=`commission_${state.selectedMonth}.csv`; a.click();
 URL.revokeObjectURL(url);
 notify('CSV exported ✓');
 }
+
+// 🔍 SEARCH: HELPERS
 function getLast6Months() {
 const months=[];
 const now=new Date();
@@ -2579,8 +2687,60 @@ if(state.deals.length>0) return;
 state.selectedMonth=new Date().toISOString().slice(0,7);
 saveStateLocal();
 }
+
+//  SEARCH: CLEANUP LEGACY DATA
+function cleanupLegacyData() {
+const LEGACY_KEYS = [
+'salesTracker',
+'autotrack_v1',
+'vhd_v3',
+'vhonda_dashboard_v3',
+'vhd_th',
+'vhonda_deals',
+'vhonda_state',
+'dashboard_data',
+'deals_data',
+'user_data'
+];
+const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
+if (localStorage.getItem(CLEANUP_FLAG)) return;
+let removed = 0;
+LEGACY_KEYS.forEach(key => {
+if (localStorage.getItem(key) !== null) {
+localStorage.removeItem(key);
+removed++;
+console.log(`[Cleanup] Eliminado: ${key}`);
+}
+});
+const keysToRemove = [];
+for (let i = 0; i < localStorage.length; i++) {
+const key = localStorage.key(i);
+if (key && (
+key.startsWith('sales') ||
+key.startsWith('autotrack') ||
+key.startsWith('vhd_') ||
+key.includes('ivan') ||
+key.includes('IVAN')
+)) {
+keysToRemove.push(key);
+}
+}
+keysToRemove.forEach(key => {
+localStorage.removeItem(key);
+removed++;
+console.log(`[Cleanup] Patrón eliminado: ${key}`);
+});
+if (removed > 0) {
+console.log(`[Cleanup] Total eliminado: ${removed} claves legacy`);
+notify(`Limpiados ${removed} datos antiguos ✓`);
+}
+localStorage.setItem(CLEANUP_FLAG, 'true');
+}
+
+// 🔍 SEARCH: INIT
 window._currentUser=null;
 window._userProfile=null;
+cleanupLegacyData();
 state=loadState();
 (function initTheme(){
 const saved=localStorage.getItem('vhonda_theme')||'light';
@@ -2600,67 +2760,12 @@ renderReviewComp(null);
 loadCachedReviews();
 filterReviews('all');
 updateUserMentionBadge();
+updateReviewsMonthLabel();
 buildPinPad();
 initAuth();
 const spinStyle=document.createElement('style');
 spinStyle.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
 document.head.appendChild(spinStyle);
-
-// 🔍 REVIEW COMPENSATION OCR FUNCTIONS
-async function handleReviewOCRFile(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  event.target.value = '';
-  await processReviewOCR(file);
-}
-
-async function handleReviewOCRDrop(event) {
-  event.preventDefault();
-  const zone = document.getElementById('reviewOcrZone');
-  if (zone) zone.classList.remove('drag-over');
-  const file = event.dataTransfer.files?.[0];
-  if (!file) return;
-  await processReviewOCR(file);
-}
-
-async function processReviewOCR(file) {
-  notify('Processing review compensation sheet…');
-  try {
-    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    let dataUrl;
-    if (isPDF) {
-      const buf = await file.arrayBuffer();
-      dataUrl = await pdfToDataUrl(buf, 1);
-    } else {
-      dataUrl = await new Promise((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res(r.result);
-        r.onerror = rej;
-        r.readAsDataURL(file);
-      });
-    }
-    const data = await runTesseractOnDataUrl(dataUrl, () => {});
-    const rows = parseReviewCompOCR(data.text);
-    
-    if (rows.length > 0) {
-      state.reviewCompData = rows[0];
-      const periodMatch = file.name.match(/(\w+\s+\d{4})/) || data.text.match(/([A-Z][a-z]+\s+\d{4})/);
-      state.reviewPeriod = periodMatch ? periodMatch[1] : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      saveState();
-      renderReviewComp(state.reviewCompData);
-      notify('Review compensation loaded ✓');
-      
-      const zone = document.getElementById('reviewOcrZone');
-      const blank = document.getElementById('reviewBlankState');
-      if (zone) zone.style.display = 'none';
-      if (blank) blank.style.display = 'none';
-    } else {
-      notify('No review compensation data found ✗');
-    }
-  } catch (err) {
-    notify('Review OCR failed: ' + err.message);
-  }
-}
 </script>
 </body>
 </html>
