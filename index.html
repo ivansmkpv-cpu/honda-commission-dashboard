@@ -938,7 +938,7 @@ const firebaseConfig = {
   appId: "1:177697774434:web:e3e110a335f5e452036a3b",
   measurementId: "G-VE12MRTHPJ"
 };
-const FIREBASE_CONFIGURED = !firebase_config.apiKey.includes('REPLACE_WITH');
+const FIREBASE_CONFIGURED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
 let db = null, fbAuth = null, unsubscribeDeals = null;
 
 // ============================================================
@@ -1185,7 +1185,7 @@ function initFirebase() {
     return;
   }
   try {
-    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     fbAuth = firebase.auth();
     fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
