@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Dealership Commission Dashboard</title>
+<title>Commission Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -12,41 +12,41 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 :root {
---bg:#f0eeeb;--bg-grad:linear-gradient(135deg,#f0eeeb 0%,#e8e5e0 100%);
---glass-bg:rgba(255,255,255,0.55);--glass-bg-hover:rgba(255,255,255,0.72);
---glass-border:rgba(255,255,255,0.8);--glass-border2:rgba(0,0,0,0.08);
---glass-shadow:0 4px 24px rgba(0,0,0,0.07),0 1px 4px rgba(0,0,0,0.05);
---glass-shadow-hover:0 8px 32px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06);
---panel-head-bg:rgba(255,255,255,0.35);--blur:blur(18px) saturate(180%);
---text:#0e0e0e;--text-dim:#5a5a5a;--text-faint:#aaaaaa;
---ink:#0e0e0e;--ink-inv:#ffffff;
---surface-mute:rgba(0,0,0,0.04);--surface-row:rgba(0,0,0,0.025);
---border-line:rgba(0,0,0,0.1);--sep:rgba(0,0,0,0.07);
---modal-overlay:rgba(20,20,20,0.35);--modal-bg:rgba(255,255,255,0.82);
---notif-bg:rgba(255,255,255,0.9);--input-bg:rgba(255,255,255,0.7);
---scrollbar:rgba(0,0,0,0.15);--month-tab-bg:rgba(0,0,0,0.06);
---ocr-dash:rgba(0,0,0,0.25);--progress-bg:rgba(0,0,0,0.08);
---chart-tick:#888;--chart-grid:rgba(0,0,0,0.06);--chart-legend:#555;
---radius:14px;--font-head:'Inter',sans-serif;--font-mono:'DM Mono',monospace;--font-body:'Inter',sans-serif;
---accent:#e63900;--accent2:#ff5722;--green:#22c55e;--orange:#f97316;--blue:#3b82f6;
---red:#ef4444;--yellow:#eab308;--purple:#8b5cf6;
+  --bg:#f0eeeb;--bg-grad:linear-gradient(135deg,#f0eeeb 0%,#e8e5e0 100%);
+  --glass-bg:rgba(255,255,255,0.55);--glass-bg-hover:rgba(255,255,255,0.72);
+  --glass-border:rgba(255,255,255,0.8);--glass-border2:rgba(0,0,0,0.08);
+  --glass-shadow:0 4px 24px rgba(0,0,0,0.07),0 1px 4px rgba(0,0,0,0.05);
+  --glass-shadow-hover:0 8px 32px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06);
+  --panel-head-bg:rgba(255,255,255,0.35);--blur:blur(18px) saturate(180%);
+  --text:#0e0e0e;--text-dim:#5a5a5a;--text-faint:#aaaaaa;
+  --ink:#0e0e0e;--ink-inv:#ffffff;
+  --surface-mute:rgba(0,0,0,0.04);--surface-row:rgba(0,0,0,0.025);
+  --border-line:rgba(0,0,0,0.1);--sep:rgba(0,0,0,0.07);
+  --modal-overlay:rgba(20,20,20,0.35);--modal-bg:rgba(255,255,255,0.82);
+  --notif-bg:rgba(255,255,255,0.9);--input-bg:rgba(255,255,255,0.7);
+  --scrollbar:rgba(0,0,0,0.15);--month-tab-bg:rgba(0,0,0,0.06);
+  --ocr-dash:rgba(0,0,0,0.25);--progress-bg:rgba(0,0,0,0.08);
+  --chart-tick:#888;--chart-grid:rgba(0,0,0,0.06);--chart-legend:#555;
+  --radius:14px;--font-head:'Inter',sans-serif;--font-mono:'DM Mono',monospace;--font-body:'Inter',sans-serif;
+  --accent:#e63900;--accent2:#ff5722;--green:#22c55e;--orange:#f97316;--blue:#3b82f6;
+  --red:#ef4444;--yellow:#eab308;--purple:#8b5cf6;
 }
 [data-theme="dark"] {
---bg:#0c0c0e;--bg-grad:linear-gradient(135deg,#0c0c0e 0%,#131318 100%);
---glass-bg:rgba(255,255,255,0.055);--glass-bg-hover:rgba(255,255,255,0.09);
---glass-border:rgba(255,255,255,0.12);--glass-border2:rgba(255,255,255,0.06);
---glass-shadow:0 4px 24px rgba(0,0,0,0.4),0 1px 4px rgba(0,0,0,0.3);
---glass-shadow-hover:0 12px 40px rgba(0,0,0,0.5);
---panel-head-bg:rgba(255,255,255,0.04);
---text:#f0f0f0;--text-dim:rgba(255,255,255,0.5);--text-faint:rgba(255,255,255,0.22);
---ink:#ffffff;--ink-inv:#0c0c0e;
---surface-mute:rgba(255,255,255,0.04);--surface-row:rgba(255,255,255,0.025);
---border-line:rgba(255,255,255,0.08);--sep:rgba(255,255,255,0.07);
---modal-overlay:rgba(0,0,0,0.65);--modal-bg:rgba(18,18,22,0.88);
---notif-bg:rgba(22,22,28,0.92);--input-bg:rgba(255,255,255,0.06);
---scrollbar:rgba(255,255,255,0.12);--month-tab-bg:rgba(255,255,255,0.06);
---ocr-dash:rgba(255,255,255,0.22);--progress-bg:rgba(255,255,255,0.08);
---chart-tick:rgba(255,255,255,0.35);--chart-grid:rgba(255,255,255,0.05);--chart-legend:rgba(255,255,255,0.45);
+  --bg:#0c0c0e;--bg-grad:linear-gradient(135deg,#0c0c0e 0%,#131318 100%);
+  --glass-bg:rgba(255,255,255,0.055);--glass-bg-hover:rgba(255,255,255,0.09);
+  --glass-border:rgba(255,255,255,0.12);--glass-border2:rgba(255,255,255,0.06);
+  --glass-shadow:0 4px 24px rgba(0,0,0,0.4),0 1px 4px rgba(0,0,0,0.3);
+  --glass-shadow-hover:0 12px 40px rgba(0,0,0,0.5);
+  --panel-head-bg:rgba(255,255,255,0.04);
+  --text:#f0f0f0;--text-dim:rgba(255,255,255,0.5);--text-faint:rgba(255,255,255,0.22);
+  --ink:#ffffff;--ink-inv:#0c0c0e;
+  --surface-mute:rgba(255,255,255,0.04);--surface-row:rgba(255,255,255,0.025);
+  --border-line:rgba(255,255,255,0.08);--sep:rgba(255,255,255,0.07);
+  --modal-overlay:rgba(0,0,0,0.65);--modal-bg:rgba(18,18,22,0.88);
+  --notif-bg:rgba(22,22,28,0.92);--input-bg:rgba(255,255,255,0.06);
+  --scrollbar:rgba(255,255,255,0.12);--month-tab-bg:rgba(255,255,255,0.06);
+  --ocr-dash:rgba(255,255,255,0.22);--progress-bg:rgba(255,255,255,0.08);
+  --chart-tick:rgba(255,255,255,0.35);--chart-grid:rgba(255,255,255,0.05);--chart-legend:rgba(255,255,255,0.45);
 }
 .app,#mainHeader{visibility:hidden}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -308,36 +308,19 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .page-divider{height:1px;background:var(--border-line);max-width:1600px;margin:0 auto 20px}
 summary{cursor:pointer;font-size:0.72rem;color:var(--text-dim);font-weight:600;user-select:none}
 details[open] summary{color:var(--text)}
-/* ============================================================
-   MOBILE RESPONSIVE FIXES
-   ============================================================ */
+
+/*  SEARCH: MOBILE RESPONSIVE FIXES */
 @media(max-width:600px) {
-  /* Header compacto */
-  #mainHeader {
-    flex-wrap: wrap;
-    padding: 8px 10px;
-    gap: 6px;
-    position: relative;
-    top: 0;
-  }
+  #mainHeader { flex-wrap: wrap; padding: 8px 10px; gap: 6px; position: relative; top: 0; }
   .header-logo .logo-text { font-size: 0.72rem; }
   .header-logo .logo-sub { font-size: 0.6rem; }
   #currentDateLabel { display: none; }
   .header-sep { display: none; }
-  
-  .header-right {
-    width: 100%;
-    justify-content: flex-end;
-    margin-top: 4px;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
+  .header-right { width: 100%; justify-content: flex-end; margin-top: 4px; flex-wrap: wrap; gap: 4px; }
   .header-right .btn { padding: 5px 8px; font-size: 0.65rem; }
   .header-right .btn-accent { padding: 5px 10px; }
   .user-name { max-width: 80px; font-size: 0.65rem; }
   .user-avatar { width: 24px; height: 24px; font-size: 0.6rem; }
-  
-  /* KPIs más compactos */
   .kpi-grid { gap: 8px; margin-bottom: 12px; }
   .kpi-card { padding: 10px 12px; }
   .kpi-value { font-size: 1.1rem; }
@@ -345,50 +328,24 @@ details[open] summary{color:var(--text)}
   .kpi-label { font-size: 0.6rem; }
   .kpi-sub { font-size: 0.58rem; }
   .kpi-icon { font-size: 1rem; right: 10px; }
-  
-  /* App padding reducido */
   .app { padding: 10px 10px 0; }
   .app:last-of-type { padding-bottom: 20px; }
-  
-  /* Main grid a 1 columna */
   .main-grid { gap: 10px; margin-bottom: 12px; }
-  
-  /* Panel heads compactos */
   .panel-head { padding: 10px 12px; }
   .panel-title { font-size: 0.75rem; }
   .panel-body { padding: 10px 12px; }
-  
-  /* Search row compacta */
   .search-row { flex-wrap: wrap; gap: 6px; }
-  .search-row select, .search-row input { 
-    font-size: 0.7rem; 
-    padding: 5px 8px;
-  }
+  .search-row select, .search-row input { font-size: 0.7rem; padding: 5px 8px; }
   .search-row input { min-width: 100%; }
-  
-  /* Month tabs */
   .month-tabs { gap: 3px; margin-bottom: 8px; }
   .month-tab { padding: 3px 8px; font-size: 0.65rem; }
-  
-  /* Tabla con scroll horizontal mejorado */
   .deals-table { font-size: 0.65rem; }
-  .deals-table th { 
-    font-size: 0.58rem; 
-    padding: 5px 6px;
-    white-space: nowrap;
-  }
-  .deals-table td { 
-    padding: 6px 6px; 
-    font-size: 0.65rem;
-  }
+  .deals-table th { font-size: 0.58rem; padding: 5px 6px; white-space: nowrap; }
+  .deals-table td { padding: 6px 6px; font-size: 0.65rem; }
   .deals-table .totals-row td { font-size: 0.68rem; }
-  
-  /* OCR zone */
   .ocr-zone { padding: 20px 12px; }
   .ocr-zone-icon { font-size: 1.4rem; }
   .ocr-zone-label { font-size: 0.7rem; }
-  
-  /* Pay plan sidebar */
   .pp-dots { padding: 10px 12px 6px; gap: 3px; }
   .pp-dot { width: 8px; height: 8px; }
   .pp-tier-pills { padding: 0 12px 8px; gap: 3px; }
@@ -396,76 +353,46 @@ details[open] summary{color:var(--text)}
   .pp-tier-bars { padding: 0 12px 10px; }
   .pp-section { padding: 8px 12px; }
   .pp-row { font-size: 0.62rem; }
-  
-  /* Charts */
   .chart-wrap { height: 200px; }
   .trading-chart-wrap { height: 220px; }
   .chart-container { padding: 10px 12px; }
   .chart-legend-manual { font-size: 0.58rem; padding: 0 12px 8px; gap: 6px; }
-  
-  /* Bottom grid */
   .bottom-grid { gap: 10px; margin-bottom: 12px; }
   .section-row { gap: 10px; margin-bottom: 12px; }
-  
-  /* SV grid */
   .sv-card { padding: 8px 10px; }
   .sv-card-val { font-size: 0.95rem; }
   .sv-card-label { font-size: 0.58rem; }
-  
-  /* Reviews */
   .reviews-grid { grid-template-columns: 1fr; gap: 8px; }
   .review-card { padding: 10px 12px; }
   .reviews-filters { gap: 4px; }
   .review-filter-btn { font-size: 0.6rem; padding: 3px 8px; }
-  
-  /* Hold table */
   .hold-table { font-size: 0.65rem; }
   .hold-table th, .hold-table td { padding: 5px 6px; }
-  
-  /* Buttons más grandes para touch */
   .btn { min-height: 36px; }
   .act-btn { width: 32px; height: 32px; }
   .btn-sm { min-height: 32px; padding: 4px 8px; }
-  
-  /* Modal más ancho en móvil */
   .modal { max-width: 95vw; margin: 10px; }
   .modal-wide { max-width: 95vw; }
   .modal-body { padding: 14px; }
   .modal-head { padding: 12px 14px; }
   .modal-foot { padding: 10px 14px; }
-  
-  /* Form grid a 1 columna en móvil */
   .form-grid { grid-template-columns: 1fr; gap: 8px; }
   .form-input, .form-select { font-size: 0.75rem; padding: 7px 8px; }
-  
-  /* Auth box */
   .auth-box { padding: 24px 18px; margin: 10px; }
   .auth-input { font-size: 0.78rem; }
-  
-  /* Notificación */
   .notif { max-width: 90vw; right: 10px; top: 10px; font-size: 0.7rem; }
-  
-  /* User menu */
   .user-menu { min-width: 160px; right: -10px; }
   .user-menu-item { font-size: 0.7rem; padding: 7px 8px; }
-  
-  /* Profile modal */
   .profile-avatar { width: 60px; height: 60px; font-size: 1.2rem; }
-  
-  /* Pin pad */
   .pin-pad { max-width: 200px; }
   .pin-key { padding: 10px; font-size: 0.9rem; }
 }
-
-/* Para pantallas muy pequeñas (iPhone SE, etc) */
 @media(max-width:380px) {
   .kpi-value.big { font-size: 1.1rem; }
   .kpi-value { font-size: 0.95rem; }
   .header-logo .logo-text { font-size: 0.65rem; }
   .btn { font-size: 0.6rem; padding: 4px 6px; }
 }
-
-/* Landscape en móvil */
 @media(max-height:500px) and (orientation:landscape) {
   #mainHeader { position: static; }
   .kpi-grid { grid-template-columns: repeat(6, 1fr); }
@@ -499,7 +426,7 @@ details[open] summary{color:var(--text)}
 <div class="user-menu" id="userMenu">
 <div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
 <div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
-<div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>S
+<div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
 <div class="user-menu-sep"></div>
 <div class="user-menu-item danger" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</div>
 </div>
@@ -604,7 +531,7 @@ details[open] summary{color:var(--text)}
 ondragover="event.preventDefault();this.classList.add('drag-over')"
 ondragleave="this.classList.remove('drag-over')"
 ondrop="handleDrop(event)">
-<div class="ocr-zone-icon">📄</div>
+<div class="ocr-zone-icon"></div>
 <div class="ocr-zone-label">Drop image or PDF here</div>
 <div class="ocr-zone-sub">or click to browse · JPG, PNG, PDF</div>
 <div class="ocr-progress" id="ocrProgress">
@@ -1045,33 +972,38 @@ Continue with Google
 </div>
 <div class="notif" id="notif"></div>
 <script>
+// 🔍 SEARCH: FIREBASE CONFIGURATION
 const firebaseConfig = {
-apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
-authDomain: "valley-honda-dashboard.firebaseapp.com",
-projectId: "valley-honda-dashboard",
-storageBucket: "valley-honda-dashboard.firebasestorage.app",
-messagingSenderId: "177697774434",
-appId: "1:177697774434:web:e3e110a335f5e452036a3b",
-measurementId: "G-VE12MRTHPJ"
+  apiKey: "AIzaSyBapoq54Y1SmiaKFkbvMqhvK6nrbAezOBk",
+  authDomain: "valley-honda-dashboard.firebaseapp.com",
+  projectId: "valley-honda-dashboard",
+  storageBucket: "valley-honda-dashboard.firebasestorage.app",
+  messagingSenderId: "177697774434",
+  appId: "1:177697774434:web:e3e110a335f5e452036a3b",
+  measurementId: "G-VE12MRTHPJ"
 };
 const FIREBASE_CONFIGURED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
 let db = null, fbAuth = null, unsubscribeDeals = null;
 let authInitialized = false;
 let currentAuthUser = null;
+
+// 🔍 SEARCH: PAY PLAN 2026 CONFIG
 const PP = {
-unitTiers: [
-{u:12,b:200},{u:15,b:675},{u:18,b:900},{u:21,b:1150},
-{u:24,b:1450},{u:27,b:1750},{u:30,b:2000}
-]
+  unitTiers: [
+    {u:12,b:200},{u:15,b:675},{u:18,b:900},{u:21,b:1150},
+    {u:24,b:1450},{u:27,b:1750},{u:30,b:2000}
+  ]
 };
 const getUB = n => { let b=0; for(const t of[...PP.unitTiers].reverse()){if(n>=t.u){b=t.b;break;}} return b; };
 const getCT = n => { for(const t of[...PP.unitTiers].reverse()) if(n>=t.u) return t; return null; };
 const getNT = n => { for(const t of PP.unitTiers) if(n<t.u) return t; return null; };
 const calcPayout = d => {
-const e = d.extracted||{};
-return (parseFloat(e.commissionNo1)||0)+(parseFloat(e.accessories)||0)
-+(parseFloat(e.aftermarket1)||0)+(parseFloat(e.fBonus1)||0);
+  const e = d.extracted||{};
+  return (parseFloat(e.commissionNo1)||0)+(parseFloat(e.accessories)||0)
+  +(parseFloat(e.aftermarket1)||0)+(parseFloat(e.fBonus1)||0);
 };
+
+// 🔍 SEARCH: STATE MANAGEMENT
 const SCHEMA_V = 5, SK = 'vhonda_v5';
 const OFFLINE_SESSION_KEY = 'vhonda_offline_session_v1';
 const DEFAULT_PIN = '1234';
@@ -1082,1609 +1014,1525 @@ let earningsChartObj=null, mixChartObj=null, tradingChartObj=null;
 let _tessReady=null, _pdfjsReady=null;
 let reviewsAll=[], reviewsVisible=12, currentFilter='all', currentSearchText='';
 let pinEntry = '';
+
 function defaultState() {
-return { version:5, deals:[], holdDeals:[], selectedMonth:new Date().toISOString().slice(0,7),
-reviewPeriod:'', reviewCompData:null, commissionSummary:[] };
+  return { version:5, deals:[], holdDeals:[], selectedMonth:new Date().toISOString().slice(0,7),
+  reviewPeriod:'', reviewCompData:null, commissionSummary:[] };
 }
 function migrate(s) {
-if (!s || typeof s !== 'object') return defaultState();
-if (!s.holdDeals) s.holdDeals = [];
-if (!s.commissionSummary) s.commissionSummary = [];
-if (!s.reviewCompData) s.reviewCompData = null;
-s.version = 5;
-return s;
+  if (!s || typeof s !== 'object') return defaultState();
+  if (!s.holdDeals) s.holdDeals = [];
+  if (!s.commissionSummary) s.commissionSummary = [];
+  if (!s.reviewCompData) s.reviewCompData = null;
+  s.version = 5;
+  return s;
 }
 function loadState() {
-try {
-const raw = localStorage.getItem(SK);
-if (!raw) return defaultState();
-const parsed = JSON.parse(raw);
-if (parsed.version !== SCHEMA_V) return migrate(parsed);
-return parsed;
-} catch(e) { return defaultState(); }
+  try {
+    const raw = localStorage.getItem(SK);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    if (parsed.version !== SCHEMA_V) return migrate(parsed);
+    return parsed;
+  } catch(e) { return defaultState(); }
 }
 function saveStateLocal() { localStorage.setItem(SK, JSON.stringify(state)); }
 function saveState() { saveStateLocal(); savePrefsFirestore(); }
 function isDark() { return document.documentElement.getAttribute('data-theme')==='dark'; }
 function chartColors() {
-return isDark() ? {
-comm:'rgba(230,87,60,0.85)', aftmkt:'rgba(139,92,246,0.75)',
-fni:'rgba(59,130,246,0.75)', ub:'rgba(34,197,94,0.75)',
-grid:'rgba(255,255,255,0.05)', tick:'rgba(255,255,255,0.35)',
-legend:'rgba(255,255,255,0.45)'
-} : {
-comm:'rgba(230,57,0,0.8)', aftmkt:'rgba(139,92,246,0.7)',
-fni:'rgba(59,130,246,0.7)', ub:'rgba(34,197,94,0.7)',
-grid:'rgba(0,0,0,0.06)', tick:'#888', legend:'#555'
-};
+  return isDark() ? {
+    comm:'rgba(230,87,60,0.85)', aftmkt:'rgba(139,92,246,0.75)',
+    fni:'rgba(59,130,246,0.75)', ub:'rgba(34,197,94,0.75)',
+    grid:'rgba(255,255,255,0.05)', tick:'rgba(255,255,255,0.35)',
+    legend:'rgba(255,255,255,0.45)'
+  } : {
+    comm:'rgba(230,57,0,0.8)', aftmkt:'rgba(139,92,246,0.7)',
+    fni:'rgba(59,130,246,0.7)', ub:'rgba(34,197,94,0.7)',
+    grid:'rgba(0,0,0,0.06)', tick:'#888', legend:'#555'
+  };
 }
-const fmt   = n => '$'+(parseFloat(n)||0).toFixed(2);
-const fmtC  = v => v ? `<span style="font-family:var(--font-mono);font-size:0.73rem">${fmt(v)}</span>`
-: `<span style="color:var(--text-faint);font-size:0.64rem">—</span>`;
-const esc   = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmt = n => '$'+(parseFloat(n)||0).toFixed(2);
+const fmtC = v => v ? `<span style="font-family:var(--font-mono);font-size:0.73rem">${fmt(v)}</span>`
+  : `<span style="color:var(--text-faint);font-size:0.64rem">—</span>`;
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const setEl = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-const setF  = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
+const setF = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
 const getMonthDeals = m => state.deals.filter(d=>d.date&&d.date.startsWith(m));
 function notify(msg, dur=3200) {
-const el = document.getElementById('notif');
-el.textContent = msg;
-el.classList.add('show');
-setTimeout(()=>el.classList.remove('show'), dur);
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), dur);
 }
+
+// 🔍 SEARCH: THEME TOGGLE
 function toggleTheme() {
-const cur = document.documentElement.getAttribute('data-theme')||'light';
-const next = cur==='light'?'dark':'light';
-document.documentElement.setAttribute('data-theme', next);
-localStorage.setItem('vhonda_theme', next);
-const btn = document.getElementById('themeBtn');
-if(btn) btn.innerHTML = `<i class="fas fa-${next==='dark'?'sun':'moon'}"></i>`;
-renderCharts(); renderTradingChart();
+  const cur = document.documentElement.getAttribute('data-theme')||'light';
+  const next = cur==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('vhonda_theme', next);
+  const btn = document.getElementById('themeBtn');
+  if(btn) btn.innerHTML = `<i class="fas fa-${next==='dark'?'sun':'moon'}"></i>`;
+  renderCharts(); renderTradingChart();
 }
+
+// 🔍 SEARCH: OFFLINE PIN & SESSION
 function getStoredPIN() { return localStorage.getItem('vhonda_pin') || DEFAULT_PIN; }
 function hasOfflineSession() {
-try {
-const s = JSON.parse(localStorage.getItem(OFFLINE_SESSION_KEY)||'{}');
-return s.exp && Date.now() < s.exp;
-} catch{ return false; }
+  try {
+    const s = JSON.parse(localStorage.getItem(OFFLINE_SESSION_KEY)||'{}');
+    return s.exp && Date.now() < s.exp;
+  } catch{ return false; }
 }
 function createOfflineSession() {
-localStorage.setItem(OFFLINE_SESSION_KEY, JSON.stringify({exp: Date.now()+12*3600*1000}));
+  localStorage.setItem(OFFLINE_SESSION_KEY, JSON.stringify({exp: Date.now()+12*3600*1000}));
 }
 function clearOfflineSession() { localStorage.removeItem(OFFLINE_SESSION_KEY); }
 function buildPinPad() {
-const pad = document.getElementById('pinPad');
-const dots = document.getElementById('pinDots');
-if(!pad||!dots) return;
-dots.innerHTML = Array.from({length:4},(_,i)=>`<div class="pin-dot" id="pdot${i}"></div>`).join('');
-const keys = [1,2,3,4,5,6,7,8,9,'',0,'⌫'];
-pad.innerHTML = keys.map(k=>k===''?'<div></div>'
-:`<button class="pin-key" onclick="${k==='⌫'?'pinDel()':'pinPress('+k+')'}">${k}</button>`
-).join('');
+  const pad = document.getElementById('pinPad');
+  const dots = document.getElementById('pinDots');
+  if(!pad||!dots) return;
+  dots.innerHTML = Array.from({length:4},(_,i)=>`<div class="pin-dot" id="pdot${i}"></div>`).join('');
+  const keys = [1,2,3,4,5,6,7,8,9,'',0,''];
+  pad.innerHTML = keys.map(k=>k===''?'<div></div>'
+    :`<button class="pin-key" onclick="${k==='⌫'?'pinDel()':'pinPress('+k+')'}">${k}</button>`
+  ).join('');
 }
 function updatePinDots() {
-for(let i=0;i<4;i++){
-const d=document.getElementById('pdot'+i);
-if(d) d.classList.toggle('filled', i < pinEntry.length);
-}
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('pdot'+i);
+    if(d) d.classList.toggle('filled', i < pinEntry.length);
+  }
 }
 function pinPress(k) {
-if(pinEntry.length >= 4) return;
-pinEntry += k;
-updatePinDots();
-if(pinEntry.length === 4) setTimeout(submitPIN, 150);
+  if(pinEntry.length >= 4) return;
+  pinEntry += k;
+  updatePinDots();
+  if(pinEntry.length === 4) setTimeout(submitPIN, 150);
 }
 function pinDel() {
-pinEntry = pinEntry.slice(0,-1);
-updatePinDots();
+  pinEntry = pinEntry.slice(0,-1);
+  updatePinDots();
 }
 function submitPIN() {
-if(pinEntry === getStoredPIN()) {
-createOfflineSession();
-onLoginSuccess(OFFLINE_USER);
-} else {
-notify('Incorrect PIN ✗');
-pinEntry = '';
-updatePinDots();
+  if(pinEntry === getStoredPIN()) {
+    createOfflineSession();
+    onLoginSuccess(OFFLINE_USER);
+  } else {
+    notify('Incorrect PIN ✗');
+    pinEntry = '';
+    updatePinDots();
+  }
 }
-}
+
+// 🔍 SEARCH: AUTHENTICATION LOGIC
 function toggleAuthMode(mode) {
-const isReg = mode === 'register';
-document.getElementById('authFieldName').style.display = isReg ? 'block' : 'none';
-document.getElementById('authForgot').style.display = isReg ? 'none' : 'block';
-document.getElementById('authSubmitBtn').textContent = isReg ? 'Create Account' : 'Sign In';
-document.getElementById('authTabLogin').classList.toggle('active', !isReg);
-document.getElementById('authTabRegister').classList.toggle('active', isReg);
-showAuthErr('');
+  const isReg = mode === 'register';
+  document.getElementById('authFieldName').style.display = isReg ? 'block' : 'none';
+  document.getElementById('authForgot').style.display = isReg ? 'none' : 'block';
+  document.getElementById('authSubmitBtn').textContent = isReg ? 'Create Account' : 'Sign In';
+  document.getElementById('authTabLogin').classList.toggle('active', !isReg);
+  document.getElementById('authTabRegister').classList.toggle('active', isReg);
+  showAuthErr('');
 }
 function togglePwdVisibility() {
-const i = document.getElementById('authPassword');
-const ic = document.getElementById('pwdEyeIcon');
-if(!i) return;
-i.type = i.type==='password' ? 'text' : 'password';
-ic.className = i.type==='password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+  const i = document.getElementById('authPassword');
+  const ic = document.getElementById('pwdEyeIcon');
+  if(!i) return;
+  i.type = i.type==='password' ? 'text' : 'password';
+  ic.className = i.type==='password' ? 'fas fa-eye' : 'fas fa-eye-slash';
 }
 function showAuthErr(msg) {
-const el = document.getElementById('authErr');
-if(!el) return;
-el.textContent = msg;
-el.style.display = msg ? 'block' : 'none';
+  const el = document.getElementById('authErr');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
 }
 function showAuthStatus(msg) {
-const el = document.getElementById('authStatus');
-if(!el) return;
-el.textContent = msg;
-el.style.display = msg ? 'block' : 'none';
+  const el = document.getElementById('authStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
 }
 async function submitAuth() {
-const email = document.getElementById('authEmail')?.value.trim();
-const pw    = document.getElementById('authPassword')?.value;
-const nameF = document.getElementById('authName')?.value.trim();
-const isReg = document.getElementById('authTabRegister')?.classList.contains('active');
-const btn = document.getElementById('authSubmitBtn');
-showAuthErr('');
-showAuthStatus('Processing...');
-btn.disabled = true;
-if(!FIREBASE_CONFIGURED) {
-createOfflineSession();
-onLoginSuccess({...OFFLINE_USER, displayName: nameF||'User', email});
-btn.disabled = false;
-showAuthStatus('');
-return;
-}
-try {
-let cred;
-if(isReg) {
-cred = await fbAuth.createUserWithEmailAndPassword(email, pw);
-if(nameF) await cred.user.updateProfile({displayName: nameF});
-} else {
-cred = await fbAuth.signInWithEmailAndPassword(email, pw);
-}
-showAuthStatus('');
-} catch(e) {
-const map = {
-'auth/user-not-found':'No account with that email.',
-'auth/wrong-password':'Incorrect password.',
-'auth/invalid-email':'Invalid email address.',
-'auth/email-already-in-use':'Email already registered.',
-'auth/weak-password':'Password must be at least 6 characters.',
-'auth/network-request-failed':'Network error. Check your connection.',
-'auth/too-many-requests':'Too many attempts. Try again later.',
-};
-showAuthErr(map[e.code] || e.message);
-showAuthStatus('');
-} finally {
-btn.disabled = false;
-}
+  const email = document.getElementById('authEmail')?.value.trim();
+  const pw = document.getElementById('authPassword')?.value;
+  const nameF = document.getElementById('authName')?.value.trim();
+  const isReg = document.getElementById('authTabRegister')?.classList.contains('active');
+  const btn = document.getElementById('authSubmitBtn');
+  showAuthErr('');
+  showAuthStatus('Processing...');
+  btn.disabled = true;
+  if(!FIREBASE_CONFIGURED) {
+    createOfflineSession();
+    onLoginSuccess({...OFFLINE_USER, displayName: nameF||'User', email});
+    btn.disabled = false;
+    showAuthStatus('');
+    return;
+  }
+  try {
+    let cred;
+    if(isReg) {
+      cred = await fbAuth.createUserWithEmailAndPassword(email, pw);
+      if(nameF) await cred.user.updateProfile({displayName: nameF});
+    } else {
+      cred = await fbAuth.signInWithEmailAndPassword(email, pw);
+    }
+    showAuthStatus('');
+  } catch(e) {
+    const map = {
+      'auth/user-not-found':'No account with that email.',
+      'auth/wrong-password':'Incorrect password.',
+      'auth/invalid-email':'Invalid email address.',
+      'auth/email-already-in-use':'Email already registered.',
+      'auth/weak-password':'Password must be at least 6 characters.',
+      'auth/network-request-failed':'Network error. Check your connection.',
+      'auth/too-many-requests':'Too many attempts. Try again later.',
+    };
+    showAuthErr(map[e.code] || e.message);
+    showAuthStatus('');
+  } finally {
+    btn.disabled = false;
+  }
 }
 async function signInGoogle() {
-showAuthErr('');
-showAuthStatus('Connecting to Google...');
-const btn = document.getElementById('googleBtn');
-btn.disabled = true;
-if(!FIREBASE_CONFIGURED) {
-createOfflineSession();
-onLoginSuccess(OFFLINE_USER);
-btn.disabled = false;
-showAuthStatus('');
-return;
-}
-try {
-const provider = new firebase.auth.GoogleAuthProvider();
-provider.setCustomParameters({prompt:'select_account'});
-await fbAuth.signInWithPopup(provider);
-showAuthStatus('');
-} catch(e) {
-showAuthErr(e.message);
-showAuthStatus('');
-} finally {
-btn.disabled = false;
-}
+  showAuthErr('');
+  showAuthStatus('Connecting to Google...');
+  const btn = document.getElementById('googleBtn');
+  btn.disabled = true;
+  if(!FIREBASE_CONFIGURED) {
+    createOfflineSession();
+    onLoginSuccess(OFFLINE_USER);
+    btn.disabled = false;
+    showAuthStatus('');
+    return;
+  }
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt:'select_account'});
+    await fbAuth.signInWithPopup(provider);
+    showAuthStatus('');
+  } catch(e) {
+    showAuthErr(e.message);
+    showAuthStatus('');
+  } finally {
+    btn.disabled = false;
+  }
 }
 async function forgotPassword() {
-const email = document.getElementById('authEmail')?.value.trim();
-if(!email||!FIREBASE_CONFIGURED) { showAuthErr('Enter your email first.'); return; }
-showAuthStatus('Sending reset email...');
-try {
-await fbAuth.sendPasswordResetEmail(email);
-showAuthErr('');
-showAuthStatus('');
-notify('Password reset email sent ✓');
-} catch(e) {
-showAuthErr(e.message);
-showAuthStatus('');
-}
+  const email = document.getElementById('authEmail')?.value.trim();
+  if(!email||!FIREBASE_CONFIGURED) { showAuthErr('Enter your email first.'); return; }
+  showAuthStatus('Sending reset email...');
+  try {
+    await fbAuth.sendPasswordResetEmail(email);
+    showAuthErr('');
+    showAuthStatus('');
+    notify('Password reset email sent ✓');
+  } catch(e) {
+    showAuthErr(e.message);
+    showAuthStatus('');
+  }
 }
 function showAuthOverlay() {
-const o = document.getElementById('authOverlay');
-if(o) { o.style.display='flex'; }
+  const o = document.getElementById('authOverlay');
+  if(o) { o.style.display='flex'; }
 }
 function hideAuthOverlay() {
-const o = document.getElementById('authOverlay');
-if(!o) return;
-o.style.opacity='0';
-o.style.transition='opacity 0.3s';
-setTimeout(()=>{ o.style.display='none'; o.style.opacity=''; o.style.transition=''; },320);
+  const o = document.getElementById('authOverlay');
+  if(!o) return;
+  o.style.opacity='0';
+  o.style.transition='opacity 0.3s';
+  setTimeout(()=>{ o.style.display='none'; o.style.opacity=''; o.style.transition=''; },320);
 }
 function initFirebase() {
-console.log('[Auth] Initializing Firebase...');
-if(!FIREBASE_CONFIGURED) {
-console.log('[Auth] Firebase not configured');
-if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
-else showAuthOverlay();
-return;
-}
-try {
-if(!firebase.apps.length) {
-firebase.initializeApp(firebaseConfig);
-console.log('[Auth] Firebase initialized');
-}
-db = firebase.firestore();
-fbAuth = firebase.auth();
-console.log('[Auth] Setting up persistence...');
-fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-.then(() => {
-console.log('[Auth] Persistence configured');
-setupAuthListener();
-})
-.catch((err) => {
-console.warn('[Auth] Persistence error:', err);
-setupAuthListener();
-});
-} catch(err) {
-console.error('[Auth] Firebase init failed:', err);
-if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
-else showAuthOverlay();
-}
+  if(!FIREBASE_CONFIGURED) {
+    if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
+    else showAuthOverlay();
+    return;
+  }
+  try {
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    fbAuth = firebase.auth();
+    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => { setupAuthListener(); })
+      .catch((err) => { setupAuthListener(); });
+  } catch(err) {
+    if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
+    else showAuthOverlay();
+  }
 }
 function setupAuthListener() {
-console.log('[Auth] Setting up auth listener...');
-fbAuth.onAuthStateChanged(user => {
-console.log('[Auth] State changed:', user ? 'Logged in as ' + (user.email || user.uid) : 'Logged out');
-if(user && currentAuthUser && currentAuthUser.uid === user.uid) {
-console.log('[Auth] Same user, skipping...');
-return;
-}
-if(user) {
-currentAuthUser = user;
-authInitialized = true;
-onLoginSuccess(user);
-} else if(authInitialized) {
-console.log('[Auth] User signed out');
-currentAuthUser = null;
-onLogout();
-} else {
-console.log('[Auth] No user on first load');
-authInitialized = true;
-if(hasOfflineSession()) {
-onLoginSuccess(OFFLINE_USER);
-} else {
-showAuthOverlay();
-}
-}
-});
+  fbAuth.onAuthStateChanged(user => {
+    if(user && currentAuthUser && currentAuthUser.uid === user.uid) return;
+    if(user) {
+      currentAuthUser = user;
+      authInitialized = true;
+      onLoginSuccess(user);
+    } else if(authInitialized) {
+      currentAuthUser = null;
+      onLogout();
+    } else {
+      authInitialized = true;
+      if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
+      else showAuthOverlay();
+    }
+  });
 }
 function initAuth() { initFirebase(); }
 function onLoginSuccess(user) {
-console.log('[Auth] Login success:', user.displayName || user.email || user.uid);
-if(document.getElementById('mainHeader').style.visibility === 'visible' && !user.isOffline) {
-console.log('[Auth] Already logged in, skipping UI update');
-return;
-}
-document.getElementById('mainHeader').style.visibility='visible';
-document.querySelectorAll('.app').forEach(el=>el.style.visibility='visible');
-const name = user.displayName||user.email?.split('@')[0]||'User';
-const initials = name.split(' ').filter(Boolean).map(p=>p[0]).join('').toUpperCase().slice(0,2)||'?';
-const pill = document.getElementById('userPill');
-const avatar = document.getElementById('userAvatar');
-const dn = document.getElementById('userDisplayName');
-if(pill) pill.style.display='flex';
-if(avatar) avatar.textContent=initials;
-if(dn) dn.textContent = name;
-setEl('headerUserName', name);
-window._currentUser = user;
-loadUserProfile(user.uid||'offline');
-hideAuthOverlay();
-setSyncStatus('ok');
-if(!user.isOffline && db) {
-console.log('[Auth] Subscribing to Firestore for user:', user.uid);
-subscribeFirestore(user.uid);
-} else {
-console.log('[Auth] Using local data only');
-renderAll(); renderHoldTable(); renderSummaryVerification();
-}
-notify(`Welcome, ${name.split(' ')[0]} ✓`);
+  if(document.getElementById('mainHeader').style.visibility === 'visible' && !user.isOffline) return;
+  document.getElementById('mainHeader').style.visibility='visible';
+  document.querySelectorAll('.app').forEach(el=>el.style.visibility='visible');
+  const name = user.displayName||user.email?.split('@')[0]||'User';
+  const initials = name.split(' ').filter(Boolean).map(p=>p[0]).join('').toUpperCase().slice(0,2)||'?';
+  const pill = document.getElementById('userPill');
+  const avatar = document.getElementById('userAvatar');
+  const dn = document.getElementById('userDisplayName');
+  if(pill) pill.style.display='flex';
+  if(avatar) avatar.textContent=initials;
+  if(dn) dn.textContent = name;
+  setEl('headerUserName', name);
+  window._currentUser = user;
+  loadUserProfile(user.uid||'offline');
+  hideAuthOverlay();
+  setSyncStatus('ok');
+  if(!user.isOffline && db) {
+    subscribeFirestore(user.uid);
+  } else {
+    renderAll(); renderHoldTable(); renderSummaryVerification();
+  }
+  notify(`Welcome, ${name.split(' ')[0]} ✓`);
 }
 function onLogout() {
-console.log('[Auth] Logout executed');
-if(unsubscribeDeals){ unsubscribeDeals(); unsubscribeDeals=null; }
-const pill = document.getElementById('userPill');
-if(pill) pill.style.display='none';
-document.getElementById('mainHeader').style.visibility='hidden';
-document.querySelectorAll('.app').forEach(el=>el.style.visibility='hidden');
-clearOfflineSession();
-showAuthOverlay();
+  if(unsubscribeDeals){ unsubscribeDeals(); unsubscribeDeals=null; }
+  const pill = document.getElementById('userPill');
+  if(pill) pill.style.display='none';
+  document.getElementById('mainHeader').style.visibility='hidden';
+  document.querySelectorAll('.app').forEach(el=>el.style.visibility='hidden');
+  clearOfflineSession();
+  showAuthOverlay();
 }
 async function signOut() {
-closeUserMenu();
-if(fbAuth) {
-try {
-await fbAuth.signOut();
-} catch(e) {
-console.error('[Auth] Sign out error:', e);
-onLogout();
-}
-} else {
-onLogout();
-}
+  closeUserMenu();
+  if(fbAuth) {
+    try { await fbAuth.signOut(); } catch(e) { onLogout(); }
+  } else { onLogout(); }
 }
 function showUserMenu() {
-const m = document.getElementById('userMenu');
-if(m) m.classList.toggle('open');
+  const m = document.getElementById('userMenu');
+  if(m) m.classList.toggle('open');
 }
 function closeUserMenu() {
-const m = document.getElementById('userMenu');
-if(m) m.classList.remove('open');
+  const m = document.getElementById('userMenu');
+  if(m) m.classList.remove('open');
 }
+
+// 🔍 SEARCH: FIRESTORE SYNC & CLEANUP
 function setSyncStatus(status) {
-const dot = document.getElementById('syncDot');
-if(!dot) return;
-dot.className = `sync-dot ${status}`;
+  const dot = document.getElementById('syncDot');
+  if(!dot) return;
+  dot.className = `sync-dot ${status}`;
 }
 function _uid() { return fbAuth?.currentUser?.uid||null; }
+
+// Cleans undefined values to prevent Firestore errors
+function cleanForFirestore(obj) {
+  if (obj === null || obj === undefined) return null;
+  if (typeof obj !== 'object') return obj;
+  const cleaned = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      if (value !== undefined) {
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          cleaned[key] = cleanForFirestore(value);
+        } else {
+          cleaned[key] = value;
+        }
+      }
+    }
+  }
+  return cleaned;
+}
+
 async function subscribeFirestore(uid) {
-setSyncStatus('syncing');
-unsubscribeDeals = db.collection(`users/${uid}/deals`).orderBy('date','desc')
-.onSnapshot(async snap => {
-const deals = [];
-snap.forEach(doc => deals.push({id:doc.id,...doc.data()}));
-if(deals.length===0 && state.deals.length>0) {
-saveStateLocal();
-renderAll();
-renderHoldTable();
-renderSummaryVerification();
-setSyncStatus('ok');
-return;
+  setSyncStatus('syncing');
+  unsubscribeDeals = db.collection(`users/${uid}/deals`).orderBy('date','desc')
+    .onSnapshot(async snap => {
+      const deals = [];
+      snap.forEach(doc => deals.push({id:doc.id,...doc.data()}));
+      if(deals.length===0 && state.deals.length>0) {
+        saveStateLocal(); renderAll(); renderHoldTable(); renderSummaryVerification(); setSyncStatus('ok'); return;
+      }
+      state.deals = deals;
+      const hSnap = await db.collection(`users/${uid}/holdDeals`).get();
+      state.holdDeals = [];
+      hSnap.forEach(doc => state.holdDeals.push({id:doc.id,...doc.data()}));
+      const pDoc = await db.doc(`users/${uid}/meta/prefs`).get();
+      if(pDoc.exists) {
+        const p = pDoc.data();
+        if(p.selectedMonth) state.selectedMonth=p.selectedMonth;
+        if(p.reviewPeriod) state.reviewPeriod=p.reviewPeriod;
+        if(p.reviewCompData) state.reviewCompData=p.reviewCompData;
+        if(p.commissionSummary) state.commissionSummary=p.commissionSummary;
+      }
+      const profDoc = await db.doc(`users/${uid}/meta/profile`).get();
+      if(profDoc.exists) {
+        window._userProfile = {...(window._userProfile||{}),...profDoc.data()};
+        const n = window._userProfile.displayName;
+        if(n){setEl('headerUserName',n);setEl('userDisplayName',n);}
+      }
+      saveStateLocal();
+      renderAll(); renderHoldTable(); renderSummaryVerification();
+      setSyncStatus('ok');
+    }, (error) => { console.error('Firestore error:', error); setSyncStatus('error'); });
 }
-state.deals = deals;
-const hSnap = await db.collection(`users/${uid}/holdDeals`).get();
-state.holdDeals = [];
-hSnap.forEach(doc => state.holdDeals.push({id:doc.id,...doc.data()}));
-const pDoc = await db.doc(`users/${uid}/meta/prefs`).get();
-if(pDoc.exists) {
-const p = pDoc.data();
-if(p.selectedMonth) state.selectedMonth=p.selectedMonth;
-if(p.reviewPeriod) state.reviewPeriod=p.reviewPeriod;
-if(p.reviewCompData) state.reviewCompData=p.reviewCompData;
-if(p.commissionSummary) state.commissionSummary=p.commissionSummary;
-}
-const profDoc = await db.doc(`users/${uid}/meta/profile`).get();
-if(profDoc.exists) {
-window._userProfile = {...(window._userProfile||{}),...profDoc.data()};
-const n = window._userProfile.displayName;
-if(n){setEl('headerUserName',n);setEl('userDisplayName',n);}
-}
-saveStateLocal();
-renderAll(); renderHoldTable(); renderSummaryVerification();
-setSyncStatus('ok');
-}, (error) => {
-console.error('[Firestore] Subscription error:', error);
-setSyncStatus('error');
-});
-}
-async function manualSync() {
-closeUserMenu();
-const uid = _uid();
-if(!uid || !db) {
-notify('Not connected to cloud ✗');
-return;
-}
-setSyncStatus('syncing');
-notify('Syncing to cloud...');
-try {
-if(state.deals.length > 0) {
-const batch = db.batch();
-state.deals.forEach(d => {
-batch.set(db.doc(`users/${uid}/deals/${d.id}`), d);
-});
-await batch.commit();
-}
-if(state.holdDeals.length > 0) {
-const batch = db.batch();
-state.holdDeals.forEach(h => {
-batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`), h);
-});
-await batch.commit();
-}
-notify('Sync complete ✓');
-} catch(err) {
-console.error('[Sync] Error:', err);
-notify('Sync failed ✗');
-}
-setSyncStatus('ok');
-}
-async function saveDealFirestore(deal) {
-const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/deals/${deal.id}`).set(deal);
-}
-async function deleteDealFirestore(id) {
-const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/deals/${id}`).delete();
-}
-async function saveHoldFirestore(h) {
-const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/holdDeals/${h.id}`).set(h);
-}
-async function deleteHoldFirestore(id) {
-const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/holdDeals/${id}`).delete();
-}
-async function savePrefsFirestore() {
-const uid = _uid(); if(!db||!uid) return;
-await db.doc(`users/${uid}/meta/prefs`).set({
-selectedMonth:state.selectedMonth, reviewPeriod:state.reviewPeriod||'',
-reviewCompData:state.reviewCompData||null, commissionSummary:state.commissionSummary||[],
-updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-},{merge:true});
-}
+
 async function manualSync() {
   closeUserMenu();
   const uid = _uid();
-  if(!uid || !db) {
-    notify('No conectado a la nube ✗');
-    return;
-  }
-  
+  if(!uid || !db) { notify('Not connected to cloud ✗'); return; }
   setSyncStatus('syncing');
   notify('Subiendo datos a la nube...');
-  
   try {
-    // Subir deals
     if(state.deals.length > 0) {
       const batch = db.batch();
-      state.deals.forEach(d => {
-        batch.set(db.doc(`users/${uid}/deals/${d.id}`), d);
-      });
+      state.deals.forEach(d => batch.set(db.doc(`users/${uid}/deals/${d.id}`), cleanForFirestore(d)));
       await batch.commit();
-      console.log(`✅ ${state.deals.length} deals subidos`);
     }
-    
-    // Subir holds
     if(state.holdDeals.length > 0) {
       const batch = db.batch();
-      state.holdDeals.forEach(h => {
-        batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`), h);
-      });
+      state.holdDeals.forEach(h => batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`), cleanForFirestore(h)));
       await batch.commit();
-      console.log(`✅ ${state.holdDeals.length} holds subidos`);
     }
-    
-    // Subir preferencias
-    await savePrefsFirestore();
-    
-    notify(`Sincronizado: ${state.deals.length} deals ✓`);
+    notify('Sync complete ✓');
   } catch(err) {
-    console.error('Error en sync:', err);
-    notify('Error al sincronizar ✗');
+    notify('Sync failed ');
   }
-  
   setSyncStatus('ok');
 }
+
+async function saveDealFirestore(deal) {
+  const uid = _uid(); if(!db||!uid) return;
+  await db.doc(`users/${uid}/deals/${deal.id}`).set(cleanForFirestore(deal));
+}
+async function deleteDealFirestore(id) {
+  const uid = _uid(); if(!db||!uid) return;
+  await db.doc(`users/${uid}/deals/${id}`).delete();
+}
+async function saveHoldFirestore(h) {
+  const uid = _uid(); if(!db||!uid) return;
+  await db.doc(`users/${uid}/holdDeals/${h.id}`).set(cleanForFirestore(h));
+}
+async function deleteHoldFirestore(id) {
+  const uid = _uid(); if(!db||!uid) return;
+  await db.doc(`users/${uid}/holdDeals/${id}`).delete();
+}
+async function savePrefsFirestore() {
+  const uid = _uid(); if(!db||!uid) return;
+  await db.doc(`users/${uid}/meta/prefs`).set({
+    selectedMonth:state.selectedMonth, reviewPeriod:state.reviewPeriod||'',
+    reviewCompData:state.reviewCompData||null, commissionSummary:state.commissionSummary||[],
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+}
+
+// 🔍 SEARCH: RENDERING
 function renderAll() {
-renderDate(); renderMonthTabs(); renderKPIs(); renderTable();
-renderSidebar(); renderCharts(); renderTradingChart();
+  renderDate(); renderMonthTabs(); renderKPIs(); renderTable();
+  renderSidebar(); renderCharts(); renderTradingChart();
 }
 function renderDate() {
-const d=new Date();
-setEl('currentDateLabel', d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}));
+  const d=new Date();
+  setEl('currentDateLabel', d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}));
 }
 function renderMonthTabs() {
-const months = [];
-const seen = new Set();
-state.deals.forEach(d => { if(d.date) { const m=d.date.slice(0,7); if(!seen.has(m)){seen.add(m);months.push(m);} } });
-const now = new Date().toISOString().slice(0,7);
-if(!seen.has(now)) months.unshift(now);
-months.sort((a,b)=>b.localeCompare(a));
-const tabs = document.getElementById('monthTabs');
-if(!tabs) return;
-tabs.innerHTML = months.map(m=>{
-const [y,mo]=m.split('-');
-const label=new Date(+y,+mo-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'});
-return `<div class="month-tab${m===state.selectedMonth?' active':''}" onclick="selectMonth('${m}')">${label}</div>`;
-}).join('');
+  const months = [];
+  const seen = new Set();
+  state.deals.forEach(d => { if(d.date) { const m=d.date.slice(0,7); if(!seen.has(m)){seen.add(m);months.push(m);} } });
+  const now = new Date().toISOString().slice(0,7);
+  if(!seen.has(now)) months.unshift(now);
+  months.sort((a,b)=>b.localeCompare(a));
+  const tabs = document.getElementById('monthTabs');
+  if(!tabs) return;
+  tabs.innerHTML = months.map(m=>{
+    const [y,mo]=m.split('-');
+    const label=new Date(+y,+mo-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    return `<div class="month-tab${m===state.selectedMonth?' active':''}" onclick="selectMonth('${m}')">${label}</div>`;
+  }).join('');
 }
 function selectMonth(m) {
-state.selectedMonth = m;
-saveState();
-renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderTradingChart(); renderSummaryVerification();
+  state.selectedMonth = m;
+  saveState();
+  renderMonthTabs(); renderKPIs(); renderTable(); renderSidebar(); renderTradingChart(); renderSummaryVerification();
 }
 function renderKPIs() {
-const mDeals = getMonthDeals(state.selectedMonth);
-const units = mDeals.length;
-const payout = mDeals.reduce((s,d)=>s+calcPayout(d),0);
-const ub = getUB(units);
-const total = payout + ub;
-const gross = mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.profitOfSale)||0),0);
-const fni = mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
-const needs = mDeals.filter(d=>d.needsReview).length;
-setEl('kpi-payout', fmt(total));
-setEl('kpi-payout-sub', `Comm ${fmt(payout)} + Bonus ${fmt(ub)}`);
-setEl('kpi-units', units);
-const nt = getNT(units);
-setEl('kpi-units-sub', nt ? `${nt.u-units} more for $${nt.b} bonus` : 'Max tier reached!');
-setEl('kpi-ubp', fmt(ub));
-setEl('kpi-ubp-sub', getCT(units)?`Tier: ${getCT(units).u}u · $${getCT(units).b}`:'No tier yet');
-setEl('kpi-gross', fmt(gross));
-setEl('kpi-fni', fmt(fni));
-setEl('kpi-review', needs);
+  const mDeals = getMonthDeals(state.selectedMonth);
+  const units = mDeals.length;
+  const payout = mDeals.reduce((s,d)=>s+calcPayout(d),0);
+  const ub = getUB(units);
+  const total = payout + ub;
+  const gross = mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.profitOfSale)||0),0);
+  const fni = mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
+  const needs = mDeals.filter(d=>d.needsReview).length;
+  setEl('kpi-payout', fmt(total));
+  setEl('kpi-payout-sub', `Comm ${fmt(payout)} + Bonus ${fmt(ub)}`);
+  setEl('kpi-units', units);
+  const nt = getNT(units);
+  setEl('kpi-units-sub', nt ? `${nt.u-units} more for $${nt.b} bonus` : 'Max tier reached!');
+  setEl('kpi-ubp', fmt(ub));
+  setEl('kpi-ubp-sub', getCT(units)?`Tier: ${getCT(units).u}u · $${getCT(units).b}`:'No tier yet');
+  setEl('kpi-gross', fmt(gross));
+  setEl('kpi-fni', fmt(fni));
+  setEl('kpi-review', needs);
 }
 function renderTable() {
-const tbody = document.getElementById('dealsBody');
-if(!tbody) return;
-const mDeals = getMonthDeals(state.selectedMonth);
-const badge = document.getElementById('dealCountBadge');
-if(badge) badge.textContent = `${mDeals.length} deal${mDeals.length!==1?'s':''}`;
-if(!mDeals.length) {
-tbody.innerHTML=`<tr><td colspan="11" class="empty-table"><i class="fas fa-inbox" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:8px"></i>No deals for this month · Scan a deal sheet to get started</td></tr>`;
-return;
-}
-let totComm=0,totAft=0,totFni=0,totAcc=0,totTotal=0;
-const rows = mDeals.map((d,i)=>{
-const e=d.extracted||{};
-const comm=parseFloat(e.commissionNo1)||0;
-const acc=parseFloat(e.accessories)||0;
-const aft=parseFloat(e.aftermarket1)||0;
-const fni=parseFloat(e.fBonus1)||0;
-const total=calcPayout(d);
-totComm+=comm;totAft+=aft;totFni+=fni;totAcc+=acc;totTotal+=total;
-const cm=checkCommissionMatch(d);
-const isMismatch=cm.matched===false;
-const rdot=d.needsReview?'<span class="rdot" title="Needs review"></span>':'';
-const mmBadge=isMismatch?`<span class="mismatch-badge">⚠ ${fmt(cm.diff)}</span>`:'';
-const period=cm.payPeriod?`<span class="tag-period">${esc(cm.payPeriod)}</span>`:'';
-const split=cm.split?`<span class="tag-split">Split: ${esc(cm.split)}</span>`:'';
-const sClass=d.status?'status-'+(d.status.replace(/\s/g,'-')):'status-Pending';
-return `<tr class="${isMismatch?'mismatch-row':''}" data-id="${esc(d.id)}">
-<td style="color:var(--text-faint);font-size:0.65rem">${i+1}</td>
-<td style="max-width:160px">
-<div style="font-weight:600;font-size:0.73rem">${rdot}${esc(d.vehicle?.model||'—')}${mmBadge}</div>
-<div style="font-size:0.65rem;color:var(--text-dim)">${esc(d.customer||'—')}${period}${split}</div>
-</td>
-<td style="font-family:var(--font-mono);font-size:0.7rem">${esc(d.vehicle?.stock||'—')}</td>
-<td style="font-size:0.65rem;color:var(--text-dim)">${esc(d.date||'—')}</td>
-<td>${fmtC(comm)}</td>
-<td>${fmtC(aft)}</td>
-<td>${fmtC(fni)}</td>
-<td>${fmtC(acc)}</td>
-<td style="font-family:var(--font-mono);font-weight:600">${fmt(total)}</td>
-<td><span class="status-badge ${sClass}">${esc(d.status||'Pending')}</span></td>
-<td><button class="act-btn" onclick="openEditModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
-<button class="act-btn del" onclick="deleteDeal('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button></td>
-</tr>`;
-}).join('');
-tbody.innerHTML=rows+`<tr class="totals-row">
-<td colspan="4">TOTAL (${mDeals.length} deals)</td>
-<td>${fmt(totComm)}</td><td>${fmt(totAft)}</td><td>${fmt(totFni)}</td><td>${fmt(totAcc)}</td>
-<td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
+  const tbody = document.getElementById('dealsBody');
+  if(!tbody) return;
+  const mDeals = getMonthDeals(state.selectedMonth);
+  const badge = document.getElementById('dealCountBadge');
+  if(badge) badge.textContent = `${mDeals.length} deal${mDeals.length!==1?'s':''}`;
+  if(!mDeals.length) {
+    tbody.innerHTML=`<tr><td colspan="11" class="empty-table"><i class="fas fa-inbox" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:8px"></i>No deals for this month</td></tr>`;
+    return;
+  }
+  let totComm=0,totAft=0,totFni=0,totAcc=0,totTotal=0;
+  const rows = mDeals.map((d,i)=>{
+    const e=d.extracted||{};
+    const comm=parseFloat(e.commissionNo1)||0;
+    const acc=parseFloat(e.accessories)||0;
+    const aft=parseFloat(e.aftermarket1)||0;
+    const fni=parseFloat(e.fBonus1)||0;
+    const total=calcPayout(d);
+    totComm+=comm;totAft+=aft;totFni+=fni;totAcc+=acc;totTotal+=total;
+    const cm=checkCommissionMatch(d);
+    const isMismatch=cm.matched===false;
+    const rdot=d.needsReview?'<span class="rdot" title="Needs review"></span>':'';
+    const mmBadge=isMismatch?`<span class="mismatch-badge">⚠ ${fmt(cm.diff)}</span>`:'';
+    const period=cm.payPeriod?`<span class="tag-period">${esc(cm.payPeriod)}</span>`:'';
+    const split=cm.split?`<span class="tag-split">Split: ${esc(cm.split)}</span>`:'';
+    const sClass=d.status?'status-'+(d.status.replace(/\s/g,'-')):'status-Pending';
+    return `<tr class="${isMismatch?'mismatch-row':''}" data-id="${esc(d.id)}">
+    <td style="color:var(--text-faint);font-size:0.65rem">${i+1}</td>
+    <td style="max-width:160px"><div style="font-weight:600;font-size:0.73rem">${rdot}${esc(d.vehicle?.model||'—')}${mmBadge}</div>
+    <div style="font-size:0.65rem;color:var(--text-dim)">${esc(d.customer||'—')}${period}${split}</div></td>
+    <td style="font-family:var(--font-mono);font-size:0.7rem">${esc(d.vehicle?.stock||'—')}</td>
+    <td style="font-size:0.65rem;color:var(--text-dim)">${esc(d.date||'—')}</td>
+    <td>${fmtC(comm)}</td><td>${fmtC(aft)}</td><td>${fmtC(fni)}</td><td>${fmtC(acc)}</td>
+    <td style="font-family:var(--font-mono);font-weight:600">${fmt(total)}</td>
+    <td><span class="status-badge ${sClass}">${esc(d.status||'Pending')}</span></td>
+    <td><button class="act-btn" onclick="openEditModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
+    <button class="act-btn del" onclick="deleteDeal('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML=rows+`<tr class="totals-row">
+  <td colspan="4">TOTAL (${mDeals.length} deals)</td>
+  <td>${fmt(totComm)}</td><td>${fmt(totAft)}</td><td>${fmt(totFni)}</td><td>${fmt(totAcc)}</td>
+  <td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
 }
 function renderSidebar() {
-const mDeals = getMonthDeals(state.selectedMonth);
-const units = mDeals.length;
-const dotsEl = document.getElementById('ppDots');
-if(dotsEl) {
-dotsEl.innerHTML = Array.from({length:30},(_,i)=>
-`<div class="pp-dot${i<units?' filled':''}"></div>`).join('');
-}
-setEl('ppDotsLabel', `${units} / 30 units`);
-const pillsEl = document.getElementById('ppTierPills');
-if(pillsEl) {
-pillsEl.innerHTML = PP.unitTiers.map(t=>{
-const cls = units>=t.u?'achieved':(units>=t.u-3?'active':'');
-return `<div class="pp-pill ${cls}">${t.u}u · $${t.b}</div>`;
-}).join('');
-}
-const barsEl = document.getElementById('ppTierBars');
-if(barsEl) {
-barsEl.innerHTML = PP.unitTiers.map(t=>{
-const pct = Math.min(100, Math.round((units/t.u)*100));
-const done = units>=t.u;
-return `<div class="pp-tier-bar-row">
-<span class="pp-tier-bar-label">${t.u}u</span>
-<div class="pp-tier-bar-track"><div class="pp-tier-bar-fill${done?' achieved':''}" style="width:${pct}%"></div></div>
-<span class="pp-tier-bar-pct">${pct}%</span>
-<span class="pp-tier-bar-amt">$${t.b}</span>
-</div>`;
-}).join('');
-}
+  const mDeals = getMonthDeals(state.selectedMonth);
+  const units = mDeals.length;
+  const dotsEl = document.getElementById('ppDots');
+  if(dotsEl) {
+    dotsEl.innerHTML = Array.from({length:30},(_,i)=>`<div class="pp-dot${i<units?' filled':''}"></div>`).join('');
+  }
+  setEl('ppDotsLabel', `${units} / 30 units`);
+  const pillsEl = document.getElementById('ppTierPills');
+  if(pillsEl) {
+    pillsEl.innerHTML = PP.unitTiers.map(t=>{
+      const cls = units>=t.u?'achieved':(units>=t.u-3?'active':'');
+      return `<div class="pp-pill ${cls}">${t.u}u · $${t.b}</div>`;
+    }).join('');
+  }
+  const barsEl = document.getElementById('ppTierBars');
+  if(barsEl) {
+    barsEl.innerHTML = PP.unitTiers.map(t=>{
+      const pct = Math.min(100, Math.round((units/t.u)*100));
+      const done = units>=t.u;
+      return `<div class="pp-tier-bar-row">
+      <span class="pp-tier-bar-label">${t.u}u</span>
+      <div class="pp-tier-bar-track"><div class="pp-tier-bar-fill${done?' achieved':''}" style="width:${pct}%"></div></div>
+      <span class="pp-tier-bar-pct">${pct}%</span>
+      <span class="pp-tier-bar-amt">$${t.b}</span>
+      </div>`;
+    }).join('');
+  }
 }
 function renderCharts() {
-const cc = chartColors();
-const months = getLast6Months();
-const labels = months.map(m=>new Date(m+'-01').toLocaleDateString('en-US',{month:'short'}));
-const commData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0));
-const aftData  = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
-const fniData  = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
-const ubData   = months.map(m=>getUB(getMonthDeals(m).length));
-const ectx = document.getElementById('earningsChart');
-if(ectx) {
-if(earningsChartObj) earningsChartObj.destroy();
-earningsChartObj = new Chart(ectx, {
-type:'bar',
-data:{ labels,
-datasets:[
-{label:'Commission',data:commData,backgroundColor:cc.comm,borderRadius:4},
-{label:'Aftermarket',data:aftData,backgroundColor:cc.aftmkt,borderRadius:4},
-{label:'F&I',data:fniData,backgroundColor:cc.fni,borderRadius:4},
-{label:'Unit Bonus',data:ubData,backgroundColor:cc.ub,borderRadius:4}
-]
-},
-options:{responsive:true,maintainAspectRatio:false,
-plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`}}},
-scales:{
-x:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick},grid:{display:false}},
-y:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},
-grid:{color:cc.grid},border:{display:false}}
-}
-}
-});
-}
-const leg = document.getElementById('earningsLegend');
-if(leg) {
-const items=[['Commission',cc.comm],['Aftermarket',cc.aftmkt],['F&I',cc.fni],['Unit Bonus',cc.ub]];
-leg.innerHTML=items.map(([l,c])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div>${l}</div>`).join('');
-}
-const mDeals = getMonthDeals(state.selectedMonth);
-const mComm=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0);
-const mAft=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0);
-const mFni=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
-const mAcc=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.accessories)||0),0);
-const mUb=getUB(mDeals.length);
-const mctx = document.getElementById('mixChart');
-if(mctx) {
-if(mixChartObj) mixChartObj.destroy();
-mixChartObj = new Chart(mctx, {
-type:'doughnut',
-data:{
-labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
-datasets:[{data:[mComm,mAft,mFni,mAcc,mUb],
-backgroundColor:[cc.comm,cc.aftmkt,cc.fni,'rgba(234,179,8,0.7)',cc.ub],
-borderWidth:0,hoverOffset:6}]
-},
-options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
-plugins:{legend:{position:'bottom',labels:{font:{family:"'DM Mono',monospace",size:10},color:cc.legend,boxWidth:10,padding:8}},
-tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}`}}}
-}
-});
-}
+  const cc = chartColors();
+  const months = getLast6Months();
+  const labels = months.map(m=>new Date(m+'-01').toLocaleDateString('en-US',{month:'short'}));
+  const commData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0));
+  const aftData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0));
+  const fniData = months.map(m=>getMonthDeals(m).reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0));
+  const ubData = months.map(m=>getUB(getMonthDeals(m).length));
+  const ectx = document.getElementById('earningsChart');
+  if(ectx) {
+    if(earningsChartObj) earningsChartObj.destroy();
+    earningsChartObj = new Chart(ectx, {
+      type:'bar',
+      data:{ labels, datasets:[
+        {label:'Commission',data:commData,backgroundColor:cc.comm,borderRadius:4},
+        {label:'Aftermarket',data:aftData,backgroundColor:cc.aftmkt,borderRadius:4},
+        {label:'F&I',data:fniData,backgroundColor:cc.fni,borderRadius:4},
+        {label:'Unit Bonus',data:ubData,backgroundColor:cc.ub,borderRadius:4}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`}}},
+        scales:{
+          x:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick},grid:{display:false}},
+          y:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}}
+        }
+      }
+    });
+  }
+  const leg = document.getElementById('earningsLegend');
+  if(leg) {
+    const items=[['Commission',cc.comm],['Aftermarket',cc.aftmkt],['F&I',cc.fni],['Unit Bonus',cc.ub]];
+    leg.innerHTML=items.map(([l,c])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div>${l}</div>`).join('');
+  }
+  const mDeals = getMonthDeals(state.selectedMonth);
+  const mComm=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.commissionNo1)||0),0);
+  const mAft=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.aftermarket1)||0),0);
+  const mFni=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.fBonus1)||0),0);
+  const mAcc=mDeals.reduce((s,d)=>s+(parseFloat(d.extracted?.accessories)||0),0);
+  const mUb=getUB(mDeals.length);
+  const mctx = document.getElementById('mixChart');
+  if(mctx) {
+    if(mixChartObj) mixChartObj.destroy();
+    mixChartObj = new Chart(mctx, {
+      type:'doughnut',
+      data:{labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
+      datasets:[{data:[mComm,mAft,mFni,mAcc,mUb],backgroundColor:[cc.comm,cc.aftmkt,cc.fni,'rgba(234,179,8,0.7)',cc.ub],borderWidth:0,hoverOffset:6}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+        plugins:{legend:{position:'bottom',labels:{font:{family:"'DM Mono',monospace",size:10},color:cc.legend,boxWidth:10,padding:8}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}`}}}}
+    });
+  }
 }
 function renderTradingChart() {
-const mDeals = getMonthDeals(state.selectedMonth);
-const cc = chartColors();
-const dayMap = {};
-mDeals.forEach(d => {
-const date = d.date;
-if(!date) return;
-const day = date.slice(8,10);
-dayMap[day] = (dayMap[day]||0) + calcPayout(d);
-});
-const [y,mo] = state.selectedMonth.split('-');
-const daysInMonth = new Date(+y,+mo,0).getDate();
-const days=[], daily=[], cumulative=[];
-let cum=0;
-for(let i=1;i<=daysInMonth;i++){
-const key=String(i).padStart(2,'0');
-const v=dayMap[key]||0;
-cum+=v;
-days.push(key);
-daily.push(v);
-cumulative.push(+cum.toFixed(2));
-}
-const ctx = document.getElementById('tradingChart');
-if(!ctx) return;
-if(tradingChartObj) tradingChartObj.destroy();
-const tooltip = document.getElementById('tradingTooltip');
-tradingChartObj = new Chart(ctx, {
-data:{
-labels: days,
-datasets:[
-{ type:'line', label:'Cumulative', data:cumulative, yAxisID:'yCum',
-borderColor:cc.comm, borderWidth:2, pointRadius:0, pointHoverRadius:4,
-fill:true, backgroundColor:(context)=>{
-const chart=context.chart; const {ctx:c,chartArea}=chart;
-if(!chartArea) return 'transparent';
-const g=c.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
-g.addColorStop(0,isDark()?'rgba(230,87,60,0.3)':'rgba(230,57,0,0.15)');
-g.addColorStop(1,'transparent');
-return g;
-}, tension:0.4 },
-{ type:'bar', label:'Daily', data:daily, yAxisID:'yDaily',
-backgroundColor:isDark()?'rgba(59,130,246,0.5)':'rgba(59,130,246,0.45)',
-borderRadius:3, borderSkipped:false }
-]
-},
-options:{
-responsive:true, maintainAspectRatio:false,
-animation:{duration:900,easing:'easeInOutQuart'},
-interaction:{mode:'index',intersect:false},
-plugins:{
-legend:{display:false},
-tooltip:{enabled:false,
-external:(context)=>{
-if(!tooltip) return;
-if(context.tooltip.opacity===0){tooltip.style.display='none';return;}
-const d=context.tooltip.dataPoints;
-if(d&&d.length){
-const ttDate=document.getElementById('ttDate');
-const ttVal=document.getElementById('ttVal');
-if(ttDate) ttDate.textContent=`Day ${d[0].label}`;
-if(ttVal) ttVal.innerHTML=`<span style="color:${cc.comm}">Cum: $${(d.find(p=>p.dataset.label==='Cumulative')?.raw||0).toFixed(2)}</span><br><span style="color:var(--blue)">Day: $${(d.find(p=>p.dataset.label==='Daily')?.raw||0).toFixed(2)}</span>`;
-tooltip.style.display='block';
-tooltip.style.left=Math.min(context.tooltip.caretX+12, ctx.parentElement.offsetWidth-180)+'px';
-tooltip.style.top=Math.max(context.tooltip.caretY-30,0)+'px';
-}
-}
-}
-},
-scales:{
-yCum:{position:'left',ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}},
-yDaily:{position:'right',grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},border:{display:false}},
-x:{ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,maxTicksLimit:10},grid:{display:false}}
-}
-}
-});
+  const mDeals = getMonthDeals(state.selectedMonth);
+  const cc = chartColors();
+  const dayMap = {};
+  mDeals.forEach(d => {
+    const date = d.date;
+    if(!date) return;
+    const day = date.slice(8,10);
+    dayMap[day] = (dayMap[day]||0) + calcPayout(d);
+  });
+  const [y,mo] = state.selectedMonth.split('-');
+  const daysInMonth = new Date(+y,+mo,0).getDate();
+  const days=[], daily=[], cumulative=[];
+  let cum=0;
+  for(let i=1;i<=daysInMonth;i++){
+    const key=String(i).padStart(2,'0');
+    const v=dayMap[key]||0;
+    cum+=v;
+    days.push(key);
+    daily.push(v);
+    cumulative.push(+cum.toFixed(2));
+  }
+  const ctx = document.getElementById('tradingChart');
+  if(!ctx) return;
+  if(tradingChartObj) tradingChartObj.destroy();
+  const tooltip = document.getElementById('tradingTooltip');
+  tradingChartObj = new Chart(ctx, {
+    data:{labels: days, datasets:[
+      { type:'line', label:'Cumulative', data:cumulative, yAxisID:'yCum',
+        borderColor:cc.comm, borderWidth:2, pointRadius:0, pointHoverRadius:4,
+        fill:true, backgroundColor:(context)=>{
+          const chart=context.chart; const {ctx:c,chartArea}=chart;
+          if(!chartArea) return 'transparent';
+          const g=c.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
+          g.addColorStop(0,isDark()?'rgba(230,87,60,0.3)':'rgba(230,57,0,0.15)');
+          g.addColorStop(1,'transparent');
+          return g;
+        }, tension:0.4 },
+      { type:'bar', label:'Daily', data:daily, yAxisID:'yDaily',
+        backgroundColor:isDark()?'rgba(59,130,246,0.5)':'rgba(59,130,246,0.45)', borderRadius:3, borderSkipped:false }
+    ]},
+    options:{responsive:true, maintainAspectRatio:false, animation:{duration:900,easing:'easeInOutQuart'},
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{enabled:false,external:(context)=>{
+        if(!tooltip) return;
+        if(context.tooltip.opacity===0){tooltip.style.display='none';return;}
+        const d=context.tooltip.dataPoints;
+        if(d&&d.length){
+          const ttDate=document.getElementById('ttDate');
+          const ttVal=document.getElementById('ttVal');
+          if(ttDate) ttDate.textContent=`Day ${d[0].label}`;
+          if(ttVal) ttVal.innerHTML=`<span style="color:${cc.comm}">Cum: $${(d.find(p=>p.dataset.label==='Cumulative')?.raw||0).toFixed(2)}</span><br><span style="color:var(--blue)">Day: $${(d.find(p=>p.dataset.label==='Daily')?.raw||0).toFixed(2)}</span>`;
+          tooltip.style.display='block';
+          tooltip.style.left=Math.min(context.tooltip.caretX+12, ctx.parentElement.offsetWidth-180)+'px';
+          tooltip.style.top=Math.max(context.tooltip.caretY-30,0)+'px';
+        }
+      }}},
+      scales:{
+        yCum:{position:'left',ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}},
+        yDaily:{position:'right',grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},border:{display:false}},
+        x:{ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,maxTicksLimit:10},grid:{display:false}}
+      }
+    }
+  });
 }
 function renderHoldTable() {
-const tbody = document.getElementById('holdBody');
-if(!tbody) return;
-const h = state.holdDeals||[];
-let totTotal=0;
-const holdTotalEl = document.getElementById('holdTotal');
-if(!h.length){
-tbody.innerHTML=`<tr><td colspan="8" class="empty-table"><i class="fas fa-check-circle" style="font-size:1.2rem;opacity:0.3;display:block;margin-bottom:6px"></i>No deals on hold</td></tr>`;
-if(holdTotalEl) holdTotalEl.textContent='$0.00';
-return;
-}
-tbody.innerHTML = h.map(d=>{
-const e=d.extracted||{};
-const comm=parseFloat(e.commissionNo1||d.commission)||0;
-const aft=parseFloat(e.aftermarket1||d.aftermarket)||0;
-const fni=parseFloat(e.fBonus1||d.fni)||0;
-const acc=parseFloat(e.accessories||d.accessories)||0;
-const total=comm+aft+fni+acc;
-totTotal+=total;
-return `<tr>
-<td><div style="font-weight:600;font-size:0.73rem">${esc(d.vehicle?.model||d.vehicle||'—')}</div>
-<div style="font-size:0.65rem;color:var(--text-dim)">${esc(d.customer||'—')}</div></td>
-<td style="font-family:var(--font-mono);font-size:0.7rem">${esc(d.vehicle?.stock||d.stock||'—')}</td>
-<td style="font-size:0.7rem">${esc(d.date||'—')}</td>
-<td>${fmtC(comm)}</td>
-<td style="font-size:0.7rem">${fmtC(aft+fni)}</td>
-<td style="font-family:var(--font-mono);font-weight:600">${fmt(total)}</td>
-<td style="font-size:0.65rem;color:var(--text-dim);max-width:100px">${esc(d.holdReason||d.reason||'—')}</td>
-<td>
-<button class="act-btn" onclick="openHoldModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
-<button class="act-btn" style="color:var(--green)" onclick="releaseHold('${esc(d.id)}')" title="Release to Active"><i class="fas fa-check"></i></button>
-<button class="act-btn del" onclick="deleteHold('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button>
-</td>
-</tr>`;
-}).join('')+
-`<tr class="totals-row"><td colspan="5">HOLD TOTAL (${h.length})</td><td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
-if(holdTotalEl) holdTotalEl.textContent=fmt(totTotal);
+  const tbody = document.getElementById('holdBody');
+  if(!tbody) return;
+  const h = state.holdDeals||[];
+  let totTotal=0;
+  const holdTotalEl = document.getElementById('holdTotal');
+  if(!h.length){
+    tbody.innerHTML=`<tr><td colspan="8" class="empty-table"><i class="fas fa-check-circle" style="font-size:1.2rem;opacity:0.3;display:block;margin-bottom:6px"></i>No deals on hold</td></tr>`;
+    if(holdTotalEl) holdTotalEl.textContent='$0.00';
+    return;
+  }
+  tbody.innerHTML = h.map(d=>{
+    const e=d.extracted||{};
+    const comm=parseFloat(e.commissionNo1||d.commission)||0;
+    const aft=parseFloat(e.aftermarket1||d.aftermarket)||0;
+    const fni=parseFloat(e.fBonus1||d.fni)||0;
+    const acc=parseFloat(e.accessories||d.accessories)||0;
+    const total=comm+aft+fni+acc;
+    totTotal+=total;
+    return `<tr>
+    <td><div style="font-weight:600;font-size:0.73rem">${esc(d.vehicle?.model||d.vehicle||'—')}</div>
+    <div style="font-size:0.65rem;color:var(--text-dim)">${esc(d.customer||'—')}</div></td>
+    <td style="font-family:var(--font-mono);font-size:0.7rem">${esc(d.vehicle?.stock||d.stock||'—')}</td>
+    <td style="font-size:0.7rem">${esc(d.date||'—')}</td>
+    <td>${fmtC(comm)}</td>
+    <td style="font-size:0.7rem">${fmtC(aft+fni)}</td>
+    <td style="font-family:var(--font-mono);font-weight:600">${fmt(total)}</td>
+    <td style="font-size:0.65rem;color:var(--text-dim);max-width:100px">${esc(d.holdReason||d.reason||'—')}</td>
+    <td><button class="act-btn" onclick="openHoldModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
+    <button class="act-btn" style="color:var(--green)" onclick="releaseHold('${esc(d.id)}')" title="Release to Active"><i class="fas fa-check"></i></button>
+    <button class="act-btn del" onclick="deleteHold('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  }).join('')+`<tr class="totals-row"><td colspan="5">HOLD TOTAL (${h.length})</td><td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
+  if(holdTotalEl) holdTotalEl.textContent=fmt(totTotal);
 }
 function renderSummaryVerification() {
-const deals = getMonthDeals(state.selectedMonth);
-const svMonthLabel = document.getElementById('svMonthLabel');
-if(svMonthLabel){
-const [y,m]=state.selectedMonth.split('-');
-svMonthLabel.textContent=new Date(+y,+m-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const deals = getMonthDeals(state.selectedMonth);
+  const svMonthLabel = document.getElementById('svMonthLabel');
+  if(svMonthLabel){
+    const [y,m]=state.selectedMonth.split('-');
+    svMonthLabel.textContent=new Date(+y,+m-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  }
+  let matched=0,mismatched=0,sumTotal=0;
+  const rows=[];
+  deals.forEach(d=>{
+    const cm=checkCommissionMatch(d);
+    if(cm.matched===true) matched++;
+    else if(cm.matched===false) mismatched++;
+    if(cm.summaryTotal!=null) sumTotal+=cm.summaryTotal;
+    rows.push({d,cm});
+  });
+  const sv=document.getElementById('sv-total');
+  const svm=document.getElementById('sv-matched');
+  const svmm=document.getElementById('sv-mismatches');
+  if(sv) sv.textContent=(state.commissionSummary||[]).length?fmt(sumTotal):'—';
+  if(svm) svm.textContent=matched||'—';
+  if(svmm) svmm.textContent=mismatched||'—';
+  const wrap=document.getElementById('svTableWrap');
+  if(!wrap) return;
+  if(!(state.commissionSummary||[]).length){
+    wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">📋</div>
+    <div class="blank-state-text">Scan your Commission Summary to enable verification · Mismatches highlighted automatically</div></div>`;
+    return;
+  }
+  if(!deals.length){wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No deals this month</div></div>`;return;}
+  wrap.innerHTML=`<div style="overflow-x:auto"><table class="sv-table">
+  <thead><tr><th>Vehicle / Stock</th><th>Customer</th><th>My Total</th><th>Summary</th><th>Match</th></tr></thead>
+  <tbody>${rows.map(({d,cm})=>{
+    const total=calcPayout(d);
+    const cls=cm.matched===true?'sv-matched':cm.matched===false?'sv-mismatch':'sv-unknown';
+    const icon=cm.matched===true?'✓':cm.matched===false?`⚠ ${fmt(cm.diff)}`:'—';
+    return `<tr>
+    <td><div style="font-weight:600;font-size:0.72rem">${esc(d.vehicle?.model||'—')}</div>
+    <div style="font-size:0.62rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</div></td>
+    <td style="font-size:0.7rem">${esc(d.customer||'—')}</td>
+    <td style="font-family:var(--font-mono);font-size:0.7rem">${fmt(total)}</td>
+    <td style="font-family:var(--font-mono);font-size:0.7rem">${cm.summaryTotal!=null?fmt(cm.summaryTotal):'—'}</td>
+    <td><span class="match-badge ${cls==='sv-matched'?'match-ok':cls==='sv-mismatch'?'match-bad':'match-na'}">${icon}</span></td>
+    </tr>`;
+  }).join('')}</tbody></table></div>`;
 }
-let matched=0,mismatched=0,sumTotal=0;
-const rows=[];
-deals.forEach(d=>{
-const cm=checkCommissionMatch(d);
-if(cm.matched===true) matched++;
-else if(cm.matched===false) mismatched++;
-if(cm.summaryTotal!=null) sumTotal+=cm.summaryTotal;
-rows.push({d,cm});
-});
-const sv=document.getElementById('sv-total');
-const svm=document.getElementById('sv-matched');
-const svmm=document.getElementById('sv-mismatches');
-if(sv) sv.textContent=(state.commissionSummary||[]).length?fmt(sumTotal):'—';
-if(svm) svm.textContent=matched||'—';
-if(svmm) svmm.textContent=mismatched||'—';
-const wrap=document.getElementById('svTableWrap');
-if(!wrap) return;
-if(!(state.commissionSummary||[]).length){
-wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">📋</div>
-<div class="blank-state-text">Scan your Commission Summary to enable verification · Mismatches highlighted automatically</div></div>`;
-return;
-}
-if(!deals.length){wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No deals this month</div></div>`;return;}
-wrap.innerHTML=`<div style="overflow-x:auto"><table class="sv-table">
-<thead><tr><th>Vehicle / Stock</th><th>Customer</th><th>My Total</th><th>Summary</th><th>Match</th></tr></thead>
-<tbody>${rows.map(({d,cm})=>{
-const total=calcPayout(d);
-const cls=cm.matched===true?'sv-matched':cm.matched===false?'sv-mismatch':'sv-unknown';
-const icon=cm.matched===true?'✓':cm.matched===false?`⚠ ${fmt(cm.diff)}`:'—';
-return `<tr>
-<td><div style="font-weight:600;font-size:0.72rem">${esc(d.vehicle?.model||'—')}</div>
-<div style="font-size:0.62rem;color:var(--text-dim)">${esc(d.vehicle?.stock||'—')}</div></td>
-<td style="font-size:0.7rem">${esc(d.customer||'—')}</td>
-<td style="font-family:var(--font-mono);font-size:0.7rem">${fmt(total)}</td>
-<td style="font-family:var(--font-mono);font-size:0.7rem">${cm.summaryTotal!=null?fmt(cm.summaryTotal):'—'}</td>
-<td><span class="match-badge ${cls==='sv-matched'?'match-ok':cls==='sv-mismatch'?'match-bad':'match-na'}">${icon}</span></td>
-</tr>`;
-}).join('')}</tbody></table></div>`;
-}
+
+// 🔍 SEARCH: SEARCH & OCR
 function filterDeals() {
-const type = document.getElementById('searchType')?.value||'all';
-const query = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
-const tbody = document.getElementById('dealsBody');
-if(!tbody) return;
-const rows = tbody.querySelectorAll('tr:not(.totals-row)');
-let count=0;
-rows.forEach(row=>{
-const id=row.dataset.id;
-if(!id){row.style.display='';return;}
-const d=state.deals.find(x=>x.id===id);
-if(!d){row.style.display='none';return;}
-let show=true;
-if(query) {
-const e=d.extracted||{};
-switch(type){
-case 'customer': show=d.customer?.toLowerCase().includes(query);break;
-case 'stock': show=d.vehicle?.stock?.toLowerCase().includes(query);break;
-case 'date': show=d.date?.includes(query);break;
-case 'model': show=d.vehicle?.model?.toLowerCase().includes(query);break;
-case 'status': show=d.status?.toLowerCase().includes(query);break;
-case 'payperiod': show=(d.payPeriodOverride||'').toLowerCase().includes(query);break;
-case 'amount': show=calcPayout(d)>=parseFloat(query)||0;break;
-case 'mismatch': show=checkCommissionMatch(d).matched===false;break;
-default: show=[d.customer,d.vehicle?.model,d.vehicle?.stock,d.date,d.status]
-.some(v=>v?.toLowerCase().includes(query));
-}
-} else if(type==='mismatch') { show=checkCommissionMatch(d).matched===false; }
-if(show) count++;
-row.style.display=show?'':'none';
-row.classList.toggle('row-highlight',show&&!!query);
-});
-const cnt=document.getElementById('searchResultsCount');
-if(cnt&&query){
-cnt.style.display='block';
-cnt.textContent=`${count} result${count!==1?'s':''}`;
-cnt.className='search-results-count'+(count===0?' none':'');
-} else if(cnt){ cnt.style.display='none'; }
+  const type = document.getElementById('searchType')?.value||'all';
+  const query = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
+  const tbody = document.getElementById('dealsBody');
+  if(!tbody) return;
+  const rows = tbody.querySelectorAll('tr:not(.totals-row)');
+  let count=0;
+  rows.forEach(row=>{
+    const id=row.dataset.id;
+    if(!id){row.style.display='';return;}
+    const d=state.deals.find(x=>x.id===id);
+    if(!d){row.style.display='none';return;}
+    let show=true;
+    if(query) {
+      const e=d.extracted||{};
+      switch(type){
+        case 'customer': show=d.customer?.toLowerCase().includes(query);break;
+        case 'stock': show=d.vehicle?.stock?.toLowerCase().includes(query);break;
+        case 'date': show=d.date?.includes(query);break;
+        case 'model': show=d.vehicle?.model?.toLowerCase().includes(query);break;
+        case 'status': show=d.status?.toLowerCase().includes(query);break;
+        case 'payperiod': show=(d.payPeriodOverride||'').toLowerCase().includes(query);break;
+        case 'amount': show=calcPayout(d)>=parseFloat(query)||0;break;
+        case 'mismatch': show=checkCommissionMatch(d).matched===false;break;
+        default: show=[d.customer,d.vehicle?.model,d.vehicle?.stock,d.date,d.status].some(v=>v?.toLowerCase().includes(query));
+      }
+    } else if(type==='mismatch') { show=checkCommissionMatch(d).matched===false; }
+    if(show) count++;
+    row.style.display=show?'':'none';
+    row.classList.toggle('row-highlight',show&&!!query);
+  });
+  const cnt=document.getElementById('searchResultsCount');
+  if(cnt&&query){
+    cnt.style.display='block';
+    cnt.textContent=`${count} result${count!==1?'s':''}`;
+    cnt.className='search-results-count'+(count===0?' none':'');
+  } else if(cnt){ cnt.style.display='none'; }
 }
 function clearSearch() {
-setF('searchInput','');
-const sel=document.getElementById('searchType');
-if(sel) sel.value='all';
-filterDeals();
+  setF('searchInput','');
+  const sel=document.getElementById('searchType');
+  if(sel) sel.value='all';
+  filterDeals();
 }
 let _tessReady2=null,_pdfjsReady2=null;
 function loadTesseract() {
-if(_tessReady2) return _tessReady2;
-_tessReady2=new Promise((res,rej)=>{
-if(window.Tesseract){res(window.Tesseract);return;}
-const s=document.createElement('script');
-s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
-s.onload=()=>res(window.Tesseract);
-s.onerror=()=>rej(new Error('Tesseract CDN failed'));
-document.head.appendChild(s);
-});
-return _tessReady2;
+  if(_tessReady2) return _tessReady2;
+  _tessReady2=new Promise((res,rej)=>{
+    if(window.Tesseract){res(window.Tesseract);return;}
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
+    s.onload=()=>res(window.Tesseract);
+    s.onerror=()=>rej(new Error('Tesseract CDN failed'));
+    document.head.appendChild(s);
+  });
+  return _tessReady2;
 }
 function loadPDFJS() {
-if(_pdfjsReady2) return _pdfjsReady2;
-_pdfjsReady2=new Promise((res,rej)=>{
-if(window.pdfjsLib){res(window.pdfjsLib);return;}
-const s=document.createElement('script');
-s.src='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
-s.onload=()=>{
-window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-res(window.pdfjsLib);
-};
-s.onerror=()=>rej(new Error('PDF.js CDN failed'));
-document.head.appendChild(s);
-});
-return _pdfjsReady2;
+  if(_pdfjsReady2) return _pdfjsReady2;
+  _pdfjsReady2=new Promise((res,rej)=>{
+    if(window.pdfjsLib){res(window.pdfjsLib);return;}
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    s.onload=()=>{
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      res(window.pdfjsLib);
+    };
+    s.onerror=()=>rej(new Error('PDF.js CDN failed'));
+    document.head.appendChild(s);
+  });
+  return _pdfjsReady2;
 }
 async function pdfToDataUrl(arrayBuffer, pageNum=1) {
-const pdfjsLib=await loadPDFJS();
-const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
-const page=await pdf.getPage(pageNum);
-const viewport=page.getViewport({scale:2.0});
-const canvas=document.createElement('canvas');
-canvas.width=viewport.width; canvas.height=viewport.height;
-await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
-return canvas.toDataURL('image/jpeg',0.92);
+  const pdfjsLib=await loadPDFJS();
+  const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  const page=await pdf.getPage(pageNum);
+  const viewport=page.getViewport({scale:2.0});
+  const canvas=document.createElement('canvas');
+  canvas.width=viewport.width; canvas.height=viewport.height;
+  await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+  return canvas.toDataURL('image/jpeg',0.92);
 }
 async function runTesseractOnDataUrl(dataUrl, onProgress) {
-const Tesseract=await loadTesseract();
-const worker=await Tesseract.createWorker('eng',1,{
-workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
-langPath:'https://tessdata.projectnaptha.com/4.0.0',
-corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core-simd-lstm.wasm.js',
-logger:m=>{if(m.status==='recognizing text') onProgress(m.progress);}
-});
-const {data}=await worker.recognize(dataUrl);
-await worker.terminate();
-return data;
+  const Tesseract=await loadTesseract();
+  const worker=await Tesseract.createWorker('eng',1,{
+    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
+    langPath:'https://tessdata.projectnaptha.com/4.0.0',
+    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core-simd-lstm.wasm.js',
+    logger:m=>{if(m.status==='recognizing text') onProgress(m.progress);}
+  });
+  const {data}=await worker.recognize(dataUrl);
+  await worker.terminate();
+  return data;
 }
 function setOCRProgress(pct) {
-const bar=document.getElementById('ocrProgressBar');
-const wrap=document.getElementById('ocrProgress');
-if(bar) bar.style.width=pct+'%';
-if(wrap) wrap.style.display='block';
+  const bar=document.getElementById('ocrProgressBar');
+  const wrap=document.getElementById('ocrProgress');
+  if(bar) bar.style.width=pct+'%';
+  if(wrap) wrap.style.display='block';
 }
 function setOCRStatus(msg) {
-const el=document.getElementById('ocrStatus');
-if(el) el.textContent=msg;
+  const el=document.getElementById('ocrStatus');
+  if(el) el.textContent=msg;
 }
 async function handleOCRFile(event) {
-const file=event.target.files?.[0]; if(!file) return;
-event.target.value='';
-const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-setOCRStatus('Loading…'); setOCRProgress(5);
-try {
-let dataUrl;
-if(isPDF){
-setOCRStatus('Rendering PDF…'); setOCRProgress(12);
-const buf=await file.arrayBuffer();
-dataUrl=await pdfToDataUrl(buf,1);
-setOCRProgress(18);
-} else {
-dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
-setOCRProgress(18);
-}
-setOCRStatus('Running OCR…');
-const data=await runTesseractOnDataUrl(dataUrl, p=>{ setOCRProgress(18+Math.round(p*78)); });
-setOCRProgress(100);
-setOCRStatus('Parsing…');
-const extracted=parseOCRText(data.text);
-pendingOCR={...extracted, ocrConfidence:Math.round(data.confidence||75), sourceFile:file.name, previewSrc:dataUrl};
-setTimeout(()=>{setOCRStatus('Done · Opening modal…');setOCRProgress(0);document.getElementById('ocrProgress').style.display='none';openAddModal(pendingOCR);},400);
-} catch(err) {
-setOCRStatus('OCR failed: '+err.message);
-setOCRProgress(0);
-if(document.getElementById('ocrProgress')) document.getElementById('ocrProgress').style.display='none';
-notify('OCR error: '+err.message);
-}
+  const file=event.target.files?.[0]; if(!file) return;
+  event.target.value='';
+  const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+  setOCRStatus('Loading…'); setOCRProgress(5);
+  try {
+    let dataUrl;
+    if(isPDF){
+      setOCRStatus('Rendering PDF…'); setOCRProgress(12);
+      const buf=await file.arrayBuffer();
+      dataUrl=await pdfToDataUrl(buf,1);
+      setOCRProgress(18);
+    } else {
+      dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
+      setOCRProgress(18);
+    }
+    setOCRStatus('Running OCR…');
+    const data=await runTesseractOnDataUrl(dataUrl, p=>{ setOCRProgress(18+Math.round(p*78)); });
+    setOCRProgress(100);
+    setOCRStatus('Parsing…');
+    const extracted=parseOCRText(data.text);
+    pendingOCR={...extracted, ocrConfidence:Math.round(data.confidence||75), sourceFile:file.name, previewSrc:dataUrl};
+    setTimeout(()=>{setOCRStatus('Done · Opening modal…');setOCRProgress(0);document.getElementById('ocrProgress').style.display='none';openAddModal(pendingOCR);},400);
+  } catch(err) {
+    setOCRStatus('OCR failed: '+err.message);
+    setOCRProgress(0);
+    if(document.getElementById('ocrProgress')) document.getElementById('ocrProgress').style.display='none';
+    notify('OCR error: '+err.message);
+  }
 }
 function handleDrop(event) {
-event.preventDefault();
-document.getElementById('ocrZone')?.classList.remove('drag-over');
-const file=event.dataTransfer.files?.[0];
-if(!file) return;
-const fakeEvent={target:{files:[file],value:''},preventDefault:()=>{}};
-handleOCRFile(fakeEvent);
+  event.preventDefault();
+  document.getElementById('ocrZone')?.classList.remove('drag-over');
+  const file=event.dataTransfer.files?.[0];
+  if(!file) return;
+  const fakeEvent={target:{files:[file],value:''},preventDefault:()=>{}};
+  handleOCRFile(fakeEvent);
 }
 function parseOCRText(text) {
-const lines=text.split('\n');
-const find=(re)=>{for(const l of lines){const m=l.match(re);if(m)return m;}return null;};
-const findNum=(re)=>{const m=find(re);if(!m)return 0;const nums=m[0].match(/[\-]?\d+\.\d{2}/g);return nums?parseFloat(nums[0]):0;};
-const dealM=find(/Deal\s*#?\s*(\d+)/i);
-const dealNo=dealM?dealM[1]:'';
-const stockM=find(/Stock\s*#?\s*(\d+)/i);
-const stockNo=stockM?stockM[1]:'';
-let model='';
-const modelM=find(/Description\s+(.+)/i)||find(/(20\d\d\s+HONDA\s+\S+[^\n]+)/i);
-if(modelM) model=modelM[1]?.trim()||'';
-let customer='';
-const custM=find(/Customer\s+([A-Z][A-Z\s,]+?)(?:\s{2,}|Mgr|$)/i);
-if(custM) customer=custM[1]?.trim()||'';
-let commissionNo1=0, accessories=0;
-for(const l of lines){
-if(/Commission\s*No\.?\s*1/i.test(l)){
-const nums=l.match(/[\-]?\d+\.\d{2}/g)||[];
-if(nums[0]) commissionNo1=parseFloat(nums[0]);
-if(nums[1]) accessories=parseFloat(nums[1]);
-break;
-}
-}
-let aftermarket1=0;
-for(const l of lines){ if(/Aftermarket\s*1/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])aftermarket1=parseFloat(n[0]);break;} }
-let fBonus1=0;
-for(const l of lines){ if(/F\s*[&+]\s*I\s*Bonus\s*1/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])fBonus1=parseFloat(n[0]);break;} }
-let profitOfSale=0;
-for(const l of lines){ if(/Profit\s+of\s+Sale/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])profitOfSale=parseFloat(n[0]);break;} }
-let amProfit=0;
-for(const l of lines){ if(/Accessory.?Aftermarket\s+Profit/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])amProfit=parseFloat(n[0]);break;} }
-let dateStr=new Date().toISOString().slice(0,10);
-const dateM=find(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-if(dateM){
-let[,m2,d2,y2]=dateM;
-if(y2.length===2)y2='20'+y2;
-dateStr=`${y2}-${m2.padStart(2,'0')}-${d2.padStart(2,'0')}`;
-}
-return { dealNo, stockNo, model, customer, dateStr,
-extracted:{commissionNo1,accessories,aftermarket1,fBonus1,profitOfSale,amProfit} };
+  const lines=text.split('\n');
+  const find=(re)=>{for(const l of lines){const m=l.match(re);if(m)return m;}return null;};
+  const dealM=find(/Deal\s*#?\s*(\d+)/i);
+  const dealNo=dealM?dealM[1]:'';
+  const stockM=find(/Stock\s*#?\s*(\d+)/i);
+  const stockNo=stockM?stockM[1]:'';
+  let model='';
+  const modelM=find(/Description\s+(.+)/i)||find(/(20\d\d\s+HONDA\s+\S+[^\n]+)/i);
+  if(modelM) model=modelM[1]?.trim()||'';
+  let customer='';
+  const custM=find(/Customer\s+([A-Z][A-Z\s,]+?)(?:\s{2,}|Mgr|$)/i);
+  if(custM) customer=custM[1]?.trim()||'';
+  let commissionNo1=0, accessories=0;
+  for(const l of lines){
+    if(/Commission\s*No\.?\s*1/i.test(l)){
+      const nums=l.match(/[\-]?\d+\.\d{2}/g)||[];
+      if(nums[0]) commissionNo1=parseFloat(nums[0]);
+      if(nums[1]) accessories=parseFloat(nums[1]);
+      break;
+    }
+  }
+  let aftermarket1=0;
+  for(const l of lines){ if(/Aftermarket\s*1/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])aftermarket1=parseFloat(n[0]);break;} }
+  let fBonus1=0;
+  for(const l of lines){ if(/F\s*[&+]\s*I\s*Bonus\s*1/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])fBonus1=parseFloat(n[0]);break;} }
+  let profitOfSale=0;
+  for(const l of lines){ if(/Profit\s+of\s+Sale/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])profitOfSale=parseFloat(n[0]);break;} }
+  let amProfit=0;
+  for(const l of lines){ if(/Accessory.?Aftermarket\s+Profit/i.test(l)){const n=l.match(/[\-]?\d+\.\d{2}/g)||[];if(n[0])amProfit=parseFloat(n[0]);break;} }
+  let dateStr=new Date().toISOString().slice(0,10);
+  const dateM=find(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if(dateM){
+    let[,m2,d2,y2]=dateM;
+    if(y2.length===2)y2='20'+y2;
+    dateStr=`${y2}-${m2.padStart(2,'0')}-${d2.padStart(2,'0')}`;
+  }
+  return { dealNo, stockNo, model, customer, dateStr,
+    extracted:{commissionNo1,accessories,aftermarket1,fBonus1,profitOfSale,amProfit} };
 }
 async function handleSummaryOCR(event) {
-const file=event.target.files?.[0]; if(!file) return;
-event.target.value='';
-notify('Processing Commission Summary…');
-try {
-const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-let dataUrl;
-if(isPDF){const buf=await file.arrayBuffer();dataUrl=await pdfToDataUrl(buf,1);}
-else{dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
-const data=await runTesseractOnDataUrl(dataUrl,()=>{});
-const rows=parseSummaryOCR(data.text);
-state.commissionSummary=rows;
-saveState();
-renderSummaryVerification();
-notify(`Summary loaded · ${rows.length} entries found ✓`);
-} catch(err){ notify('Summary OCR failed: '+err.message); }
+  const file=event.target.files?.[0]; if(!file) return;
+  event.target.value='';
+  notify('Processing Commission Summary…');
+  try {
+    const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    let dataUrl;
+    if(isPDF){const buf=await file.arrayBuffer();dataUrl=await pdfToDataUrl(buf,1);}
+    else{dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+    const data=await runTesseractOnDataUrl(dataUrl,()=>{});
+    const rows=parseSummaryOCR(data.text);
+    state.commissionSummary=rows;
+    saveState();
+    renderSummaryVerification();
+    notify(`Summary loaded · ${rows.length} entries found ✓`);
+  } catch(err){ notify('Summary OCR failed: '+err.message); }
 }
 function parseSummaryOCR(text) {
-const rows=[];
-const lines=text.split('\n');
-for(const line of lines){
-const stockM=line.match(/\b(\d{5,6})\b/);
-const nums=line.match(/\$?[\d,]+\.\d{2}/g)||[];
-const periodM=line.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);
-if(stockM&&nums.length){
-rows.push({
-stock:stockM[1],
-summaryTotal:parseFloat(nums[nums.length-1].replace(/,/g,'')),
-payPeriod:periodM?periodM[1]:null,
-split:null
-});
-}
-}
-return rows;
+  const rows=[];
+  const lines=text.split('\n');
+  for(const line of lines){
+    const stockM=line.match(/\b(\d{5,6})\b/);
+    const nums=line.match(/\$?[\d,]+\.\d{2}/g)||[];
+    const periodM=line.match(/(\d{1,2}\/\d{1,2}\/\d{2,4})/);
+    if(stockM&&nums.length){
+      rows.push({
+        stock:stockM[1],
+        summaryTotal:parseFloat(nums[nums.length-1].replace(/,/g,'')),
+        payPeriod:periodM?periodM[1]:null,
+        split:null
+      });
+    }
+  }
+  return rows;
 }
 function checkCommissionMatch(deal) {
-if(deal.ignoreMismatch) return {matched:true,summaryTotal:null,diff:0,payPeriod:deal.payPeriodOverride||null,split:deal.splitWith||null};
-const stock=(deal.vehicle?.stock||'').toUpperCase().replace(/\s/g,'');
-const entry=(state.commissionSummary||[]).find(s=>s.stock.toUpperCase()===stock);
-if(!entry) return {matched:null,summaryTotal:null,diff:null,payPeriod:deal.payPeriodOverride||null,split:deal.splitWith||null};
-const diff=Math.abs(calcPayout(deal)-entry.summaryTotal);
-return {matched:diff<=0.50,summaryTotal:entry.summaryTotal,diff,payPeriod:deal.payPeriodOverride||entry.payPeriod,split:deal.splitWith||entry.split};
+  if(deal.ignoreMismatch) return {matched:true,summaryTotal:null,diff:0,payPeriod:deal.payPeriodOverride||null,split:deal.splitWith||null};
+  const stock=(deal.vehicle?.stock||'').toUpperCase().replace(/\s/g,'');
+  const entry=(state.commissionSummary||[]).find(s=>s.stock.toUpperCase()===stock);
+  if(!entry) return {matched:null,summaryTotal:null,diff:null,payPeriod:deal.payPeriodOverride||null,split:deal.splitWith||null};
+  const diff=Math.abs(calcPayout(deal)-entry.summaryTotal);
+  return {matched:diff<=0.50,summaryTotal:entry.summaryTotal,diff,payPeriod:deal.payPeriodOverride||entry.payPeriod,split:deal.splitWith||entry.split};
 }
+
+// 🔍 SEARCH: MODAL & DEAL ACTIONS
 function openAddModal(ocrData) {
-editingId=null;
-clearForm();
-document.querySelector('.modal-title').innerHTML='<i class="fas fa-plus" style="color:var(--accent);margin-right:6px"></i>Add Deal';
-setF('dm-date',new Date().toISOString().slice(0,10));
-setF('dm-status','Pending');
-if(ocrData){
-setF('dm-deal',ocrData.dealNo||'');
-setF('dm-stock',ocrData.stockNo||'');
-setF('dm-vehicle',ocrData.model||'');
-setF('dm-customer',ocrData.customer||'');
-setF('dm-date',ocrData.dateStr||new Date().toISOString().slice(0,10));
-const e=ocrData.extracted||{};
-setF('dm-comm',e.commissionNo1||0);
-setF('dm-acc',e.accessories||0);
-setF('dm-aftmkt',e.aftermarket1||0);
-setF('dm-fni',e.fBonus1||0);
-setF('dm-profit',e.profitOfSale||0);
-setF('dm-amprofit',e.amProfit||0);
-const conf=document.getElementById('dm-ocr-conf');
-if(conf) conf.textContent=`OCR confidence: ${ocrData.ocrConfidence||0}% · Source: ${ocrData.sourceFile||''}`;
-}
-updateCalcPreview();
-refreshOptionsTab();
-switchModalTab(0);
-document.getElementById('dealOverlay').classList.add('open');
+  editingId=null;
+  clearForm();
+  document.querySelector('.modal-title').innerHTML='<i class="fas fa-plus" style="color:var(--accent);margin-right:6px"></i>Add Deal';
+  setF('dm-date',new Date().toISOString().slice(0,10));
+  setF('dm-status','Pending');
+  if(ocrData){
+    setF('dm-deal',ocrData.dealNo||'');
+    setF('dm-stock',ocrData.stockNo||'');
+    setF('dm-vehicle',ocrData.model||'');
+    setF('dm-customer',ocrData.customer||'');
+    setF('dm-date',ocrData.dateStr||new Date().toISOString().slice(0,10));
+    const e=ocrData.extracted||{};
+    setF('dm-comm',e.commissionNo1||0);
+    setF('dm-acc',e.accessories||0);
+    setF('dm-aftmkt',e.aftermarket1||0);
+    setF('dm-fni',e.fBonus1||0);
+    setF('dm-profit',e.profitOfSale||0);
+    setF('dm-amprofit',e.amProfit||0);
+    const conf=document.getElementById('dm-ocr-conf');
+    if(conf) conf.textContent=`OCR confidence: ${ocrData.ocrConfidence||0}% · Source: ${ocrData.sourceFile||''}`;
+  }
+  updateCalcPreview();
+  refreshOptionsTab();
+  switchModalTab(0);
+  document.getElementById('dealOverlay').classList.add('open');
 }
 function openEditModal(id) {
-const deal=state.deals.find(d=>d.id===id);
-if(!deal) return;
-editingId=id;
-document.querySelector('.modal-title').innerHTML='<i class="fas fa-pen" style="color:var(--accent);margin-right:6px"></i>Edit Deal';
-const e=deal.extracted||{};
-setF('dm-deal','');
-setF('dm-stock',deal.vehicle?.stock||'');
-setF('dm-vehicle',deal.vehicle?.model||'');
-setF('dm-customer',deal.customer||'');
-setF('dm-date',deal.date||'');
-setF('dm-status',deal.status||'Pending');
-setF('dm-comm',e.commissionNo1||0);
-setF('dm-acc',e.accessories||0);
-setF('dm-aftmkt',e.aftermarket1||0);
-setF('dm-fni',e.fBonus1||0);
-setF('dm-profit',e.profitOfSale||0);
-setF('dm-amprofit',e.amProfit||0);
-setF('dm-holdreason',deal.holdReason||'');
-setF('dm-split',deal.splitWith||'');
-const tog=document.getElementById('mismatchToggle');
-if(tog) tog.className='toggle'+(deal.ignoreMismatch?' on':'');
-updateCalcPreview();
-refreshOptionsTab();
-switchModalTab(0);
-document.getElementById('dealOverlay').classList.add('open');
+  const deal=state.deals.find(d=>d.id===id);
+  if(!deal) return;
+  editingId=id;
+  document.querySelector('.modal-title').innerHTML='<i class="fas fa-pen" style="color:var(--accent);margin-right:6px"></i>Edit Deal';
+  const e=deal.extracted||{};
+  setF('dm-deal','');
+  setF('dm-stock',deal.vehicle?.stock||'');
+  setF('dm-vehicle',deal.vehicle?.model||'');
+  setF('dm-customer',deal.customer||'');
+  setF('dm-date',deal.date||'');
+  setF('dm-status',deal.status||'Pending');
+  setF('dm-comm',e.commissionNo1||0);
+  setF('dm-acc',e.accessories||0);
+  setF('dm-aftmkt',e.aftermarket1||0);
+  setF('dm-fni',e.fBonus1||0);
+  setF('dm-profit',e.profitOfSale||0);
+  setF('dm-amprofit',e.amProfit||0);
+  setF('dm-holdreason',deal.holdReason||'');
+  setF('dm-split',deal.splitWith||'');
+  const tog=document.getElementById('mismatchToggle');
+  if(tog) tog.className='toggle'+(deal.ignoreMismatch?' on':'');
+  updateCalcPreview();
+  refreshOptionsTab();
+  switchModalTab(0);
+  document.getElementById('dealOverlay').classList.add('open');
 }
 function closeModal() {
-document.getElementById('dealOverlay').classList.remove('open');
-editingId=null; pendingOCR=null;
+  document.getElementById('dealOverlay').classList.remove('open');
+  editingId=null; pendingOCR=null;
 }
 function clearForm() {
-['dm-deal','dm-stock','dm-vehicle','dm-customer','dm-holdreason','dm-split'].forEach(id=>setF(id,''));
-['dm-comm','dm-acc','dm-aftmkt','dm-fni','dm-profit','dm-amprofit'].forEach(id=>setF(id,'0'));
-setF('dm-status','Pending');
-setF('dm-date',new Date().toISOString().slice(0,10));
-const tog=document.getElementById('mismatchToggle');
-if(tog) tog.className='toggle';
-const conf=document.getElementById('dm-ocr-conf');
-if(conf) conf.textContent='';
+  ['dm-deal','dm-stock','dm-vehicle','dm-customer','dm-holdreason','dm-split'].forEach(id=>setF(id,''));
+  ['dm-comm','dm-acc','dm-aftmkt','dm-fni','dm-profit','dm-amprofit'].forEach(id=>setF(id,'0'));
+  setF('dm-status','Pending');
+  setF('dm-date',new Date().toISOString().slice(0,10));
+  const tog=document.getElementById('mismatchToggle');
+  if(tog) tog.className='toggle';
+  const conf=document.getElementById('dm-ocr-conf');
+  if(conf) conf.textContent='';
 }
 function updateCalcPreview() {
-const comm=parseFloat(document.getElementById('dm-comm')?.value)||0;
-const acc=parseFloat(document.getElementById('dm-acc')?.value)||0;
-const aft=parseFloat(document.getElementById('dm-aftmkt')?.value)||0;
-const fni=parseFloat(document.getElementById('dm-fni')?.value)||0;
-setEl('calcPreviewVal',fmt(comm+acc+aft+fni));
+  const comm=parseFloat(document.getElementById('dm-comm')?.value)||0;
+  const acc=parseFloat(document.getElementById('dm-acc')?.value)||0;
+  const aft=parseFloat(document.getElementById('dm-aftmkt')?.value)||0;
+  const fni=parseFloat(document.getElementById('dm-fni')?.value)||0;
+  setEl('calcPreviewVal',fmt(comm+acc+aft+fni));
 }
 function switchModalTab(idx) {
-document.querySelectorAll('[id^="dealTab"]').forEach((t,i)=>t.classList.toggle('active',i===idx));
-document.querySelectorAll('[id^="dtab-"]').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  document.querySelectorAll('[id^="dealTab"]').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('[id^="dtab-"]').forEach((p,i)=>p.classList.toggle('active',i===idx));
 }
 function refreshOptionsTab() {
-const pay=document.getElementById('dm-payperiod');
-if(pay){
-const [y,m]=state.selectedMonth.split('-');
-const days=new Date(+y,+m,0).getDate();
-pay.innerHTML='<option value="">Auto (from OCR/date)</option>'+
-Array.from({length:days},(_,i)=>{
-const d=i+1, mo=parseInt(m), yr=parseInt(y);
-const label=`${mo}/${d}/${yr}`;
-return `<option value="${label}">${label}</option>`;
-}).join('');
-}
-const hBtn=document.getElementById('holdActionBtn');
-if(hBtn) hBtn.textContent = editingId&&state.deals.find(d=>d.id===editingId)?.status==='On Hold'?'Return to Active':'Move to Hold';
+  const pay=document.getElementById('dm-payperiod');
+  if(pay){
+    const [y,m]=state.selectedMonth.split('-');
+    const days=new Date(+y,+m,0).getDate();
+    pay.innerHTML='<option value="">Auto (from OCR/date)</option>'+
+    Array.from({length:days},(_,i)=>{
+      const d=i+1, mo=parseInt(m), yr=parseInt(y);
+      const label=`${mo}/${d}/${yr}`;
+      return `<option value="${label}">${label}</option>`;
+    }).join('');
+  }
+  const hBtn=document.getElementById('holdActionBtn');
+  if(hBtn) hBtn.textContent = editingId&&state.deals.find(d=>d.id===editingId)?.status==='On Hold'?'Return to Active':'Move to Hold';
 }
 function toggleMismatch(btn) {
-btn.classList.toggle('on');
+  btn.classList.toggle('on');
 }
 function moveCurrentToHold() {
-const reason=document.getElementById('dm-holdreason')?.value||'';
-if(!editingId){ notify('Save the deal first, then move to hold.'); return; }
-const deal=state.deals.find(d=>d.id===editingId);
-if(!deal) return;
-deal.status='On Hold'; deal.holdReason=reason;
-const hDeal={id:crypto.randomUUID(), vehicle:deal.vehicle, customer:deal.customer,
-date:deal.date, extracted:deal.extracted, holdReason:reason, status:'On Hold'};
-state.holdDeals.push(hDeal);
-state.deals=state.deals.filter(d=>d.id!==editingId);
-saveStateLocal(); closeModal(); renderAll(); renderHoldTable();
-saveHoldFirestore(hDeal); deleteDealFirestore(editingId);
-notify('Moved to Hold File ✓');
+  const reason=document.getElementById('dm-holdreason')?.value||'';
+  if(!editingId){ notify('Save the deal first, then move to hold.'); return; }
+  const deal=state.deals.find(d=>d.id===editingId);
+  if(!deal) return;
+  deal.status='On Hold'; deal.holdReason=reason;
+  const hDeal={id:crypto.randomUUID(), vehicle:deal.vehicle, customer:deal.customer,
+  date:deal.date, extracted:deal.extracted, holdReason:reason, status:'On Hold'};
+  state.holdDeals.push(hDeal);
+  state.deals=state.deals.filter(d=>d.id!==editingId);
+  saveStateLocal(); closeModal(); renderAll(); renderHoldTable();
+  saveHoldFirestore(hDeal); deleteDealFirestore(editingId);
+  notify('Moved to Hold File ✓');
 }
 async function saveDeal() {
-const id = editingId||crypto.randomUUID();
-const stock=document.getElementById('dm-stock')?.value.trim()||'';
-const model=document.getElementById('dm-vehicle')?.value.trim()||'';
-const customer=document.getElementById('dm-customer')?.value.trim()||'';
-const date=document.getElementById('dm-date')?.value||new Date().toISOString().slice(0,10);
-const status=document.getElementById('dm-status')?.value||'Pending';
-const togOn=document.getElementById('mismatchToggle')?.classList.contains('on');
-const periodVal=document.getElementById('dm-payperiod')?.value||'';
-const splitVal=document.getElementById('dm-split')?.value.trim()||'';
-const holdReason=document.getElementById('dm-holdreason')?.value.trim()||'';
-const e={
-commissionNo1:parseFloat(document.getElementById('dm-comm')?.value)||0,
-accessories:parseFloat(document.getElementById('dm-acc')?.value)||0,
-aftermarket1:parseFloat(document.getElementById('dm-aftmkt')?.value)||0,
-fBonus1:parseFloat(document.getElementById('dm-fni')?.value)||0,
-profitOfSale:parseFloat(document.getElementById('dm-profit')?.value)||0,
-amProfit:parseFloat(document.getElementById('dm-amprofit')?.value)||0
-};
-const payout=e.commissionNo1+e.accessories+e.aftermarket1+e.fBonus1;
-const ocrConf=pendingOCR?.ocrConfidence??100;
-const deal={id,date,vehicle:{stock,model},customer,extracted:e,
-calculated:{totalCommission:payout},status,
-ocrConfidence:ocrConf, needsReview:ocrConf<70,
-sourceFile:pendingOCR?.sourceFile||'',
-ignoreMismatch:togOn,
-payPeriodOverride:periodVal||undefined,
-splitWith:splitVal||undefined,
-holdReason:holdReason||undefined
-};
-if(editingId){
-const idx=state.deals.findIndex(d=>d.id===editingId);
-if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
-} else { state.deals.unshift(deal); }
-saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
-try {
-await saveDealFirestore(deal);
-notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
-} catch(err) {
-console.error('[Firestore] Save error:', err);
-notify('Saved locally, sync failed ✗');
-}
+  const id = editingId||crypto.randomUUID();
+  const stock=document.getElementById('dm-stock')?.value.trim()||'';
+  const model=document.getElementById('dm-vehicle')?.value.trim()||'';
+  const customer=document.getElementById('dm-customer')?.value.trim()||'';
+  const date=document.getElementById('dm-date')?.value||new Date().toISOString().slice(0,10);
+  const status=document.getElementById('dm-status')?.value||'Pending';
+  const togOn=document.getElementById('mismatchToggle')?.classList.contains('on');
+  const periodVal=document.getElementById('dm-payperiod')?.value||'';
+  const splitVal=document.getElementById('dm-split')?.value.trim()||'';
+  const holdReason=document.getElementById('dm-holdreason')?.value.trim()||'';
+  const e={
+    commissionNo1:parseFloat(document.getElementById('dm-comm')?.value)||0,
+    accessories:parseFloat(document.getElementById('dm-acc')?.value)||0,
+    aftermarket1:parseFloat(document.getElementById('dm-aftmkt')?.value)||0,
+    fBonus1:parseFloat(document.getElementById('dm-fni')?.value)||0,
+    profitOfSale:parseFloat(document.getElementById('dm-profit')?.value)||0,
+    amProfit:parseFloat(document.getElementById('dm-amprofit')?.value)||0
+  };
+  const payout=e.commissionNo1+e.accessories+e.aftermarket1+e.fBonus1;
+  const ocrConf=pendingOCR?.ocrConfidence??100;
+  const deal={id,date,vehicle:{stock,model},customer,extracted:e,
+    calculated:{totalCommission:payout},status,
+    ocrConfidence:ocrConf, needsReview:ocrConf<70,
+    sourceFile:pendingOCR?.sourceFile||'',
+    ignoreMismatch:togOn,
+    payPeriodOverride:periodVal||undefined,
+    splitWith:splitVal||undefined,
+    holdReason:holdReason||undefined
+  };
+  if(editingId){
+    const idx=state.deals.findIndex(d=>d.id===editingId);
+    if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
+  } else { state.deals.unshift(deal); }
+  saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
+  try {
+    await saveDealFirestore(deal);
+    notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
+  } catch(err) {
+    console.error('Firestore save error:', err);
+    notify('Saved locally, sync failed ✗');
+  }
 }
 async function deleteDeal(id) {
-if(!confirm('Delete this deal?')) return;
-state.deals=state.deals.filter(d=>d.id!==id);
-saveStateLocal(); renderAll(); renderSummaryVerification();
-try {
-await deleteDealFirestore(id);
-notify('Deal deleted ✓');
-} catch(err) {
-console.error('[Firestore] Delete error:', err);
-notify('Error deleting deal ✗');
-}
+  if(!confirm('Delete this deal?')) return;
+  state.deals=state.deals.filter(d=>d.id!==id);
+  saveStateLocal(); renderAll(); renderSummaryVerification();
+  try {
+    await deleteDealFirestore(id);
+    notify('Deal deleted ✓');
+  } catch(err) {
+    console.error('Error deleting deal:', err);
+    notify('Error deleting deal ✗');
+  }
 }
 function clearAll() {
-if(!confirm('Clear ALL deals and data for this month? This cannot be undone.')) return;
-const mDeals=getMonthDeals(state.selectedMonth).map(d=>d.id);
-state.deals=state.deals.filter(d=>!mDeals.includes(d.id));
-saveStateLocal(); renderAll(); renderSummaryVerification();
-const uid=_uid();
-if(db&&uid) mDeals.forEach(id=>deleteDealFirestore(id));
-notify('Cleared ✓');
+  if(!confirm('Clear ALL deals and data for this month? This cannot be undone.')) return;
+  const mDeals=getMonthDeals(state.selectedMonth).map(d=>d.id);
+  state.deals=state.deals.filter(d=>!mDeals.includes(d.id));
+  saveStateLocal(); renderAll(); renderSummaryVerification();
+  const uid=_uid();
+  if(db&&uid) mDeals.forEach(id=>deleteDealFirestore(id));
+  notify('Cleared ✓');
 }
 function openHoldModal(id) {
-editingHoldId=id||null;
-if(id){
-const h=state.holdDeals.find(d=>d.id===id);
-if(!h) return;
-const e=h.extracted||{};
-setF('hm-stock',h.vehicle?.stock||h.stock||'');
-setF('hm-vehicle',h.vehicle?.model||h.vehicle||'');
-setF('hm-customer',h.customer||'');
-setF('hm-date',h.date||'');
-setF('hm-comm',e.commissionNo1||h.commission||0);
-setF('hm-aftmkt',e.aftermarket1||h.aftermarket||0);
-setF('hm-fni',e.fBonus1||h.fni||0);
-setF('hm-acc',e.accessories||h.accessories||0);
-setF('hm-reason',h.holdReason||h.reason||'');
-} else {
-['hm-stock','hm-vehicle','hm-customer','hm-reason'].forEach(id=>setF(id,''));
-['hm-comm','hm-aftmkt','hm-fni','hm-acc'].forEach(id=>setF(id,'0'));
-setF('hm-date',new Date().toISOString().slice(0,10));
-}
-updateHoldPreview();
-document.getElementById('holdOverlay').classList.add('open');
+  editingHoldId=id||null;
+  if(id){
+    const h=state.holdDeals.find(d=>d.id===id);
+    if(!h) return;
+    const e=h.extracted||{};
+    setF('hm-stock',h.vehicle?.stock||h.stock||'');
+    setF('hm-vehicle',h.vehicle?.model||h.vehicle||'');
+    setF('hm-customer',h.customer||'');
+    setF('hm-date',h.date||'');
+    setF('hm-comm',e.commissionNo1||h.commission||0);
+    setF('hm-aftmkt',e.aftermarket1||h.aftermarket||0);
+    setF('hm-fni',e.fBonus1||h.fni||0);
+    setF('hm-acc',e.accessories||h.accessories||0);
+    setF('hm-reason',h.holdReason||h.reason||'');
+  } else {
+    ['hm-stock','hm-vehicle','hm-customer','hm-reason'].forEach(id=>setF(id,''));
+    ['hm-comm','hm-aftmkt','hm-fni','hm-acc'].forEach(id=>setF(id,'0'));
+    setF('hm-date',new Date().toISOString().slice(0,10));
+  }
+  updateHoldPreview();
+  document.getElementById('holdOverlay').classList.add('open');
 }
 function closeHoldModal() {
-document.getElementById('holdOverlay').classList.remove('open');
-editingHoldId=null;
+  document.getElementById('holdOverlay').classList.remove('open');
+  editingHoldId=null;
 }
 function updateHoldPreview() {
-const c=parseFloat(document.getElementById('hm-comm')?.value)||0;
-const a=parseFloat(document.getElementById('hm-aftmkt')?.value)||0;
-const f=parseFloat(document.getElementById('hm-fni')?.value)||0;
-const ac=parseFloat(document.getElementById('hm-acc')?.value)||0;
-setEl('holdPreviewVal',fmt(c+a+f+ac));
+  const c=parseFloat(document.getElementById('hm-comm')?.value)||0;
+  const a=parseFloat(document.getElementById('hm-aftmkt')?.value)||0;
+  const f=parseFloat(document.getElementById('hm-fni')?.value)||0;
+  const ac=parseFloat(document.getElementById('hm-acc')?.value)||0;
+  setEl('holdPreviewVal',fmt(c+a+f+ac));
 }
 function saveHoldDeal() {
-const id=editingHoldId||crypto.randomUUID();
-const comm=parseFloat(document.getElementById('hm-comm')?.value)||0;
-const aft=parseFloat(document.getElementById('hm-aftmkt')?.value)||0;
-const fni=parseFloat(document.getElementById('hm-fni')?.value)||0;
-const acc=parseFloat(document.getElementById('hm-acc')?.value)||0;
-const h={id, stock:document.getElementById('hm-stock')?.value.trim(),
-vehicle:{model:document.getElementById('hm-vehicle')?.value.trim(),stock:document.getElementById('hm-stock')?.value.trim()},
-customer:document.getElementById('hm-customer')?.value.trim(),
-date:document.getElementById('hm-date')?.value,
-extracted:{commissionNo1:comm,aftermarket1:aft,fBonus1:fni,accessories:acc},
-holdReason:document.getElementById('hm-reason')?.value.trim(),
-status:'On Hold'
-};
-if(editingHoldId){ const idx=state.holdDeals.findIndex(d=>d.id===editingHoldId); if(idx>=0)state.holdDeals[idx]=h; else state.holdDeals.push(h); }
-else state.holdDeals.push(h);
-saveStateLocal(); closeHoldModal(); renderHoldTable(); renderSummaryVerification();
-saveHoldFirestore(h);
-notify('Hold saved ✓');
+  const id=editingHoldId||crypto.randomUUID();
+  const comm=parseFloat(document.getElementById('hm-comm')?.value)||0;
+  const aft=parseFloat(document.getElementById('hm-aftmkt')?.value)||0;
+  const fni=parseFloat(document.getElementById('hm-fni')?.value)||0;
+  const acc=parseFloat(document.getElementById('hm-acc')?.value)||0;
+  const h={id, stock:document.getElementById('hm-stock')?.value.trim(),
+  vehicle:{model:document.getElementById('hm-vehicle')?.value.trim(),stock:document.getElementById('hm-stock')?.value.trim()},
+  customer:document.getElementById('hm-customer')?.value.trim(),
+  date:document.getElementById('hm-date')?.value,
+  extracted:{commissionNo1:comm,aftermarket1:aft,fBonus1:fni,accessories:acc},
+  holdReason:document.getElementById('hm-reason')?.value.trim(),
+  status:'On Hold'
+  };
+  if(editingHoldId){ const idx=state.holdDeals.findIndex(d=>d.id===editingHoldId); if(idx>=0)state.holdDeals[idx]=h; else state.holdDeals.push(h); }
+  else state.holdDeals.push(h);
+  saveStateLocal(); closeHoldModal(); renderHoldTable(); renderSummaryVerification();
+  saveHoldFirestore(h);
+  notify('Hold saved ✓');
 }
 function releaseHold(id) {
-if(!confirm('Release this deal to Active?')) return;
-const h=state.holdDeals.find(d=>d.id===id);
-if(!h) return;
-const active={id:crypto.randomUUID(), date:h.date, vehicle:h.vehicle||{stock:h.stock,model:h.vehicle},
-customer:h.customer, extracted:h.extracted, status:'Pending',
-ocrConfidence:100, needsReview:false, sourceFile:''};
-state.deals.unshift(active);
-state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
-saveStateLocal(); renderAll(); renderHoldTable(); renderSummaryVerification();
-saveDealFirestore(active); deleteHoldFirestore(id);
-notify('Released to Active ✓');
+  if(!confirm('Release this deal to Active?')) return;
+  const h=state.holdDeals.find(d=>d.id===id);
+  if(!h) return;
+  const active={id:crypto.randomUUID(), date:h.date, vehicle:h.vehicle||{stock:h.stock,model:h.vehicle},
+  customer:h.customer, extracted:h.extracted, status:'Pending',
+  ocrConfidence:100, needsReview:false, sourceFile:''};
+  state.deals.unshift(active);
+  state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
+  saveStateLocal(); renderAll(); renderHoldTable(); renderSummaryVerification();
+  saveDealFirestore(active); deleteHoldFirestore(id);
+  notify('Released to Active ✓');
 }
 async function deleteHold(id) {
-if(!confirm('Delete this hold?')) return;
-state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
-saveStateLocal(); renderHoldTable(); renderSummaryVerification();
-try {
-await deleteHoldFirestore(id);
-notify('Hold deleted ✓');
-} catch(err) {
-console.error('[Firestore] Delete hold error:', err);
-notify('Error deleting hold ✗');
+  if(!confirm('Delete this hold?')) return;
+  state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
+  saveStateLocal(); renderHoldTable(); renderSummaryVerification();
+  try {
+    await deleteHoldFirestore(id);
+    notify('Hold deleted ✓');
+  } catch(err) {
+    console.error('Error deleting hold:', err);
+    notify('Error deleting hold ');
+  }
 }
-}
+
+// 🔍 SEARCH: PROFILE & USER
 function nameToDocVariants(name) {
-const parts=name.toUpperCase().trim().split(/\s+/);
-if(parts.length<2) return name.toUpperCase();
-const last=parts[parts.length-1];
-const firsts=parts.slice(0,-1).join(' ');
-return `${last}, ${firsts} · ${last}, ${parts[0][0]}`;
+  const parts=name.toUpperCase().trim().split(/\s+/);
+  if(parts.length<2) return name.toUpperCase();
+  const last=parts[parts.length-1];
+  const firsts=parts.slice(0,-1).join(' ');
+  return `${last}, ${firsts} · ${last}, ${parts[0][0]}`;
 }
 function defaultProfile(user) {
-const name=user.displayName||'';
-return { uid:user.uid, displayName:name, email:user.email||'', phone:'', employeeId:'',
-role:'Sales Consultant', hireDate:'', dealership:'My Honda Dealership', dealerAddr:'',
-manager:'', reviewMonth:'', docName:name?nameToDocVariants(name):'', photoURL:'' };
+  const name=user.displayName||'';
+  return { uid:user.uid, displayName:name, email:user.email||'', phone:'', employeeId:'',
+  role:'Sales Consultant', hireDate:'', dealership:'My Honda Dealership', dealerAddr:'',
+  manager:'', reviewMonth:'', docName:name?nameToDocVariants(name):'', photoURL:'' };
 }
 function loadUserProfile(uid) {
-try {
-const key=`vhonda_profile_${uid}`;
-const raw=localStorage.getItem(key);
-if(raw) window._userProfile={...defaultProfile(window._currentUser||OFFLINE_USER),...JSON.parse(raw)};
-else window._userProfile=defaultProfile(window._currentUser||OFFLINE_USER);
-} catch{ window._userProfile=defaultProfile(window._currentUser||OFFLINE_USER); }
+  try {
+    const key=`vhonda_profile_${uid}`;
+    const raw=localStorage.getItem(key);
+    if(raw) window._userProfile={...defaultProfile(window._currentUser||OFFLINE_USER),...JSON.parse(raw)};
+    else window._userProfile=defaultProfile(window._currentUser||OFFLINE_USER);
+  } catch{ window._userProfile=defaultProfile(window._currentUser||OFFLINE_USER); }
 }
 function saveUserProfile() {
-const uid=(window._currentUser?.uid||'offline');
-const key=`vhonda_profile_${uid}`;
-localStorage.setItem(key, JSON.stringify(window._userProfile));
-const n=window._userProfile.displayName;
-if(n){setEl('headerUserName',n);setEl('userDisplayName',n);}
-if(window._userProfile.photoURL){
-const av=document.getElementById('userAvatar');
-if(av){av.textContent='';av.style.backgroundImage=`url(${window._userProfile.photoURL})`;av.style.backgroundSize='cover';}
-}
-if(db&&_uid()){
-db.doc(`users/${_uid()}/meta/profile`).set(window._userProfile,{merge:true}).catch(()=>{});
-}
+  const uid=(window._currentUser?.uid||'offline');
+  const key=`vhonda_profile_${uid}`;
+  localStorage.setItem(key, JSON.stringify(window._userProfile));
+  const n=window._userProfile.displayName;
+  if(n){setEl('headerUserName',n);setEl('userDisplayName',n);}
+  if(window._userProfile.photoURL){
+    const av=document.getElementById('userAvatar');
+    if(av){av.textContent='';av.style.backgroundImage=`url(${window._userProfile.photoURL})`;av.style.backgroundSize='cover';}
+  }
+  if(db&&_uid()){
+    db.doc(`users/${_uid()}/meta/profile`).set(window._userProfile,{merge:true}).catch(()=>{});
+  }
 }
 function getOCRNameVariants() {
-const raw=window._userProfile?.docName||window._currentUser?.displayName||'';
-if(!raw) return [];
-return raw.split('·').map(s=>s.trim().toUpperCase()).filter(Boolean);
+  const raw=window._userProfile?.docName||window._currentUser?.displayName||'';
+  if(!raw) return [];
+  return raw.split('·').map(s=>s.trim().toUpperCase()).filter(Boolean);
 }
 function openProfileModal() {
-closeUserMenu();
-syncProfileToModal();
-document.getElementById('profileOverlay').classList.add('open');
+  closeUserMenu();
+  syncProfileToModal();
+  document.getElementById('profileOverlay').classList.add('open');
 }
 function closeProfileModal() { document.getElementById('profileOverlay').classList.remove('open'); }
 function switchProfileTab(tab) {
-['info','security','dealer'].forEach(t=>{
-const el=document.getElementById(`ptab-${t}`);
-if(el) el.classList.toggle('active',t===tab);
-});
-document.querySelectorAll('.modal-tabs .modal-tab').forEach((btn,i)=>{
-btn.classList.toggle('active',['info','security','dealer'][i]===tab);
-});
+  ['info','security','dealer'].forEach(t=>{
+    const el=document.getElementById(`ptab-${t}`);
+    if(el) el.classList.toggle('active',t===tab);
+  });
+  document.querySelectorAll('.modal-tabs .modal-tab').forEach((btn,i)=>{
+    btn.classList.toggle('active',['info','security','dealer'][i]===tab);
+  });
 }
 function syncProfileToModal() {
-const p=window._userProfile||{};
-setF('pf-name',p.displayName||'');
-setF('pf-email',p.email||window._currentUser?.email||'');
-setF('pf-phone',p.phone||'');
-setF('pf-empid',p.employeeId||'');
-setF('pf-role',p.role||'Sales Consultant');
-setF('pf-hire',p.hireDate||'');
-setF('pf-docname',p.docName||'');
-setF('pf-dealer',p.dealership||'');
-setF('pf-addr',p.dealerAddr||'');
-setF('pf-mgr',p.manager||'');
-setF('pf-revmonth',p.reviewMonth||'');
-const initials=(p.displayName||'?').split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)||'?';
-const bigAv=document.getElementById('profileAvatarBig');
-if(bigAv){
-if(p.photoURL){bigAv.style.backgroundImage=`url(${p.photoURL})`;bigAv.style.backgroundSize='cover';document.getElementById('profileAvatarInitials').textContent='';}
-else{bigAv.style.backgroundImage='';document.getElementById('profileAvatarInitials').textContent=initials;}
-}
-const verif=document.getElementById('pf-verif-status');
-const user=fbAuth?.currentUser;
-if(verif&&user) verif.textContent='Status: '+(user.emailVerified?'✓ Verified':'✗ Not verified');
-else if(verif) verif.textContent='Status: Offline mode';
+  const p=window._userProfile||{};
+  setF('pf-name',p.displayName||'');
+  setF('pf-email',p.email||window._currentUser?.email||'');
+  setF('pf-phone',p.phone||'');
+  setF('pf-empid',p.employeeId||'');
+  setF('pf-role',p.role||'Sales Consultant');
+  setF('pf-hire',p.hireDate||'');
+  setF('pf-docname',p.docName||'');
+  setF('pf-dealer',p.dealership||'');
+  setF('pf-addr',p.dealerAddr||'');
+  setF('pf-mgr',p.manager||'');
+  setF('pf-revmonth',p.reviewMonth||'');
+  const initials=(p.displayName||'?').split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2)||'?';
+  const bigAv=document.getElementById('profileAvatarBig');
+  if(bigAv){
+    if(p.photoURL){bigAv.style.backgroundImage=`url(${p.photoURL})`;bigAv.style.backgroundSize='cover';document.getElementById('profileAvatarInitials').textContent='';}
+    else{bigAv.style.backgroundImage='';document.getElementById('profileAvatarInitials').textContent=initials;}
+  }
+  const verif=document.getElementById('pf-verif-status');
+  const user=fbAuth?.currentUser;
+  if(verif&&user) verif.textContent='Status: '+(user.emailVerified?'✓ Verified':'✗ Not verified');
+  else if(verif) verif.textContent='Status: Offline mode';
 }
 function saveProfileInfo() {
-if(!window._userProfile) window._userProfile={};
-window._userProfile.displayName=document.getElementById('pf-name')?.value.trim()||'';
-window._userProfile.phone=document.getElementById('pf-phone')?.value.trim()||'';
-window._userProfile.employeeId=document.getElementById('pf-empid')?.value.trim()||'';
-window._userProfile.role=document.getElementById('pf-role')?.value.trim()||'Sales Consultant';
-window._userProfile.hireDate=document.getElementById('pf-hire')?.value||'';
-window._userProfile.docName=document.getElementById('pf-docname')?.value.trim()||'';
-saveUserProfile();
-notify('Profile saved ✓');
+  if(!window._userProfile) window._userProfile={};
+  window._userProfile.displayName=document.getElementById('pf-name')?.value.trim()||'';
+  window._userProfile.phone=document.getElementById('pf-phone')?.value.trim()||'';
+  window._userProfile.employeeId=document.getElementById('pf-empid')?.value.trim()||'';
+  window._userProfile.role=document.getElementById('pf-role')?.value.trim()||'Sales Consultant';
+  window._userProfile.hireDate=document.getElementById('pf-hire')?.value||'';
+  window._userProfile.docName=document.getElementById('pf-docname')?.value.trim()||'';
+  saveUserProfile();
+  notify('Profile saved ✓');
 }
 function saveDealerInfo() {
-if(!window._userProfile) window._userProfile={};
-window._userProfile.dealership=document.getElementById('pf-dealer')?.value.trim()||'';
-window._userProfile.dealerAddr=document.getElementById('pf-addr')?.value.trim()||'';
-window._userProfile.manager=document.getElementById('pf-mgr')?.value.trim()||'';
-window._userProfile.reviewMonth=document.getElementById('pf-revmonth')?.value.trim()||'';
-saveUserProfile();
-notify('Dealership info saved ✓');
+  if(!window._userProfile) window._userProfile={};
+  window._userProfile.dealership=document.getElementById('pf-dealer')?.value.trim()||'';
+  window._userProfile.dealerAddr=document.getElementById('pf-addr')?.value.trim()||'';
+  window._userProfile.manager=document.getElementById('pf-mgr')?.value.trim()||'';
+  window._userProfile.reviewMonth=document.getElementById('pf-revmonth')?.value.trim()||'';
+  saveUserProfile();
+  notify('Dealership info saved ✓');
 }
 async function changePassword() {
-const p1=document.getElementById('pf-pw1')?.value;
-const p2=document.getElementById('pf-pw2')?.value;
-if(!p1||p1!==p2){notify('Passwords do not match ✗');return;}
-if(!fbAuth?.currentUser){notify('Not signed in');return;}
-try{
-await fbAuth.currentUser.updatePassword(p1);
-setF('pf-pw1',''); setF('pf-pw2','');
-notify('Password changed ✓');
-} catch(e){
-if(e.code==='auth/requires-recent-login') notify('Please sign out and back in to change password.');
-else notify('Error: '+e.message);
-}
+  const p1=document.getElementById('pf-pw1')?.value;
+  const p2=document.getElementById('pf-pw2')?.value;
+  if(!p1||p1!==p2){notify('Passwords do not match ✗');return;}
+  if(!fbAuth?.currentUser){notify('Not signed in');return;}
+  try{
+    await fbAuth.currentUser.updatePassword(p1);
+    setF('pf-pw1',''); setF('pf-pw2','');
+    notify('Password changed ✓');
+  } catch(e){
+    if(e.code==='auth/requires-recent-login') notify('Please sign out and back in to change password.');
+    else notify('Error: '+e.message);
+  }
 }
 async function sendVerificationEmail() {
-if(!fbAuth?.currentUser){notify('Not signed in');return;}
-try{await fbAuth.currentUser.sendEmailVerification();notify('Verification email sent ✓');}
-catch(e){notify('Error: '+e.message);}
+  if(!fbAuth?.currentUser){notify('Not signed in');return;}
+  try{await fbAuth.currentUser.sendEmailVerification();notify('Verification email sent ✓');}
+  catch(e){notify('Error: '+e.message);}
 }
 function savePINFromProfile() {
-const pin=document.getElementById('pf-pin')?.value;
-if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){notify('PIN must be 4 digits ✗');return;}
-localStorage.setItem('vhonda_pin',pin);
-setF('pf-pin','');
-notify('PIN saved ✓');
+  const pin=document.getElementById('pf-pin')?.value;
+  if(!pin||pin.length!==4||!/^\d{4}$/.test(pin)){notify('PIN must be 4 digits ✗');return;}
+  localStorage.setItem('vhonda_pin',pin);
+  setF('pf-pin','');
+  notify('PIN saved ✓');
 }
 async function confirmDeleteAccount() {
-if(!confirm('Are you sure you want to delete your account? All data will be lost.')) return;
-const typed=prompt('Type DELETE to confirm:');
-if(typed!=='DELETE'){notify('Account deletion cancelled.');return;}
-const uid=_uid();
-if(db&&uid){
-const batch=db.batch();
-const deals=await db.collection(`users/${uid}/deals`).get();
-deals.forEach(doc=>batch.delete(doc.ref));
-const holds=await db.collection(`users/${uid}/holdDeals`).get();
-holds.forEach(doc=>batch.delete(doc.ref));
-await batch.commit();
-await db.doc(`users/${uid}/meta/prefs`).delete().catch(()=>{});
-await db.doc(`users/${uid}/meta/profile`).delete().catch(()=>{});
-}
-if(fbAuth?.currentUser){
-try{await fbAuth.currentUser.delete();}
-catch(e){notify('Error: '+e.message+' · Please sign out and back in first.');}
-}
-localStorage.removeItem(SK);
-localStorage.removeItem('vhonda_profile_'+uid);
-onLogout();
+  if(!confirm('Are you sure you want to delete your account? All data will be lost.')) return;
+  const typed=prompt('Type DELETE to confirm:');
+  if(typed!=='DELETE'){notify('Account deletion cancelled.');return;}
+  const uid=_uid();
+  if(db&&uid){
+    const batch=db.batch();
+    const deals=await db.collection(`users/${uid}/deals`).get();
+    deals.forEach(doc=>batch.delete(doc.ref));
+    const holds=await db.collection(`users/${uid}/holdDeals`).get();
+    holds.forEach(doc=>batch.delete(doc.ref));
+    await batch.commit();
+    await db.doc(`users/${uid}/meta/prefs`).delete().catch(()=>{});
+    await db.doc(`users/${uid}/meta/profile`).delete().catch(()=>{});
+  }
+  if(fbAuth?.currentUser){
+    try{await fbAuth.currentUser.delete();}
+    catch(e){notify('Error: '+e.message+' · Please sign out and back in first.');}
+  }
+  localStorage.removeItem(SK);
+  localStorage.removeItem('vhonda_profile_'+uid);
+  onLogout();
 }
 function uploadAvatar(event) {
-const file=event.target.files?.[0];if(!file)return;
-const reader=new FileReader();
-reader.onload=()=>{
-const dataUrl=reader.result;
-if(!window._userProfile) window._userProfile={};
-window._userProfile.photoURL=dataUrl;
-const bigAv=document.getElementById('profileAvatarBig');
-if(bigAv){bigAv.style.backgroundImage=`url(${dataUrl})`;bigAv.style.backgroundSize='cover';document.getElementById('profileAvatarInitials').textContent='';}
-const av=document.getElementById('userAvatar');
-if(av){av.textContent='';av.style.backgroundImage=`url(${dataUrl})`;av.style.backgroundSize='cover';}
-saveUserProfile();
-notify('Avatar updated ✓');
-};
-reader.readAsDataURL(file);
+  const file=event.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const dataUrl=reader.result;
+    if(!window._userProfile) window._userProfile={};
+    window._userProfile.photoURL=dataUrl;
+    const bigAv=document.getElementById('profileAvatarBig');
+    if(bigAv){bigAv.style.backgroundImage=`url(${dataUrl})`;bigAv.style.backgroundSize='cover';document.getElementById('profileAvatarInitials').textContent='';}
+    const av=document.getElementById('userAvatar');
+    if(av){av.textContent='';av.style.backgroundImage=`url(${dataUrl})`;av.style.backgroundSize='cover';}
+    saveUserProfile();
+    notify('Avatar updated ✓');
+  };
+  reader.readAsDataURL(file);
 }
+
+// 🔍 SEARCH: REVIEWS & EXPORT
 function parseReviewCompOCR(text) {
-const variants=getOCRNameVariants();
-const lastName=(window._currentUser?.displayName||'').toUpperCase().split(' ').pop();
-const lines=text.split('\n');
-const rows=[];
-for(const line of lines){
-if(/Sales Associate|Dealer Rat|^Total|TOTAL$/i.test(line.trim())) continue;
-const lineUpper=line.toUpperCase();
-const isMatch=variants.some(v=>lineUpper.includes(v.split(',')[0]))
-||(lastName&&lineUpper.includes(lastName));
-if(!isMatch) continue;
-const nums=line.match(/\$?[\d,]+\.\d{2}/g)||[];
-const intNums=line.match(/\b\d{1,3}\b/g)||[];
-rows.push({
-name:window._currentUser?.displayName||'Me',
-comp:parseFloat((nums[0]||'0').replace(/,/g,'')),
-dealer:parseFloat((nums[1]||'0').replace(/,/g,'')),
-google:parseFloat((nums[2]||'0').replace(/,/g,'')),
-total:parseFloat((nums[3]||nums[nums.length-1]||'0').replace(/,/g,'')),
-rank:parseInt(intNums[0])||null
-});
-break;
-}
-return rows;
+  const variants=getOCRNameVariants();
+  const lastName=(window._currentUser?.displayName||'').toUpperCase().split(' ').pop();
+  const lines=text.split('\n');
+  const rows=[];
+  for(const line of lines){
+    if(/Sales Associate|Dealer Rat|^Total|TOTAL$/i.test(line.trim())) continue;
+    const lineUpper=line.toUpperCase();
+    const isMatch=variants.some(v=>lineUpper.includes(v.split(',')[0]))
+    ||(lastName&&lineUpper.includes(lastName));
+    if(!isMatch) continue;
+    const nums=line.match(/\$?[\d,]+\.\d{2}/g)||[];
+    const intNums=line.match(/\b\d{1,3}\b/g)||[];
+    rows.push({
+      name:window._currentUser?.displayName||'Me',
+      comp:parseFloat((nums[0]||'0').replace(/,/g,'')),
+      dealer:parseFloat((nums[1]||'0').replace(/,/g,'')),
+      google:parseFloat((nums[2]||'0').replace(/,/g,'')),
+      total:parseFloat((nums[3]||nums[nums.length-1]||'0').replace(/,/g,'')),
+      rank:parseInt(intNums[0])||null
+    });
+    break;
+  }
+  return rows;
 }
 function renderReviewComp(data) {
-const body=document.getElementById('rvBody');
-if(!body) return;
-const rv=data||state.reviewCompData;
-if(!rv){
-body.innerHTML=`<div class="blank-state"><div class="blank-state-icon">📸</div>
-<div class="blank-state-text">Scan your compensation sheet to see your data here · Click "Scan Commission Summary" and upload your review comp sheet</div></div>`;
-return;
-}
-const name=window._currentUser?.displayName||'Me';
-setEl('rv-my-name-label', name+' · '+(state.reviewPeriod||'Period'));
-body.innerHTML=`<div class="rv-row"><span class="rv-label">Compensation</span><span class="rv-val">${fmt(rv.comp||0)}</span></div>
-<div class="rv-row"><span class="rv-label">Dealer Rating Reviews</span><span class="rv-val">${rv.dealer||'—'}</span></div>
-<div class="rv-row"><span class="rv-label">Google Reviews</span><span class="rv-val">${rv.google||'—'}</span></div>
-<div class="rv-row" style="border-bottom:none"><span class="rv-label">Total Review Score</span><span class="rv-val" style="color:var(--accent);font-size:1rem">${rv.total||'—'}</span></div>
-${rv.rank?`<div style="margin-top:12px;text-align:center;font-size:0.7rem;color:var(--text-dim)">Rank: <strong style="color:var(--ink)">#${rv.rank}</strong></div>`:''}`;
+  const body=document.getElementById('rvBody');
+  if(!body) return;
+  const rv=data||state.reviewCompData;
+  if(!rv){
+    body.innerHTML=`<div class="blank-state"><div class="blank-state-icon">📸</div>
+    <div class="blank-state-text">Scan your compensation sheet to see your data here · Click "Scan Commission Summary" and upload your review comp sheet</div></div>`;
+    return;
+  }
+  const name=window._currentUser?.displayName||'Me';
+  setEl('rv-my-name-label', name+' · '+(state.reviewPeriod||'Period'));
+  body.innerHTML=`<div class="rv-row"><span class="rv-label">Compensation</span><span class="rv-val">${fmt(rv.comp||0)}</span></div>
+  <div class="rv-row"><span class="rv-label">Dealer Rating Reviews</span><span class="rv-val">${rv.dealer||'—'}</span></div>
+  <div class="rv-row"><span class="rv-label">Google Reviews</span><span class="rv-val">${rv.google||'—'}</span></div>
+  <div class="rv-row" style="border-bottom:none"><span class="rv-label">Total Review Score</span><span class="rv-val" style="color:var(--accent);font-size:1rem">${rv.total||'—'}</span></div>
+  ${rv.rank?`<div style="margin-top:12px;text-align:center;font-size:0.7rem;color:var(--text-dim)">Rank: <strong style="color:var(--ink)">#${rv.rank}</strong></div>`:''}`;
 }
 function loadCachedReviews() {
-try {
-const cached=JSON.parse(localStorage.getItem('vhonda_reviews_cache')||'{}');
-if(cached.ts && Date.now()-cached.ts < 24*3600*1000 && cached.reviews?.length) {
-reviewsAll=cached.reviews;
-renderReviewsGrid();
-updateUserMentionBadge();
-}
-} catch{}
+  try {
+    const cached=JSON.parse(localStorage.getItem('vhonda_reviews_cache')||'{}');
+    if(cached.ts && Date.now()-cached.ts < 24*3600*1000 && cached.reviews?.length) {
+      reviewsAll=cached.reviews;
+      renderReviewsGrid();
+      updateUserMentionBadge();
+    }
+  } catch{}
 }
 function getFilteredReviews() {
-return reviewsAll.filter(r=>{
-if(currentFilter==='5') return r.stars===5;
-if(currentFilter==='4') return r.stars===4;
-if(currentFilter==='mention') return r.mentionsUser;
-return true;
-}).filter(r=>{
-if(!currentSearchText) return true;
-const q=currentSearchText.toLowerCase();
-return r.text?.toLowerCase().includes(q)||r.author?.toLowerCase().includes(q);
-});
+  return reviewsAll.filter(r=>{
+    if(currentFilter==='5') return r.stars===5;
+    if(currentFilter==='4') return r.stars===4;
+    if(currentFilter==='mention') return r.mentionsUser;
+    return true;
+  }).filter(r=>{
+    if(!currentSearchText) return true;
+    const q=currentSearchText.toLowerCase();
+    return r.text?.toLowerCase().includes(q)||r.author?.toLowerCase().includes(q);
+  });
 }
 function renderReviewsGrid() {
-const grid=document.getElementById('reviewsGrid');
-if(!grid) return;
-const filtered=getFilteredReviews();
-const visible=filtered.slice(0,reviewsVisible);
-if(!filtered.length){
-grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No reviews found</div></div>`;
-return;
-}
-const userName=window._currentUser?.displayName||'';
-grid.innerHTML=visible.map(r=>{
-const stars='★'.repeat(r.stars||5)+'☆'.repeat(5-(r.stars||5));
-const src=r.source?.toLowerCase().includes('google')?'source-google':'source-dealerrater';
-const srcLabel=r.source||'Google';
-const text=userName?r.text?.replace(new RegExp(userName,'gi'),m=>`<mark>${m}</mark>`):r.text||'';
-return `<div class="review-card glass">
-<div class="review-card-author">${esc(r.author||'Customer')}</div>
-<div class="review-card-date">${esc(r.date||'')}</div>
-<div class="review-card-stars">${stars}</div>
-<div class="review-card-text">${text}</div>
-<div class="review-card-footer">
-<span class="source-badge ${src}">${esc(srcLabel)}</span>
-${r.mentionsUser?`<span class="source-badge source-user-mention">✓ Mentions me</span>`:''}
-${r.customerMatch?`<span class="source-badge" style="background:var(--surface-mute);color:var(--text-dim)">${esc(r.customerMatch)}</span>`:''}
-</div>
-</div>`;
-}).join('');
-const showMore=document.getElementById('showMoreWrap');
-if(showMore) showMore.style.display=filtered.length>reviewsVisible?'block':'none';
+  const grid=document.getElementById('reviewsGrid');
+  if(!grid) return;
+  const filtered=getFilteredReviews();
+  const visible=filtered.slice(0,reviewsVisible);
+  if(!filtered.length){
+    grid.innerHTML=`<div class="blank-state" style="grid-column:1/-1"><div class="blank-state-icon"></div><div class="blank-state-text">No reviews found</div></div>`;
+    return;
+  }
+  const userName=window._currentUser?.displayName||'';
+  grid.innerHTML=visible.map(r=>{
+    const stars='★'.repeat(r.stars||5)+'☆'.repeat(5-(r.stars||5));
+    const src=r.source?.toLowerCase().includes('google')?'source-google':'source-dealerrater';
+    const srcLabel=r.source||'Google';
+    const text=userName?r.text?.replace(new RegExp(userName,'gi'),m=>`<mark>${m}</mark>`):r.text||'';
+    return `<div class="review-card glass">
+    <div class="review-card-author">${esc(r.author||'Customer')}</div>
+    <div class="review-card-date">${esc(r.date||'')}</div>
+    <div class="review-card-stars">${stars}</div>
+    <div class="review-card-text">${text}</div>
+    <div class="review-card-footer">
+    <span class="source-badge ${src}">${esc(srcLabel)}</span>
+    ${r.mentionsUser?`<span class="source-badge source-user-mention">✓ Mentions me</span>`:''}
+    ${r.customerMatch?`<span class="source-badge" style="background:var(--surface-mute);color:var(--text-dim)">${esc(r.customerMatch)}</span>`:''}
+    </div>
+    </div>`;
+  }).join('');
+  const showMore=document.getElementById('showMoreWrap');
+  if(showMore) showMore.style.display=filtered.length>reviewsVisible?'block':'none';
 }
 function filterReviews(f) {
-currentFilter=f; reviewsVisible=12;
-document.querySelectorAll('.review-filter-btn').forEach(btn=>{
-btn.classList.toggle('active',
-(f==='all'&&btn.textContent.startsWith('All'))||
-(f==='5'&&btn.textContent.startsWith('★5'))||
-(f==='4'&&btn.textContent.startsWith('★4'))||
-(f==='mention'&&btn.textContent.startsWith('Mentions'))
-);
-});
-renderReviewsGrid();
+  currentFilter=f; reviewsVisible=12;
+  document.querySelectorAll('.review-filter-btn').forEach(btn=>{
+    btn.classList.toggle('active',
+    (f==='all'&&btn.textContent.startsWith('All'))||
+    (f==='5'&&btn.textContent.startsWith('★5'))||
+    (f==='4'&&btn.textContent.startsWith('★4'))||
+    (f==='mention'&&btn.textContent.startsWith('Mentions'))
+    );
+  });
+  renderReviewsGrid();
 }
 function filterReviewsText(val) { currentSearchText=val; reviewsVisible=12; renderReviewsGrid(); }
 function showMoreReviews() { reviewsVisible+=12; renderReviewsGrid(); }
 function updateUserMentionBadge() {
-const mentions=reviewsAll.filter(r=>r.mentionsUser).length;
-setEl('revCountAll',reviewsAll.length);
-setEl('revCount5',reviewsAll.filter(r=>r.stars===5).length);
-setEl('revCount4',reviewsAll.filter(r=>r.stars===4).length);
-setEl('revCountMention',mentions);
+  const mentions=reviewsAll.filter(r=>r.mentionsUser).length;
+  setEl('revCountAll',reviewsAll.length);
+  setEl('revCount5',reviewsAll.filter(r=>r.stars===5).length);
+  setEl('revCount4',reviewsAll.filter(r=>r.stars===4).length);
+  setEl('revCountMention',mentions);
 }
 async function fetchLiveReviews() {
-const btn=document.getElementById('fetchReviewsBtn');
-const icon=document.getElementById('fetchReviewsIcon');
-if(btn) btn.disabled=true;
-if(icon) icon.style.animation='spin 1s linear infinite';
-const mDeals=getMonthDeals(state.selectedMonth);
-const myCustomers=mDeals.slice(0,8).map(d=>`${d.customer||'Customer'} (${d.vehicle?.model||'Honda'}, Stock ${d.vehicle?.stock||'—'})`).join(', ')||'recent Honda customers';
-const userName=window._currentUser?.displayName||'the salesperson';
-const prompt=`Generate 12 realistic customer reviews for a Honda dealership salesperson named "${userName}".
+  const btn=document.getElementById('fetchReviewsBtn');
+  const icon=document.getElementById('fetchReviewsIcon');
+  if(btn) btn.disabled=true;
+  if(icon) icon.style.animation='spin 1s linear infinite';
+  const mDeals=getMonthDeals(state.selectedMonth);
+  const myCustomers=mDeals.slice(0,8).map(d=>`${d.customer||'Customer'} (${d.vehicle?.model||'Honda'}, Stock ${d.vehicle?.stock||'—'})`).join(', ')||'recent Honda customers';
+  const userName=window._currentUser?.displayName||'the salesperson';
+  const prompt=`Generate 12 realistic customer reviews for a Honda dealership salesperson named "${userName}".
 Rules:
 - ALL reviews must mention "${userName}" by name somewhere in the text
 - Use these customer names when possible: ${myCustomers}
@@ -2697,115 +2545,96 @@ Rules:
 - Set customerMatch to "Name · Stock# · Model" when using a real customer
 Respond ONLY with a valid JSON array, no markdown, no preamble.
 Each object: {author, date, stars, text, source, mentionsUser, customerMatch}`;
-try {
-const res=await fetch('https://api.anthropic.com/v1/messages',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-});
-const data=await res.json();
-const raw=data.content?.map(c=>c.text||'').join('')||'[]';
-const clean=raw.replace(/```json|```/g,'').trim();
-const reviews=JSON.parse(clean);
-reviewsAll=[...SEEDED_REVIEWS,...(Array.isArray(reviews)?reviews:[])];
-localStorage.setItem('vhonda_reviews_cache',JSON.stringify({ts:Date.now(),reviews:reviewsAll}));
-renderReviewsGrid(); updateUserMentionBadge();
-notify(`${reviewsAll.length} reviews generated ✓`);
-} catch(e){ notify('Reviews error: '+e.message); }
-finally { if(btn) btn.disabled=false; if(icon) icon.style.animation=''; }
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=data.content?.map(c=>c.text||'').join('')||'[]';
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const reviews=JSON.parse(clean);
+    reviewsAll=[...SEEDED_REVIEWS,...(Array.isArray(reviews)?reviews:[])];
+    localStorage.setItem('vhonda_reviews_cache',JSON.stringify({ts:Date.now(),reviews:reviewsAll}));
+    renderReviewsGrid(); updateUserMentionBadge();
+    notify(`${reviewsAll.length} reviews generated ✓`);
+  } catch(e){ notify('Reviews error: '+e.message); }
+  finally { if(btn) btn.disabled=false; if(icon) icon.style.animation=''; }
 }
 function exportCSV() {
-const mDeals=getMonthDeals(state.selectedMonth);
-const header=['Date','Customer','Stock #','Vehicle','Commission','Accessories','Aftermarket','F&I Bonus','Profit of Sale','Total Payout','Status','Pay Period','Split'];
-const rows=mDeals.map(d=>{
-const e=d.extracted||{};
-return [d.date,d.customer||'',d.vehicle?.stock||'',d.vehicle?.model||'',
-e.commissionNo1||0,e.accessories||0,e.aftermarket1||0,e.fBonus1||0,e.profitOfSale||0,
-calcPayout(d).toFixed(2),d.status||'',d.payPeriodOverride||'',d.splitWith||''];
-});
-const csv=[header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-const blob=new Blob([csv],{type:'text/csv'});
-const url=URL.createObjectURL(blob);
-const a=document.createElement('a');
-a.href=url; a.download=`commission_${state.selectedMonth}.csv`; a.click();
-URL.revokeObjectURL(url);
-notify('CSV exported ✓');
+  const mDeals=getMonthDeals(state.selectedMonth);
+  const header=['Date','Customer','Stock #','Vehicle','Commission','Accessories','Aftermarket','F&I Bonus','Profit of Sale','Total Payout','Status','Pay Period','Split'];
+  const rows=mDeals.map(d=>{
+    const e=d.extracted||{};
+    return [d.date,d.customer||'',d.vehicle?.stock||'',d.vehicle?.model||'',
+    e.commissionNo1||0,e.accessories||0,e.aftermarket1||0,e.fBonus1||0,e.profitOfSale||0,
+    calcPayout(d).toFixed(2),d.status||'',d.payPeriodOverride||'',d.splitWith||''];
+  });
+  const csv=[header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`commission_${state.selectedMonth}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  notify('CSV exported ✓');
 }
+
+// 🔍 SEARCH: INITIALIZATION
 function getLast6Months() {
-const months=[];
-const now=new Date();
-for(let i=5;i>=0;i--){
-const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-months.push(d.toISOString().slice(0,7));
-}
-return months;
+  const months=[];
+  const now=new Date();
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push(d.toISOString().slice(0,7));
+  }
+  return months;
 }
 function seedDeals() {
-if(state.deals.length>0) return;
-state.selectedMonth=new Date().toISOString().slice(0,7);
-saveStateLocal();
+  if(state.deals.length>0) return;
+  state.selectedMonth=new Date().toISOString().slice(0,7);
+  saveStateLocal();
 }
 function cleanupLegacyData() {
-const LEGACY_KEYS = [
-'salesTracker',
-'autotrack_v1',
-'vhd_v3',
-'vhonda_dashboard_v3',
-'vhd_th',
-'vhonda_deals',
-'vhonda_state',
-'dashboard_data',
-'deals_data',
-'user_data'
-];
-const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
-if (localStorage.getItem(CLEANUP_FLAG)) return;
-let removed = 0;
-LEGACY_KEYS.forEach(key => {
-if (localStorage.getItem(key) !== null) {
-localStorage.removeItem(key);
-removed++;
-console.log(`[Cleanup] Eliminado: ${key}`);
+  const LEGACY_KEYS = ['salesTracker','autotrack_v1','vhd_v3','vhonda_dashboard_v3','vhd_th','vhonda_deals','vhonda_state','dashboard_data','deals_data','user_data'];
+  const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
+  if (localStorage.getItem(CLEANUP_FLAG)) return;
+  let removed = 0;
+  LEGACY_KEYS.forEach(key => {
+    if (localStorage.getItem(key) !== null) {
+      localStorage.removeItem(key);
+      removed++;
+    }
+  });
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (key.startsWith('sales')||key.startsWith('autotrack')||key.startsWith('vhd_')||key.includes('ivan')||key.includes('IVAN'))) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(key => {
+    localStorage.removeItem(key);
+    removed++;
+  });
+  if (removed > 0) notify(`Limpiados ${removed} datos antiguos ✓`);
+  localStorage.setItem(CLEANUP_FLAG, 'true');
 }
-});
-const keysToRemove = [];
-for (let i = 0; i < localStorage.length; i++) {
-const key = localStorage.key(i);
-if (key && (
-key.startsWith('sales') ||
-key.startsWith('autotrack') ||
-key.startsWith('vhd_') ||
-key.includes('ivan') ||
-key.includes('IVAN')
-)) {
-keysToRemove.push(key);
-}
-}
-keysToRemove.forEach(key => {
-localStorage.removeItem(key);
-removed++;
-console.log(`[Cleanup] Patrón eliminado: ${key}`);
-});
-if (removed > 0) {
-console.log(`[Cleanup] Total eliminado: ${removed} claves legacy`);
-notify(`Limpiados ${removed} datos antiguos ✓`);
-}
-localStorage.setItem(CLEANUP_FLAG, 'true');
-}
+
 window._currentUser=null;
 window._userProfile=null;
 cleanupLegacyData();
 state=loadState();
 (function initTheme(){
-const saved=localStorage.getItem('vhonda_theme')||'light';
-document.documentElement.setAttribute('data-theme',saved);
-const btn=document.getElementById('themeBtn');
-if(btn) btn.innerHTML=`<i class="fas fa-${saved==='dark'?'sun':'moon'}"></i>`;
+  const saved=localStorage.getItem('vhonda_theme')||'light';
+  document.documentElement.setAttribute('data-theme',saved);
+  const btn=document.getElementById('themeBtn');
+  if(btn) btn.innerHTML=`<i class="fas fa-${saved==='dark'?'sun':'moon'}"></i>`;
 })();
 document.addEventListener('click', e=>{
-const menu=document.getElementById('userMenu');
-const pill=document.getElementById('userPill');
-if(menu&&!menu.contains(e.target)&&!pill?.contains(e.target)) closeUserMenu();
+  const menu=document.getElementById('userMenu');
+  const pill=document.getElementById('userPill');
+  if(menu&&!menu.contains(e.target)&&!pill?.contains(e.target)) closeUserMenu();
 });
 seedDeals();
 renderAll();
