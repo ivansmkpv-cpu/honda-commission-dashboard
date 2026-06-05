@@ -1991,22 +1991,61 @@ function parseOCRText(text) {
   return { dealNo, stockNo, model, customer, dateStr,
     extracted:{commissionNo1,accessories,aftermarket1,fBonus1,profitOfSale,amProfit} };
 }
-async function handleSummaryOCR(event) {
-  const file=event.target.files?.[0]; if(!file) return;
-  event.target.value='';
-  notify('Processing Commission Summary…');
+// 🔍 REVIEW COMPENSATION OCR
+async function handleReviewOCRFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  event.target.value = '';
+  await processReviewOCR(file);
+}
+
+async function handleReviewOCRDrop(event) {
+  event.preventDefault();
+  const zone = document.getElementById('reviewOcrZone');
+  if (zone) zone.classList.remove('drag-over');
+  const file = event.dataTransfer.files?.[0];
+  if (!file) return;
+  await processReviewOCR(file);
+}
+
+async function processReviewOCR(file) {
+  notify('Processing review compensation sheet…');
   try {
-    const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     let dataUrl;
-    if(isPDF){const buf=await file.arrayBuffer();dataUrl=await pdfToDataUrl(buf,1);}
-    else{dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
-    const data=await runTesseractOnDataUrl(dataUrl,()=>{});
-    const rows=parseSummaryOCR(data.text);
-    state.commissionSummary=rows;
-    saveState();
-    renderSummaryVerification();
-    notify(`Summary loaded · ${rows.length} entries found ✓`);
-  } catch(err){ notify('Summary OCR failed: '+err.message); }
+    if (isPDF) {
+      const buf = await file.arrayBuffer();
+      dataUrl = await pdfToDataUrl(buf, 1);
+    } else {
+      dataUrl = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+    }
+    const data = await runTesseractOnDataUrl(dataUrl, () => {});
+    const rows = parseReviewCompOCR(data.text);
+    
+    if (rows.length > 0) {
+      state.reviewCompData = rows[0];
+      const periodMatch = file.name.match(/(\w+\s+\d{4})/) || data.text.match(/([A-Z][a-z]+\s+\d{4})/);
+      state.reviewPeriod = periodMatch ? periodMatch[1] : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      saveState();
+      renderReviewComp(state.reviewCompData);
+      notify(`Review compensation loaded ✓`);
+      
+      // Ocultar zona de upload y mostrar datos
+      const zone = document.getElementById('reviewOcrZone');
+      const blank = document.getElementById('reviewBlankState');
+      if (zone) zone.style.display = 'none';
+      if (blank) blank.style.display = 'none';
+    } else {
+      notify('No review compensation data found ✗');
+    }
+  } catch (err) {
+    notify('Review OCR failed: ' + err.message);
+  }
 }
 function parseSummaryOCR(text) {
   const rows=[];
