@@ -305,6 +305,169 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .page-divider{height:1px;background:var(--border-line);max-width:1600px;margin:0 auto 20px}
 summary{cursor:pointer;font-size:0.72rem;color:var(--text-dim);font-weight:600;user-select:none}
 details[open] summary{color:var(--text)}
+/* ============================================================
+   MOBILE RESPONSIVE FIXES
+   ============================================================ */
+@media(max-width:600px) {
+  /* Header compacto */
+  #mainHeader {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    gap: 6px;
+    position: relative;
+    top: 0;
+  }
+  .header-logo .logo-text { font-size: 0.72rem; }
+  .header-logo .logo-sub { font-size: 0.6rem; }
+  #currentDateLabel { display: none; }
+  .header-sep { display: none; }
+  
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 4px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .header-right .btn { padding: 5px 8px; font-size: 0.65rem; }
+  .header-right .btn-accent { padding: 5px 10px; }
+  .user-name { max-width: 80px; font-size: 0.65rem; }
+  .user-avatar { width: 24px; height: 24px; font-size: 0.6rem; }
+  
+  /* KPIs más compactos */
+  .kpi-grid { gap: 8px; margin-bottom: 12px; }
+  .kpi-card { padding: 10px 12px; }
+  .kpi-value { font-size: 1.1rem; }
+  .kpi-value.big { font-size: 1.3rem; }
+  .kpi-label { font-size: 0.6rem; }
+  .kpi-sub { font-size: 0.58rem; }
+  .kpi-icon { font-size: 1rem; right: 10px; }
+  
+  /* App padding reducido */
+  .app { padding: 10px 10px 0; }
+  .app:last-of-type { padding-bottom: 20px; }
+  
+  /* Main grid a 1 columna */
+  .main-grid { gap: 10px; margin-bottom: 12px; }
+  
+  /* Panel heads compactos */
+  .panel-head { padding: 10px 12px; }
+  .panel-title { font-size: 0.75rem; }
+  .panel-body { padding: 10px 12px; }
+  
+  /* Search row compacta */
+  .search-row { flex-wrap: wrap; gap: 6px; }
+  .search-row select, .search-row input { 
+    font-size: 0.7rem; 
+    padding: 5px 8px;
+  }
+  .search-row input { min-width: 100%; }
+  
+  /* Month tabs */
+  .month-tabs { gap: 3px; margin-bottom: 8px; }
+  .month-tab { padding: 3px 8px; font-size: 0.65rem; }
+  
+  /* Tabla con scroll horizontal mejorado */
+  .deals-table { font-size: 0.65rem; }
+  .deals-table th { 
+    font-size: 0.58rem; 
+    padding: 5px 6px;
+    white-space: nowrap;
+  }
+  .deals-table td { 
+    padding: 6px 6px; 
+    font-size: 0.65rem;
+  }
+  .deals-table .totals-row td { font-size: 0.68rem; }
+  
+  /* OCR zone */
+  .ocr-zone { padding: 20px 12px; }
+  .ocr-zone-icon { font-size: 1.4rem; }
+  .ocr-zone-label { font-size: 0.7rem; }
+  
+  /* Pay plan sidebar */
+  .pp-dots { padding: 10px 12px 6px; gap: 3px; }
+  .pp-dot { width: 8px; height: 8px; }
+  .pp-tier-pills { padding: 0 12px 8px; gap: 3px; }
+  .pp-pill { font-size: 0.55rem; padding: 2px 6px; }
+  .pp-tier-bars { padding: 0 12px 10px; }
+  .pp-section { padding: 8px 12px; }
+  .pp-row { font-size: 0.62rem; }
+  
+  /* Charts */
+  .chart-wrap { height: 200px; }
+  .trading-chart-wrap { height: 220px; }
+  .chart-container { padding: 10px 12px; }
+  .chart-legend-manual { font-size: 0.58rem; padding: 0 12px 8px; gap: 6px; }
+  
+  /* Bottom grid */
+  .bottom-grid { gap: 10px; margin-bottom: 12px; }
+  .section-row { gap: 10px; margin-bottom: 12px; }
+  
+  /* SV grid */
+  .sv-card { padding: 8px 10px; }
+  .sv-card-val { font-size: 0.95rem; }
+  .sv-card-label { font-size: 0.58rem; }
+  
+  /* Reviews */
+  .reviews-grid { grid-template-columns: 1fr; gap: 8px; }
+  .review-card { padding: 10px 12px; }
+  .reviews-filters { gap: 4px; }
+  .review-filter-btn { font-size: 0.6rem; padding: 3px 8px; }
+  
+  /* Hold table */
+  .hold-table { font-size: 0.65rem; }
+  .hold-table th, .hold-table td { padding: 5px 6px; }
+  
+  /* Buttons más grandes para touch */
+  .btn { min-height: 36px; }
+  .act-btn { width: 32px; height: 32px; }
+  .btn-sm { min-height: 32px; padding: 4px 8px; }
+  
+  /* Modal más ancho en móvil */
+  .modal { max-width: 95vw; margin: 10px; }
+  .modal-wide { max-width: 95vw; }
+  .modal-body { padding: 14px; }
+  .modal-head { padding: 12px 14px; }
+  .modal-foot { padding: 10px 14px; }
+  
+  /* Form grid a 1 columna en móvil */
+  .form-grid { grid-template-columns: 1fr; gap: 8px; }
+  .form-input, .form-select { font-size: 0.75rem; padding: 7px 8px; }
+  
+  /* Auth box */
+  .auth-box { padding: 24px 18px; margin: 10px; }
+  .auth-input { font-size: 0.78rem; }
+  
+  /* Notificación */
+  .notif { max-width: 90vw; right: 10px; top: 10px; font-size: 0.7rem; }
+  
+  /* User menu */
+  .user-menu { min-width: 160px; right: -10px; }
+  .user-menu-item { font-size: 0.7rem; padding: 7px 8px; }
+  
+  /* Profile modal */
+  .profile-avatar { width: 60px; height: 60px; font-size: 1.2rem; }
+  
+  /* Pin pad */
+  .pin-pad { max-width: 200px; }
+  .pin-key { padding: 10px; font-size: 0.9rem; }
+}
+
+/* Para pantallas muy pequeñas (iPhone SE, etc) */
+@media(max-width:380px) {
+  .kpi-value.big { font-size: 1.1rem; }
+  .kpi-value { font-size: 0.95rem; }
+  .header-logo .logo-text { font-size: 0.65rem; }
+  .btn { font-size: 0.6rem; padding: 4px 6px; }
+}
+
+/* Landscape en móvil */
+@media(max-height:500px) and (orientation:landscape) {
+  #mainHeader { position: static; }
+  .kpi-grid { grid-template-columns: repeat(6, 1fr); }
+  .main-grid { grid-template-columns: 1fr 280px; }
+}
 </style>
 </head>
 <body>
