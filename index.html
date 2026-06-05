@@ -334,6 +334,7 @@ details[open] summary{color:var(--text)}
 <i class="fas fa-chevron-down" style="font-size:0.55rem;opacity:0.5"></i>
 </div>
 <div class="user-menu" id="userMenu">
+<div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
 <div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
 <div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
 <div class="user-menu-sep"></div>
@@ -486,6 +487,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
+</div>
 <div class="glass" style="overflow:hidden;margin-bottom:20px">
 <div class="panel-head">
 <i class="fas fa-chart-area" style="color:var(--accent);font-size:0.85rem"></i>
@@ -531,6 +533,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
+</div>
 <div class="page-divider"></div>
 <div class="app" style="padding-top:0">
 <div class="section-row">
@@ -561,7 +564,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 <div id="svTableWrap">
 <div class="blank-state">
-<div class="blank-state-icon"></div>
+<div class="blank-state-icon">📋</div>
 <div class="blank-state-text">Scan your Commission Summary to enable verification · Mismatches highlighted automatically</div>
 </div>
 </div>
@@ -642,6 +645,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
+</div>
 <div class="modal-overlay" id="profileOverlay" onclick="if(event.target===this)closeProfileModal()">
 <div class="modal modal-wide">
 <div class="modal-head">
@@ -711,6 +715,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 <div style="margin-top:14px;text-align:right">
 <button class="btn btn-accent" onclick="saveDealerInfo()"><i class="fas fa-save"></i> Save</button>
+</div>
 </div>
 </div>
 </div>
@@ -888,7 +893,8 @@ measurementId: "G-VE12MRTHPJ"
 };
 const FIREBASE_CONFIGURED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
 let db = null, fbAuth = null, unsubscribeDeals = null;
-let firebaseInitialized = false;
+let authInitialized = false;
+let currentAuthUser = null;
 const PP = {
 unitTiers: [
 {u:12,b:200},{u:15,b:675},{u:18,b:900},{u:21,b:1150},
@@ -1018,7 +1024,6 @@ pinEntry = '';
 updatePinDots();
 }
 }
-function showChangePIN() {}
 function toggleAuthMode(mode) {
 const isReg = mode === 'register';
 document.getElementById('authFieldName').style.display = isReg ? 'block' : 'none';
@@ -1056,8 +1061,7 @@ const btn = document.getElementById('authSubmitBtn');
 showAuthErr('');
 showAuthStatus('Processing...');
 btn.disabled = true;
-if(!FIREBASE_CONFIGURED || !firebaseInitialized) {
-console.log('Firebase not initialized, using offline mode');
+if(!FIREBASE_CONFIGURED) {
 createOfflineSession();
 onLoginSuccess({...OFFLINE_USER, displayName: nameF||'User', email});
 btn.disabled = false;
@@ -1074,7 +1078,6 @@ cred = await fbAuth.signInWithEmailAndPassword(email, pw);
 }
 showAuthStatus('');
 } catch(e) {
-console.error('Auth error:', e);
 const map = {
 'auth/user-not-found':'No account with that email.',
 'auth/wrong-password':'Incorrect password.',
@@ -1095,8 +1098,7 @@ showAuthErr('');
 showAuthStatus('Connecting to Google...');
 const btn = document.getElementById('googleBtn');
 btn.disabled = true;
-if(!FIREBASE_CONFIGURED || !firebaseInitialized) {
-console.log('Firebase not initialized, using offline mode');
+if(!FIREBASE_CONFIGURED) {
 createOfflineSession();
 onLoginSuccess(OFFLINE_USER);
 btn.disabled = false;
@@ -1109,7 +1111,6 @@ provider.setCustomParameters({prompt:'select_account'});
 await fbAuth.signInWithPopup(provider);
 showAuthStatus('');
 } catch(e) {
-console.error('Google auth error:', e);
 showAuthErr(e.message);
 showAuthStatus('');
 } finally {
@@ -1118,7 +1119,7 @@ btn.disabled = false;
 }
 async function forgotPassword() {
 const email = document.getElementById('authEmail')?.value.trim();
-if(!email||!FIREBASE_CONFIGURED || !firebaseInitialized) { showAuthErr('Enter your email first.'); return; }
+if(!email||!FIREBASE_CONFIGURED) { showAuthErr('Enter your email first.'); return; }
 showAuthStatus('Sending reset email...');
 try {
 await fbAuth.sendPasswordResetEmail(email);
@@ -1142,42 +1143,70 @@ o.style.transition='opacity 0.3s';
 setTimeout(()=>{ o.style.display='none'; o.style.opacity=''; o.style.transition=''; },320);
 }
 function initFirebase() {
-console.log('Initializing Firebase...');
+console.log('[Auth] Initializing Firebase...');
 if(!FIREBASE_CONFIGURED) {
-console.log('Firebase not configured');
+console.log('[Auth] Firebase not configured');
 if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
 else showAuthOverlay();
 return;
 }
 try {
-if(firebase.apps.length === 0) {
+if(!firebase.apps.length) {
 firebase.initializeApp(firebaseConfig);
-console.log('Firebase initialized');
-} else {
-console.log('Firebase already initialized');
+console.log('[Auth] Firebase initialized');
 }
 db = firebase.firestore();
 fbAuth = firebase.auth();
-firebaseInitialized = true;
-console.log('Firebase services ready');
-fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => {
-console.warn('Persistence error:', e);
-});
-fbAuth.onAuthStateChanged(user => {
-console.log('Auth state changed:', user ? 'Logged in' : 'Logged out');
-if(user) onLoginSuccess(user);
-else onLogout();
+console.log('[Auth] Setting up persistence...');
+fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+.then(() => {
+console.log('[Auth] Persistence configured');
+setupAuthListener();
+})
+.catch((err) => {
+console.warn('[Auth] Persistence error:', err);
+setupAuthListener();
 });
 } catch(err) {
-console.error('Firebase init failed:', err);
-firebaseInitialized = false;
+console.error('[Auth] Firebase init failed:', err);
 if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
 else showAuthOverlay();
 }
 }
+function setupAuthListener() {
+console.log('[Auth] Setting up auth listener...');
+fbAuth.onAuthStateChanged(user => {
+console.log('[Auth] State changed:', user ? 'Logged in as ' + (user.email || user.uid) : 'Logged out');
+if(user && currentAuthUser && currentAuthUser.uid === user.uid) {
+console.log('[Auth] Same user, skipping...');
+return;
+}
+if(user) {
+currentAuthUser = user;
+authInitialized = true;
+onLoginSuccess(user);
+} else if(authInitialized) {
+console.log('[Auth] User signed out');
+currentAuthUser = null;
+onLogout();
+} else {
+console.log('[Auth] No user on first load');
+authInitialized = true;
+if(hasOfflineSession()) {
+onLoginSuccess(OFFLINE_USER);
+} else {
+showAuthOverlay();
+}
+}
+});
+}
 function initAuth() { initFirebase(); }
 function onLoginSuccess(user) {
-console.log('Login success:', user);
+console.log('[Auth] Login success:', user.displayName || user.email || user.uid);
+if(document.getElementById('mainHeader').style.visibility === 'visible' && !user.isOffline) {
+console.log('[Auth] Already logged in, skipping UI update');
+return;
+}
 document.getElementById('mainHeader').style.visibility='visible';
 document.querySelectorAll('.app').forEach(el=>el.style.visibility='visible');
 const name = user.displayName||user.email?.split('@')[0]||'User';
@@ -1193,17 +1222,17 @@ window._currentUser = user;
 loadUserProfile(user.uid||'offline');
 hideAuthOverlay();
 setSyncStatus('ok');
-if(!user.isOffline && db && firebaseInitialized) {
-console.log('Subscribing to Firestore');
+if(!user.isOffline && db) {
+console.log('[Auth] Subscribing to Firestore for user:', user.uid);
 subscribeFirestore(user.uid);
 } else {
-console.log('Using local data only');
+console.log('[Auth] Using local data only');
 renderAll(); renderHoldTable(); renderSummaryVerification();
 }
 notify(`Welcome, ${name.split(' ')[0]} ✓`);
 }
 function onLogout() {
-console.log('Logout');
+console.log('[Auth] Logout executed');
 if(unsubscribeDeals){ unsubscribeDeals(); unsubscribeDeals=null; }
 const pill = document.getElementById('userPill');
 if(pill) pill.style.display='none';
@@ -1214,11 +1243,11 @@ showAuthOverlay();
 }
 async function signOut() {
 closeUserMenu();
-if(fbAuth && firebaseInitialized) {
+if(fbAuth) {
 try {
 await fbAuth.signOut();
 } catch(e) {
-console.error('Sign out error:', e);
+console.error('[Auth] Sign out error:', e);
 onLogout();
 }
 } else {
@@ -1241,7 +1270,6 @@ dot.className = `sync-dot ${status}`;
 function _uid() { return fbAuth?.currentUser?.uid||null; }
 async function subscribeFirestore(uid) {
 setSyncStatus('syncing');
-try {
 unsubscribeDeals = db.collection(`users/${uid}/deals`).orderBy('date','desc')
 .onSnapshot(async snap => {
 const deals = [];
@@ -1276,19 +1304,40 @@ saveStateLocal();
 renderAll(); renderHoldTable(); renderSummaryVerification();
 setSyncStatus('ok');
 }, (error) => {
-console.error('Firestore subscription error:', error);
+console.error('[Firestore] Subscription error:', error);
 setSyncStatus('error');
 });
-} catch(err) {
-console.error('Firestore setup error:', err);
-setSyncStatus('error');
 }
+async function manualSync() {
+closeUserMenu();
+const uid = _uid();
+if(!uid || !db) {
+notify('Not connected to cloud ✗');
+return;
 }
-async function seedFirestoreFromLocal(uid) {
-if(!db||!state.deals.length) return;
+setSyncStatus('syncing');
+notify('Syncing to cloud...');
+try {
+if(state.deals.length > 0) {
 const batch = db.batch();
-state.deals.forEach(d => batch.set(db.doc(`users/${uid}/deals/${d.id}`),d));
+state.deals.forEach(d => {
+batch.set(db.doc(`users/${uid}/deals/${d.id}`), d);
+});
 await batch.commit();
+}
+if(state.holdDeals.length > 0) {
+const batch = db.batch();
+state.holdDeals.forEach(h => {
+batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`), h);
+});
+await batch.commit();
+}
+notify('Sync complete ✓');
+} catch(err) {
+console.error('[Sync] Error:', err);
+notify('Sync failed ✗');
+}
+setSyncStatus('ok');
 }
 async function saveDealFirestore(deal) {
 const uid = _uid(); if(!db||!uid) return;
@@ -1644,7 +1693,7 @@ wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">📋</div
 <div class="blank-state-text">Scan your Commission Summary to enable verification · Mismatches highlighted automatically</div></div>`;
 return;
 }
-if(!deals.length){wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon"></div><div class="blank-state-text">No deals this month</div></div>`;return;}
+if(!deals.length){wrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">🔍</div><div class="blank-state-text">No deals this month</div></div>`;return;}
 wrap.innerHTML=`<div style="overflow-x:auto"><table class="sv-table">
 <thead><tr><th>Vehicle / Stock</th><th>Customer</th><th>My Total</th><th>Summary</th><th>Match</th></tr></thead>
 <tbody>${rows.map(({d,cm})=>{
@@ -1891,7 +1940,6 @@ return {matched:diff<=0.50,summaryTotal:entry.summaryTotal,diff,payPeriod:deal.p
 function openAddModal(ocrData) {
 editingId=null;
 clearForm();
-setEl('dealModalTitle','Add Deal');
 document.querySelector('.modal-title').innerHTML='<i class="fas fa-plus" style="color:var(--accent);margin-right:6px"></i>Add Deal';
 setF('dm-date',new Date().toISOString().slice(0,10));
 setF('dm-status','Pending');
@@ -2000,11 +2048,6 @@ saveStateLocal(); closeModal(); renderAll(); renderHoldTable();
 saveHoldFirestore(hDeal); deleteDealFirestore(editingId);
 notify('Moved to Hold File ✓');
 }
-function moveCurrentToActive() {
-if(!editingId) return;
-const deal=state.deals.find(d=>d.id===editingId);
-if(deal){ deal.status='Pending'; saveState(); renderAll(); notify('Set to Active ✓'); }
-}
 async function saveDeal() {
 const id = editingId||crypto.randomUUID();
 const stock=document.getElementById('dm-stock')?.value.trim()||'';
@@ -2044,7 +2087,7 @@ try {
 await saveDealFirestore(deal);
 notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
 } catch(err) {
-console.error('Firestore save error:', err);
+console.error('[Firestore] Save error:', err);
 notify('Saved locally, sync failed ✗');
 }
 }
@@ -2056,7 +2099,7 @@ try {
 await deleteDealFirestore(id);
 notify('Deal deleted ✓');
 } catch(err) {
-console.error('Error deleting deal:', err);
+console.error('[Firestore] Delete error:', err);
 notify('Error deleting deal ✗');
 }
 }
@@ -2144,7 +2187,7 @@ try {
 await deleteHoldFirestore(id);
 notify('Hold deleted ✓');
 } catch(err) {
-console.error('Error deleting hold:', err);
+console.error('[Firestore] Delete hold error:', err);
 notify('Error deleting hold ✗');
 }
 }
@@ -2250,7 +2293,7 @@ notify('Dealership info saved ✓');
 async function changePassword() {
 const p1=document.getElementById('pf-pw1')?.value;
 const p2=document.getElementById('pf-pw2')?.value;
-if(!p1||p1!==p2){notify('Passwords do not match ');return;}
+if(!p1||p1!==p2){notify('Passwords do not match ✗');return;}
 if(!fbAuth?.currentUser){notify('Not signed in');return;}
 try{
 await fbAuth.currentUser.updatePassword(p1);
@@ -2311,10 +2354,6 @@ saveUserProfile();
 notify('Avatar updated ✓');
 };
 reader.readAsDataURL(file);
-}
-function detectPeriodFromOCR(text) {
-const m=text.match(/([A-Z][a-z]+\s+\d{4})/);
-return m?m[1]:'';
 }
 function parseReviewCompOCR(text) {
 const variants=getOCRNameVariants();
