@@ -395,140 +395,71 @@ details[open] summary{color:var(--text)}
   .kpi-grid { grid-template-columns: repeat(6, 1fr); }
   .main-grid { grid-template-columns: 1fr 280px; }
 }
-/* 🔥 HERO HEADER EFFECT */
+/* 🔥 HERO BACKGROUND EFFECT - SPOTLIGHT CORREGIDO */
 #mainHeader {
   position: relative;
-  overflow: hidden;
-  isolation: isolate;
+  overflow: hidden; /* ← IMPORTANTE: contiene el efecto */
+  isolation: isolate; /* ← Crea nuevo stacking context */
 }
 
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.hero-glow {
-  position: absolute;
-  top: -50%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 28rem;
-  height: 12rem;
-  background: radial-gradient(ellipse, var(--accent) 0%, transparent 70%);
-  opacity: 0.6;
-  filter: blur(40px);
-  animation: hero-pulse 4s ease-in-out infinite;
-}
-
-.hero-line {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30rem;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0.6;
-}
-
-.hero-cone {
-  position: absolute;
-  top: 0;
-  height: 14rem;
-  width: 30rem;
-  opacity: 0.5;
-  filter: blur(20px);
-}
-
-.hero-cone-left {
-  right: 50%;
-  background: conic-gradient(from 70deg at center top, var(--accent), transparent 50%);
-}
-
-.hero-cone-right {
-  left: 50%;
-  background: conic-gradient(from 290deg at center top, transparent 50%, var(--accent));
-}
-
-@keyframes hero-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.7; }
-}
-
-/* Asegurar que el contenido esté por encima */
-#mainHeader > *:not(.hero-bg) {
-  position: relative;
-  z-index: 10;
-}
-/* 🔥 HERO BACKGROUND EFFECT - SPOTLIGHT */
-#mainHeader {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-/* Fondo con efecto spotlight */
+/* Efecto de luz principal - DETRÁS del contenido */
 #mainHeader::before {
   content: '';
   position: absolute;
-  top: -50%;
+  top: -80%;
   left: 50%;
   transform: translateX(-50%);
-  width: 150%;
-  height: 200%;
+  width: 120%;
+  height: 300%;
   background: radial-gradient(
     ellipse at center top,
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 25%,
     transparent 60%
   );
   pointer-events: none;
-  z-index: 0;
+  z-index: 0; /* ← DETRÁS */
 }
 
-/* Glow adicional superior */
+/* Glow inferior sutil */
 #mainHeader::after {
   content: '';
   position: absolute;
-  top: 0;
+  bottom: -20%;
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
   height: 100%;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.08) 0%,
-    transparent 100%
+  background: radial-gradient(
+    ellipse at center bottom,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 70%
   );
   pointer-events: none;
-  z-index: 0;
-  filter: blur(20px);
+  z-index: 0; /* ← DETRÁS */
 }
 
-/* Asegurar que el contenido esté por encima */
+/* Asegurar que TODO el contenido del header esté por encima */
 #mainHeader > * {
   position: relative;
-  z-index: 1;
+  z-index: 1; /* ← ENCIMA del efecto */
 }
 
 /* Versión más intensa para dark mode */
 [data-theme="dark"] #mainHeader::before {
   background: radial-gradient(
     ellipse at center top,
-    rgba(255, 255, 255, 0.2) 0%,
-    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 25%,
     transparent 60%
   );
 }
 
 [data-theme="dark"] #mainHeader::after {
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.12) 0%,
-    transparent 100%
+  background: radial-gradient(
+    ellipse at center bottom,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 70%
   );
 }
 </style>
