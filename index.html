@@ -395,18 +395,117 @@ details[open] summary{color:var(--text)}
   .kpi-grid { grid-template-columns: repeat(6, 1fr); }
   .main-grid { grid-template-columns: 1fr 280px; }
 }
+/* 🔥 HERO HEADER EFFECT */
+#mainHeader {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28rem;
+  height: 12rem;
+  background: radial-gradient(ellipse, var(--accent) 0%, transparent 70%);
+  opacity: 0.6;
+  filter: blur(40px);
+  animation: hero-pulse 4s ease-in-out infinite;
+}
+
+.hero-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30rem;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.6;
+}
+
+.hero-cone {
+  position: absolute;
+  top: 0;
+  height: 14rem;
+  width: 30rem;
+  opacity: 0.5;
+  filter: blur(20px);
+}
+
+.hero-cone-left {
+  right: 50%;
+  background: conic-gradient(from 70deg at center top, var(--accent), transparent 50%);
+}
+
+.hero-cone-right {
+  left: 50%;
+  background: conic-gradient(from 290deg at center top, transparent 50%, var(--accent));
+}
+
+@keyframes hero-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.7; }
+}
+
+/* Asegurar que el contenido esté por encima */
+#mainHeader > *:not(.hero-bg) {
+  position: relative;
+  z-index: 10;
+}
 </style>
 </head>
 <body>
 <div class="app">
 <header class="glass" id="mainHeader">
+<!-- 🔥 HERO BACKGROUND EFFECT - NO BORRAR -->
+<div class="hero-bg">
+<div class="hero-glow"></div>
+<div class="hero-line"></div>
+<div class="hero-cone hero-cone-left"></div>
+<div class="hero-cone hero-cone-right"></div>
+</div>
+
 <div class="header-logo">
-<span class="logo-icon"></span>
+<span class="logo-icon">🏎</span>
 <div>
 <div class="logo-text">Commission Dashboard</div>
 <div class="logo-sub" id="headerUserName">·</div>
 </div>
 </div>
+<div class="header-sep"></div>
+<div id="currentDateLabel" style="font-size:0.7rem;color:var(--text-dim)"></div>
+<div class="header-right">
+<span class="sync-dot ok" id="syncDot" title="Sync status"></span>
+<button class="btn btn-sm" onclick="exportCSV()" title="Export CSV"><i class="fas fa-download"></i> CSV</button>
+<button class="btn btn-sm btn-accent" onclick="openAddModal(null)"><i class="fas fa-plus"></i> Add Deal</button>
+<button class="btn btn-sm btn-icon" onclick="toggleTheme()" id="themeBtn" title="Toggle theme"><i class="fas fa-moon"></i></button>
+<div style="position:relative">
+<div class="user-pill" id="userPill" onclick="showUserMenu()">
+<div class="user-avatar" id="userAvatar"></div>
+<span class="user-name" id="userDisplayName">User</span>
+<i class="fas fa-chevron-down" style="font-size:0.55rem;opacity:0.5"></i>
+</div>
+<div class="user-menu" id="userMenu">
+<div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
+<div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
+<div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
+<div class="user-menu-sep"></div>
+<div class="user-menu-item danger" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</div>
+</div>
+</div>
+</div>
+</header>
 <div class="header-sep"></div>
 <div id="currentDateLabel" style="font-size:0.7rem;color:var(--text-dim)"></div>
 <div class="header-right">
