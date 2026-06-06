@@ -395,116 +395,18 @@ details[open] summary{color:var(--text)}
   .kpi-grid { grid-template-columns: repeat(6, 1fr); }
   .main-grid { grid-template-columns: 1fr 280px; }
 }
-/* 🔥 HERO BACKGROUND EFFECT - SPOTLIGHT CORREGIDO */
-#mainHeader {
-  position: relative;
-  overflow: hidden; /* ← IMPORTANTE: contiene el efecto */
-  isolation: isolate; /* ← Crea nuevo stacking context */
-}
-
-/* Efecto de luz principal - DETRÁS del contenido */
-#mainHeader::before {
-  content: '';
-  position: absolute;
-  top: -80%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120%;
-  height: 300%;
-  background: radial-gradient(
-    ellipse at center top,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.04) 25%,
-    transparent 60%
-  );
-  pointer-events: none;
-  z-index: 0; /* ← DETRÁS */
-}
-
-/* Glow inferior sutil */
-#mainHeader::after {
-  content: '';
-  position: absolute;
-  bottom: -20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  height: 100%;
-  background: radial-gradient(
-    ellipse at center bottom,
-    rgba(255, 255, 255, 0.05) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-  z-index: 0; /* ← DETRÁS */
-}
-
-/* Asegurar que TODO el contenido del header esté por encima */
-#mainHeader > * {
-  position: relative;
-  z-index: 1; /* ← ENCIMA del efecto */
-}
-
-/* Versión más intensa para dark mode */
-[data-theme="dark"] #mainHeader::before {
-  background: radial-gradient(
-    ellipse at center top,
-    rgba(255, 255, 255, 0.18) 0%,
-    rgba(255, 255, 255, 0.06) 25%,
-    transparent 60%
-  );
-}
-
-[data-theme="dark"] #mainHeader::after {
-  background: radial-gradient(
-    ellipse at center bottom,
-    rgba(255, 255, 255, 0.08) 0%,
-    transparent 70%
-  );
-}
 </style>
 </head>
 <body>
 <div class="app">
 <header class="glass" id="mainHeader">
-<!-- 🔥 HERO BACKGROUND EFFECT - NO BORRAR -->
-<div class="hero-bg">
-<div class="hero-glow"></div>
-<div class="hero-line"></div>
-<div class="hero-cone hero-cone-left"></div>
-<div class="hero-cone hero-cone-right"></div>
-</div>
-
 <div class="header-logo">
-<span class="logo-icon">🏎</span>
+<span class="logo-icon"></span>
 <div>
 <div class="logo-text">Commission Dashboard</div>
 <div class="logo-sub" id="headerUserName">·</div>
 </div>
 </div>
-<div class="header-sep"></div>
-<div id="currentDateLabel" style="font-size:0.7rem;color:var(--text-dim)"></div>
-<div class="header-right">
-<span class="sync-dot ok" id="syncDot" title="Sync status"></span>
-<button class="btn btn-sm" onclick="exportCSV()" title="Export CSV"><i class="fas fa-download"></i> CSV</button>
-<button class="btn btn-sm btn-accent" onclick="openAddModal(null)"><i class="fas fa-plus"></i> Add Deal</button>
-<button class="btn btn-sm btn-icon" onclick="toggleTheme()" id="themeBtn" title="Toggle theme"><i class="fas fa-moon"></i></button>
-<div style="position:relative">
-<div class="user-pill" id="userPill" onclick="showUserMenu()">
-<div class="user-avatar" id="userAvatar"></div>
-<span class="user-name" id="userDisplayName">User</span>
-<i class="fas fa-chevron-down" style="font-size:0.55rem;opacity:0.5"></i>
-</div>
-<div class="user-menu" id="userMenu">
-<div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
-<div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
-<div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
-<div class="user-menu-sep"></div>
-<div class="user-menu-item danger" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</div>
-</div>
-</div>
-</div>
-</header>
 <div class="header-sep"></div>
 <div id="currentDateLabel" style="font-size:0.7rem;color:var(--text-dim)"></div>
 <div class="header-right">
@@ -2786,26 +2688,53 @@ state.selectedMonth=new Date().toISOString().slice(0,7);
 saveStateLocal();
 }
 
-// ============================================================
-// CLEANUP LEGACY DATA
-// ============================================================
+//  SEARCH: CLEANUP LEGACY DATA
 function cleanupLegacyData() {
-    const LEGACY_KEYS = [
-        'salesTracker', 'autotrack_v1', 'vhd_v3', 'vhonda_dashboard_v3',
-        'vhd_th', 'vhonda_deals', 'vhonda_state', 'dashboard_data',
-        'deals_data', 'user_data'
-    ];
-    const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
-    if (localStorage.getItem(CLEANUP_FLAG)) return;
-    let removed = 0;
-    LEGACY_KEYS.forEach(key => {
-        if (localStorage.getItem(key) !== null) {
-            localStorage.removeItem(key);
-            removed++;
-        }
-    });
-    if (removed > 0) notify(`Limpiados ${removed} datos antiguos ✓`);
-    localStorage.setItem(CLEANUP_FLAG, 'true');
+const LEGACY_KEYS = [
+'salesTracker',
+'autotrack_v1',
+'vhd_v3',
+'vhonda_dashboard_v3',
+'vhd_th',
+'vhonda_deals',
+'vhonda_state',
+'dashboard_data',
+'deals_data',
+'user_data'
+];
+const CLEANUP_FLAG = 'vhonda_legacy_cleaned_v1';
+if (localStorage.getItem(CLEANUP_FLAG)) return;
+let removed = 0;
+LEGACY_KEYS.forEach(key => {
+if (localStorage.getItem(key) !== null) {
+localStorage.removeItem(key);
+removed++;
+console.log(`[Cleanup] Eliminado: ${key}`);
+}
+});
+const keysToRemove = [];
+for (let i = 0; i < localStorage.length; i++) {
+const key = localStorage.key(i);
+if (key && (
+key.startsWith('sales') ||
+key.startsWith('autotrack') ||
+key.startsWith('vhd_') ||
+key.includes('ivan') ||
+key.includes('IVAN')
+)) {
+keysToRemove.push(key);
+}
+}
+keysToRemove.forEach(key => {
+localStorage.removeItem(key);
+removed++;
+console.log(`[Cleanup] Patrón eliminado: ${key}`);
+});
+if (removed > 0) {
+console.log(`[Cleanup] Total eliminado: ${removed} claves legacy`);
+notify(`Limpiados ${removed} datos antiguos ✓`);
+}
+localStorage.setItem(CLEANUP_FLAG, 'true');
 }
 
 // 🔍 SEARCH: INIT
