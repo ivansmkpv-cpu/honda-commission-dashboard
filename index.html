@@ -32,21 +32,21 @@
 --red:#ef4444;--yellow:#eab308;--purple:#8b5cf6;
 }
 [data-theme="dark"] {
---bg:#0c0c0e;--bg-grad:linear-gradient(135deg,#0c0c0e 0%,#131318 100%);
---glass-bg:rgba(255,255,255,0.055);--glass-bg-hover:rgba(255,255,255,0.09);
---glass-border:rgba(255,255,255,0.12);--glass-border2:rgba(255,255,255,0.06);
---glass-shadow:0 4px 24px rgba(0,0,0,0.4),0 1px 4px rgba(0,0,0,0.3);
---glass-shadow-hover:0 12px 40px rgba(0,0,0,0.5);
---panel-head-bg:rgba(255,255,255,0.04);
---text:#f0f0f0;--text-dim:rgba(255,255,255,0.5);--text-faint:rgba(255,255,255,0.22);
---ink:#ffffff;--ink-inv:#0c0c0e;
---surface-mute:rgba(255,255,255,0.04);--surface-row:rgba(255,255,255,0.025);
---border-line:rgba(255,255,255,0.08);--sep:rgba(255,255,255,0.07);
---modal-overlay:rgba(0,0,0,0.65);--modal-bg:rgba(18,18,22,0.88);
---notif-bg:rgba(22,22,28,0.92);--input-bg:rgba(255,255,255,0.06);
---scrollbar:rgba(255,255,255,0.12);--month-tab-bg:rgba(255,255,255,0.06);
---ocr-dash:rgba(255,255,255,0.22);--progress-bg:rgba(255,255,255,0.08);
---chart-tick:rgba(255,255,255,0.35);--chart-grid:rgba(255,255,255,0.05);--chart-legend:rgba(255,255,255,0.45);
+--bg:#020203;--bg-grad:radial-gradient(circle at top,#09090d 0%,#030305 44%,#000000 100%);
+--glass-bg:rgba(255,255,255,0.038);--glass-bg-hover:rgba(255,255,255,0.075);
+--glass-border:rgba(255,255,255,0.105);--glass-border2:rgba(255,255,255,0.045);
+--glass-shadow:0 10px 34px rgba(0,0,0,0.62),0 1px 4px rgba(0,0,0,0.52);
+--glass-shadow-hover:0 16px 52px rgba(0,0,0,0.76),0 0 0 1px rgba(255,255,255,0.04);
+--panel-head-bg:rgba(255,255,255,0.028);
+--text:#f4f4f6;--text-dim:rgba(255,255,255,0.48);--text-faint:rgba(255,255,255,0.20);
+--ink:#ffffff;--ink-inv:#020203;
+--surface-mute:rgba(255,255,255,0.032);--surface-row:rgba(255,255,255,0.018);
+--border-line:rgba(255,255,255,0.072);--sep:rgba(255,255,255,0.058);
+--modal-overlay:rgba(0,0,0,0.78);--modal-bg:rgba(6,6,9,0.94);
+--notif-bg:rgba(8,8,12,0.95);--input-bg:rgba(255,255,255,0.045);
+--scrollbar:rgba(255,255,255,0.11);--month-tab-bg:rgba(255,255,255,0.045);
+--ocr-dash:rgba(255,255,255,0.20);--progress-bg:rgba(255,255,255,0.065);
+--chart-tick:rgba(255,255,255,0.34);--chart-grid:rgba(255,255,255,0.043);--chart-legend:rgba(255,255,255,0.46);
 }
 .app,#mainHeader{visibility:hidden}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,6 +306,346 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 summary{cursor:pointer;font-size:0.72rem;color:var(--text-dim);font-weight:600;user-select:none}
 details[open] summary{color:var(--text)}
 
+
+
+/* ✨ SPOTLIGHT GLOW EFFECT — aplicado a todas las cards/superficies del dashboard */
+:root {
+  --spotlight-x: -9999;
+  --spotlight-y: -9999;
+  --spotlight-xp: 0.5;
+  --spotlight-size: 285px;
+  --spotlight-base: 28;
+  --spotlight-spread: 210;
+  --spotlight-bg-opacity: 0.16;
+  --spotlight-border-opacity: 0.98;
+  --spotlight-white-opacity: 0.46;
+}
+[data-theme="dark"] {
+  --spotlight-bg-opacity: 0.27;
+  --spotlight-border-opacity: 1;
+  --spotlight-white-opacity: 0.38;
+}
+.glass:not(#mainHeader),
+.sv-card,
+.option-card,
+.modal {
+  --spotlight-hue: calc(var(--spotlight-base) + (var(--spotlight-xp) * var(--spotlight-spread)));
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-image: radial-gradient(
+    var(--spotlight-size) var(--spotlight-size) at
+    calc(var(--spotlight-x) * 1px)
+    calc(var(--spotlight-y) * 1px),
+    hsl(var(--spotlight-hue) 100% 74% / var(--spotlight-bg-opacity)),
+    transparent 68%
+  );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-color: var(--glass-bg, var(--surface-mute));
+}
+.glass:not(#mainHeader):hover,
+.sv-card:hover,
+.option-card:hover,
+.modal:hover {
+  background-color: var(--glass-bg-hover, var(--surface-mute));
+}
+.glass:not(#mainHeader)::before,
+.sv-card::before,
+.option-card::before,
+.modal::before,
+.glass:not(#mainHeader)::after,
+.sv-card::after,
+.option-card::after,
+.modal::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+.glass:not(#mainHeader)::before,
+.sv-card::before,
+.option-card::before,
+.modal::before {
+  padding: 1px;
+  background-image: radial-gradient(
+    calc(var(--spotlight-size) * 0.78) calc(var(--spotlight-size) * 0.78) at
+    calc(var(--spotlight-x) * 1px)
+    calc(var(--spotlight-y) * 1px),
+    hsl(var(--spotlight-hue) 100% 64% / var(--spotlight-border-opacity)),
+    transparent 70%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: brightness(1.65) saturate(1.45);
+}
+.glass:not(#mainHeader)::after,
+.sv-card::after,
+.option-card::after,
+.modal::after {
+  background-image: radial-gradient(
+    calc(var(--spotlight-size) * 0.42) calc(var(--spotlight-size) * 0.42) at
+    calc(var(--spotlight-x) * 1px)
+    calc(var(--spotlight-y) * 1px),
+    hsl(0 0% 100% / var(--spotlight-white-opacity)),
+    transparent 62%
+  );
+  opacity: 0.58;
+}
+.glass:not(#mainHeader) > :not(.kpi-icon),
+.sv-card > *,
+.option-card > *,
+.modal > * {
+  position: relative;
+  z-index: 1;
+}
+.kpi-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+}
+.kpi-card:nth-child(1), .calc-preview { --spotlight-base: 24; --spotlight-spread: 160; }
+.kpi-card:nth-child(2) { --spotlight-base: 205; --spotlight-spread: 180; }
+.kpi-card:nth-child(3) { --spotlight-base: 44; --spotlight-spread: 130; }
+.kpi-card:nth-child(4) { --spotlight-base: 115; --spotlight-spread: 160; }
+.kpi-card:nth-child(5) { --spotlight-base: 230; --spotlight-spread: 140; }
+.kpi-card:nth-child(6), .kpi-review { --spotlight-base: 18; --spotlight-spread: 90; }
+.review-card { --spotlight-base: 42; --spotlight-spread: 210; }
+.sv-card { --spotlight-base: 120; --spotlight-spread: 170; }
+.option-card, .modal { --spotlight-base: 260; --spotlight-spread: 120; }
+@media (prefers-reduced-motion: reduce) {
+  .glass:not(#mainHeader), .sv-card, .option-card, .modal,
+  .glass:not(#mainHeader)::before, .sv-card::before, .option-card::before, .modal::before,
+  .glass:not(#mainHeader)::after, .sv-card::after, .option-card::after, .modal::after {
+    background-attachment: scroll;
+  }
+}
+/* 🎯 CHART CARD ALIGNMENT — mantiene Daily y las gráficas inferiores centradas como las demás cards */
+.dashboard-chart-card,
+.bottom-grid {
+  width: min(100%, 1560px);
+  margin-left: auto;
+  margin-right: auto;
+}
+.dashboard-chart-card {
+  margin-bottom: 20px;
+}
+.dashboard-chart-card .panel-head,
+.bottom-grid .panel-head {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.dashboard-chart-card .chart-container,
+.bottom-grid .chart-container {
+  width: 100%;
+}
+.dashboard-chart-card .trading-chart-wrap,
+.bottom-grid .chart-wrap {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+
+
+/* 💡 HERO / LAMP BACKGROUND — estilo lámpara con una sola línea superior */
+:root {
+  --lamp-line: rgba(255,255,255,0.88);
+  --lamp-line-soft: rgba(255,255,255,0.32);
+  --lamp-glow-core: rgba(255,255,255,0.34);
+  --lamp-glow-mid: rgba(255,255,255,0.18);
+  --lamp-glow-soft: rgba(255,255,255,0.06);
+  --lamp-shadow-mask: rgba(240,238,235,0.96);
+}
+[data-theme="dark"] {
+  --lamp-line: rgba(255,255,255,0.96);
+  --lamp-line-soft: rgba(255,255,255,0.42);
+  --lamp-glow-core: rgba(255,255,255,0.48);
+  --lamp-glow-mid: rgba(255,255,255,0.23);
+  --lamp-glow-soft: rgba(255,255,255,0.075);
+  --lamp-shadow-mask: rgba(0,0,0,0.98);
+}
+body {
+  position: relative;
+}
+.dashboard-hero-bg {
+  position: fixed;
+  inset: 0 0 auto 0;
+  width: 100vw;
+  height: 620px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  opacity: 1;
+}
+.dashboard-hero-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(820px, 78vw);
+  height: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent 0%, var(--lamp-line-soft) 18%, var(--lamp-line) 50%, var(--lamp-line-soft) 82%, transparent 100%);
+  box-shadow:
+    0 0 12px rgba(255,255,255,0.75),
+    0 0 34px rgba(255,255,255,0.45),
+    0 18px 90px rgba(255,255,255,0.35);
+  z-index: 20;
+  animation: lampLineOpen 1s ease-in-out both;
+}
+.dashboard-hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 52% at 50% -2%, var(--lamp-glow-mid) 0%, var(--lamp-glow-soft) 44%, transparent 72%),
+    linear-gradient(to bottom, transparent 0%, transparent 46%, var(--bg) 100%);
+  opacity: 0.95;
+  z-index: 1;
+}
+.hero-blur-cap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 170px;
+  transform: translateX(-50%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0.05;
+  z-index: 5;
+}
+.hero-main-glow {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: min(980px, 88vw);
+  height: 360px;
+  transform: translateX(-50%);
+  border-radius: 0 0 999px 999px;
+  background: radial-gradient(ellipse at 50% 0%, var(--lamp-glow-core) 0%, var(--lamp-glow-mid) 28%, var(--lamp-glow-soft) 55%, transparent 78%);
+  filter: blur(42px) saturate(1.05);
+  opacity: 0.98;
+  z-index: 3;
+  animation: lampGlowDrop 1.05s ease-in-out both;
+}
+.hero-lamp-core {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  width: min(680px, 62vw);
+  height: 190px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.48) 38%, transparent 74%);
+  filter: blur(52px);
+  opacity: 0.9;
+  z-index: 6;
+  animation: lampCoreOpen 1s ease-in-out both;
+}
+.hero-top-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(820px, 78vw);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.86),
+    0 0 22px rgba(255,255,255,0.54),
+    0 12px 110px rgba(255,255,255,0.36);
+  z-index: 21;
+  animation: lampLineOpen 1s ease-in-out both;
+}
+.hero-cone {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  right: auto;
+  width: min(1160px, 96vw);
+  height: 560px;
+  transform: translateX(-50%);
+  opacity: 0.9;
+  filter: blur(16px);
+  z-index: 2;
+  background:
+    radial-gradient(ellipse 72% 48% at 50% -4%, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.18) 22%, rgba(255,255,255,0.07) 46%, transparent 78%);
+  animation: lampConeFade 1.05s ease-in-out both;
+}
+.hero-cone-right {
+  display: none;
+}
+.hero-cone::before,
+.hero-cone::after,
+.hero-cone-left::after,
+.hero-cone-right::after {
+  content: none;
+}
+.app,
+.page-divider {
+  position: relative;
+  z-index: 2;
+}
+@keyframes lampLineOpen {
+  from { width: min(360px, 44vw); opacity: 0.45; }
+  to { width: min(820px, 78vw); opacity: 1; }
+}
+@keyframes lampCoreOpen {
+  from { width: min(320px, 42vw); opacity: 0.45; }
+  to { width: min(680px, 62vw); opacity: 0.9; }
+}
+@keyframes lampGlowDrop {
+  from { transform: translateX(-50%) translateY(-32px); opacity: 0.35; }
+  to { transform: translateX(-50%) translateY(0); opacity: 0.98; }
+}
+@keyframes lampConeFade {
+  from { opacity: 0.25; transform: translateX(-50%) scaleX(0.65); }
+  to { opacity: 0.9; transform: translateX(-50%) scaleX(1); }
+}
+@media(max-width:700px) {
+  .dashboard-hero-bg { height: 460px; }
+  .dashboard-hero-bg::before,
+  .hero-top-line { width: 86vw; }
+  .hero-main-glow { width: 96vw; height: 300px; }
+  .hero-lamp-core { width: 78vw; height: 150px; }
+  .hero-cone { width: 110vw; height: 440px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero-bg::before,
+  .hero-lamp-core,
+  .hero-main-glow,
+  .hero-top-line,
+  .hero-cone { animation: none; }
+}
+
+
+/* 🔽 Body offset: baja todo el dashboard 50px para dejar respirar el Hero/Lamp */
+body {
+  padding-top: 50px;
+}
+
+/* Hero/Lamp estático: sin movimiento, solo luz fija */
+.dashboard-hero-bg::before,
+.hero-lamp-core,
+.hero-main-glow,
+.hero-top-line,
+.hero-cone {
+  animation: none !important;
+}
+
 /* 🔍 SEARCH: MOBILE RESPONSIVE */
 @media(max-width:600px) {
   #mainHeader { flex-wrap: wrap; padding: 8px 10px; gap: 6px; position: relative; top: 0; }
@@ -395,9 +735,1079 @@ details[open] summary{color:var(--text)}
   .kpi-grid { grid-template-columns: repeat(6, 1fr); }
   .main-grid { grid-template-columns: 1fr 280px; }
 }
+
+
+/* ✅ AJUSTE FINAL: Hero/Lamp estático + más espacio superior para apreciarlo */
+:root {
+  --hero-top-safe-area: 112px;
+}
+[data-theme="dark"] {
+  --bg:#000000;
+  --bg-grad:radial-gradient(ellipse at top, #08090d 0%, #020203 42%, #000000 100%);
+  --glass-bg:rgba(20,20,24,0.78);
+  --glass-bg-hover:rgba(31,31,36,0.88);
+  --panel-head-bg:rgba(255,255,255,0.045);
+}
+.dashboard-hero-bg {
+  position: fixed;
+  height: 760px;
+  opacity: 1;
+  transform: none !important;
+}
+.dashboard-hero-bg::before,
+.hero-top-line {
+  top: 0;
+  width: min(980px, 74vw);
+  height: 2px;
+  animation: none !important;
+  transform: translateX(-50%) !important;
+  opacity: 1 !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.34) 17%, rgba(255,255,255,0.98) 50%, rgba(255,255,255,0.34) 83%, transparent 100%);
+  box-shadow:
+    0 0 10px rgba(255,255,255,0.92),
+    0 0 26px rgba(255,255,255,0.62),
+    0 24px 140px rgba(255,255,255,0.42),
+    0 70px 210px rgba(255,255,255,0.24);
+}
+.dashboard-hero-bg::after {
+  background:
+    radial-gradient(ellipse 80% 52% at 50% 0%, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.13) 38%, transparent 72%),
+    linear-gradient(to bottom, transparent 0%, transparent 54%, var(--bg) 100%);
+  opacity: 1;
+}
+.hero-main-glow {
+  top: -2px;
+  width: min(1220px, 88vw);
+  height: 430px;
+  filter: blur(58px) saturate(1.08);
+  opacity: 1 !important;
+  animation: none !important;
+  transform: translateX(-50%) !important;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.24) 30%, rgba(255,255,255,0.08) 58%, transparent 80%);
+}
+.hero-lamp-core {
+  top: -84px;
+  width: min(860px, 62vw);
+  height: 230px;
+  filter: blur(56px);
+  opacity: 0.95 !important;
+  animation: none !important;
+  transform: translateX(-50%) !important;
+}
+.hero-cone {
+  top: 0;
+  width: min(1420px, 98vw);
+  height: 650px;
+  opacity: 0.86 !important;
+  filter: blur(18px);
+  animation: none !important;
+  transform: translateX(-50%) !important;
+  background: radial-gradient(ellipse 78% 48% at 50% 0%, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.17) 27%, rgba(255,255,255,0.06) 52%, transparent 78%);
+}
+.hero-blur-cap {
+  height: 205px;
+  opacity: 0.06;
+}
+body > .app:first-of-type {
+  padding-top: var(--hero-top-safe-area) !important;
+}
+#mainHeader {
+  top: 24px;
+}
+@media(max-width:700px) {
+  :root { --hero-top-safe-area: 86px; }
+  .dashboard-hero-bg { height: 560px; }
+  .dashboard-hero-bg::before,
+  .hero-top-line { width: 86vw; }
+  .hero-main-glow { width: 112vw; height: 350px; }
+  .hero-lamp-core { width: 86vw; height: 170px; }
+  .hero-cone { width: 124vw; height: 500px; }
+  #mainHeader { top: 0; }
+}
+@media(max-height:500px) and (orientation:landscape) {
+  :root { --hero-top-safe-area: 64px; }
+}
+
+
+
+/* 🖤🤍 MONOCHROME MINIMAL THEME — día: blanco/negro · noche: negro/blanco */
+:root {
+  --bg:#f7f7f5;
+  --bg-grad:radial-gradient(ellipse at top, #ffffff 0%, #f7f7f5 42%, #eeeeec 100%);
+  --glass-bg:rgba(255,255,255,0.66);
+  --glass-bg-hover:rgba(255,255,255,0.84);
+  --glass-border:rgba(0,0,0,0.13);
+  --glass-border2:rgba(0,0,0,0.08);
+  --glass-shadow:0 8px 28px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
+  --glass-shadow-hover:0 12px 40px rgba(0,0,0,0.13),0 2px 8px rgba(0,0,0,0.08);
+  --panel-head-bg:rgba(255,255,255,0.50);
+  --text:#050505;
+  --text-dim:rgba(0,0,0,0.58);
+  --text-faint:rgba(0,0,0,0.34);
+  --ink:#050505;
+  --ink-inv:#ffffff;
+  --surface-mute:rgba(0,0,0,0.055);
+  --surface-row:rgba(0,0,0,0.035);
+  --border-line:rgba(0,0,0,0.13);
+  --sep:rgba(0,0,0,0.10);
+  --modal-overlay:rgba(0,0,0,0.42);
+  --modal-bg:rgba(248,248,247,0.92);
+  --notif-bg:rgba(255,255,255,0.94);
+  --input-bg:rgba(255,255,255,0.84);
+  --month-tab-bg:rgba(0,0,0,0.06);
+  --ocr-dash:rgba(0,0,0,0.30);
+  --progress-bg:rgba(0,0,0,0.10);
+  --scrollbar:rgba(0,0,0,0.18);
+  --chart-tick:rgba(0,0,0,0.50);
+  --chart-grid:rgba(0,0,0,0.08);
+  --chart-legend:rgba(0,0,0,0.58);
+  --accent:#050505;
+  --accent2:#1b1b1b;
+  --accent-contrast:#ffffff;
+  --green:#111111;
+  --orange:#111111;
+  --blue:#111111;
+  --red:#111111;
+  --yellow:#111111;
+  --purple:#111111;
+  --mono-chip-bg:rgba(0,0,0,0.08);
+  --mono-chip-bg-strong:rgba(0,0,0,0.13);
+  --mono-chart-daily:rgba(0,0,0,0.36);
+  --mono-icon-opacity:0.13;
+  --spotlight-color:0 0% 0%;
+  --spotlight-bg-opacity:0.075;
+  --spotlight-border-opacity:0.42;
+  --spotlight-white-opacity:0.16;
+  --lamp-line:rgba(0,0,0,0.86);
+  --lamp-line-soft:rgba(0,0,0,0.28);
+  --lamp-glow-core:rgba(0,0,0,0.22);
+  --lamp-glow-mid:rgba(0,0,0,0.13);
+  --lamp-glow-soft:rgba(0,0,0,0.045);
+  --lamp-line-shadow-1:rgba(0,0,0,0.55);
+  --lamp-line-shadow-2:rgba(0,0,0,0.28);
+  --lamp-line-shadow-3:rgba(0,0,0,0.20);
+  --lamp-core-color:rgba(0,0,0,0.36);
+  --lamp-core-mid:rgba(0,0,0,0.20);
+  --lamp-cone-start:rgba(0,0,0,0.16);
+  --lamp-cone-mid:rgba(0,0,0,0.08);
+  --lamp-cone-soft:rgba(0,0,0,0.032);
+}
+[data-theme="dark"] {
+  --bg:#000000;
+  --bg-grad:radial-gradient(ellipse at top, #030303 0%, #010101 42%, #000000 100%);
+  --glass-bg:rgba(12,12,13,0.72);
+  --glass-bg-hover:rgba(21,21,23,0.86);
+  --glass-border:rgba(255,255,255,0.13);
+  --glass-border2:rgba(255,255,255,0.06);
+  --glass-shadow:0 8px 34px rgba(0,0,0,0.68),0 1px 6px rgba(0,0,0,0.45);
+  --glass-shadow-hover:0 12px 44px rgba(0,0,0,0.86),0 2px 10px rgba(0,0,0,0.60);
+  --panel-head-bg:rgba(255,255,255,0.035);
+  --text:#f6f6f6;
+  --text-dim:rgba(255,255,255,0.55);
+  --text-faint:rgba(255,255,255,0.28);
+  --ink:#ffffff;
+  --ink-inv:#000000;
+  --surface-mute:rgba(255,255,255,0.055);
+  --surface-row:rgba(255,255,255,0.026);
+  --border-line:rgba(255,255,255,0.11);
+  --sep:rgba(255,255,255,0.075);
+  --modal-overlay:rgba(0,0,0,0.74);
+  --modal-bg:rgba(10,10,11,0.94);
+  --notif-bg:rgba(12,12,13,0.96);
+  --input-bg:rgba(255,255,255,0.055);
+  --month-tab-bg:rgba(255,255,255,0.06);
+  --ocr-dash:rgba(255,255,255,0.28);
+  --progress-bg:rgba(255,255,255,0.10);
+  --scrollbar:rgba(255,255,255,0.18);
+  --chart-tick:rgba(255,255,255,0.42);
+  --chart-grid:rgba(255,255,255,0.07);
+  --chart-legend:rgba(255,255,255,0.58);
+  --accent:#ffffff;
+  --accent2:#d8d8d8;
+  --accent-contrast:#000000;
+  --green:#f4f4f4;
+  --orange:#f4f4f4;
+  --blue:#f4f4f4;
+  --red:#f4f4f4;
+  --yellow:#f4f4f4;
+  --purple:#f4f4f4;
+  --mono-chip-bg:rgba(255,255,255,0.09);
+  --mono-chip-bg-strong:rgba(255,255,255,0.15);
+  --mono-chart-daily:rgba(190,190,190,0.50);
+  --mono-icon-opacity:0.15;
+  --spotlight-color:0 0% 100%;
+  --spotlight-bg-opacity:0.13;
+  --spotlight-border-opacity:0.68;
+  --spotlight-white-opacity:0.24;
+  --lamp-line:rgba(255,255,255,0.94);
+  --lamp-line-soft:rgba(255,255,255,0.36);
+  --lamp-glow-core:rgba(255,255,255,0.40);
+  --lamp-glow-mid:rgba(255,255,255,0.20);
+  --lamp-glow-soft:rgba(255,255,255,0.065);
+  --lamp-line-shadow-1:rgba(255,255,255,0.82);
+  --lamp-line-shadow-2:rgba(255,255,255,0.44);
+  --lamp-line-shadow-3:rgba(255,255,255,0.32);
+  --lamp-core-color:rgba(255,255,255,0.70);
+  --lamp-core-mid:rgba(255,255,255,0.36);
+  --lamp-cone-start:rgba(255,255,255,0.30);
+  --lamp-cone-mid:rgba(255,255,255,0.15);
+  --lamp-cone-soft:rgba(255,255,255,0.055);
+}
+body {
+  background:var(--bg-grad) !important;
+}
+.btn-accent,
+.auth-btn {
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+}
+.btn-accent:hover,
+.auth-btn:hover {
+  background:var(--accent2) !important;
+  border-color:var(--accent2) !important;
+  color:var(--accent-contrast) !important;
+  box-shadow:0 5px 16px color-mix(in srgb, var(--accent) 22%, transparent) !important;
+}
+.user-avatar,
+.profile-avatar,
+.pin-dot.filled,
+.pp-dot.filled,
+.pp-pill.active,
+.toggle.on,
+.ocr-progress-bar {
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+}
+.pp-dot.filled {
+  box-shadow:0 0 8px color-mix(in srgb, var(--accent) 34%, transparent) !important;
+}
+.kpi-icon {
+  opacity:var(--mono-icon-opacity) !important;
+  color:var(--ink) !important;
+}
+.ocr-zone:hover,
+.ocr-zone.drag-over,
+.review-card-text mark,
+.deals-table tr.mismatch-row td,
+.hold-table td,
+.hold-total-badge,
+.mismatch-badge,
+.tag-split,
+.pp-pill.achieved,
+.source-google,
+.source-dealerrater,
+.source-user-mention,
+.match-ok,
+.match-bad,
+.status-Paid,
+.status-Pending,
+.status-On-Hold {
+  background:var(--mono-chip-bg) !important;
+  color:var(--ink) !important;
+  border-color:var(--border-line) !important;
+}
+.status-badge,
+.source-badge,
+.match-badge,
+.mismatch-badge,
+.tag-period,
+.tag-split,
+.hold-total-badge {
+  color:var(--ink) !important;
+}
+.status-Paid,
+.status-Pending,
+.status-On-Hold,
+.match-ok,
+.match-bad,
+.source-user-mention {
+  background:var(--mono-chip-bg-strong) !important;
+}
+.deals-table .totals-row td,
+.hold-table .totals-row td {
+  border-top-color:var(--ink) !important;
+}
+.calc-preview-val,
+.review-card-text mark,
+.act-btn:hover,
+.form-input:focus,
+.form-select:focus,
+.search-row select:focus,
+.search-row input:focus,
+.auth-input:focus {
+  color:var(--ink) !important;
+  border-color:var(--accent) !important;
+}
+.legend-dot[style*="59,130,246"] {
+  background:var(--mono-chart-daily) !important;
+}
+.glass:not(#mainHeader),
+.sv-card,
+.option-card,
+.modal {
+  background-image:radial-gradient(
+    var(--spotlight-size) var(--spotlight-size) at
+    calc(var(--spotlight-x) * 1px)
+    calc(var(--spotlight-y) * 1px),
+    hsl(var(--spotlight-color) / var(--spotlight-bg-opacity)),
+    transparent 66%
+  ) !important;
+  background-color:var(--glass-bg) !important;
+  border-color:var(--glass-border) !important;
+}
+.glass:not(#mainHeader)::before,
+.sv-card::before,
+.option-card::before,
+.modal::before {
+  background-image:radial-gradient(
+    calc(var(--spotlight-size) * 0.82) calc(var(--spotlight-size) * 0.82) at
+    calc(var(--spotlight-x) * 1px)
+    calc(var(--spotlight-y) * 1px),
+    hsl(var(--spotlight-color) / var(--spotlight-border-opacity)),
+    transparent 70%
+  ) !important;
+  filter:brightness(1.45) contrast(1.08) !important;
+}
+.glass:not(#mainHeader)::after,
+.sv-card::after,
+.option-card::after,
+.modal::after {
+  background-image:radial-gradient(
+    calc(var(--spotlight-size) * 0.44) calc(var(--spotlight-size) * 0.44) at
+    calc(var(--spotlight-x) * 1px)
+    calc(var(--spotlight-y) * 1px),
+    hsl(var(--spotlight-color) / var(--spotlight-white-opacity)),
+    transparent 62%
+  ) !important;
+  opacity:0.72 !important;
+}
+[data-theme="light"] .dashboard-hero-bg::before,
+[data-theme="light"] .hero-top-line,
+.dashboard-hero-bg::before,
+.hero-top-line {
+  background:linear-gradient(90deg, transparent 0%, var(--lamp-line-soft) 17%, var(--lamp-line) 50%, var(--lamp-line-soft) 83%, transparent 100%) !important;
+  box-shadow:
+    0 0 10px var(--lamp-line-shadow-1),
+    0 0 28px var(--lamp-line-shadow-2),
+    0 26px 145px var(--lamp-line-shadow-3),
+    0 76px 230px var(--lamp-glow-mid) !important;
+}
+.dashboard-hero-bg::after {
+  background:
+    radial-gradient(ellipse 80% 52% at 50% 0%, var(--lamp-glow-mid) 0%, var(--lamp-glow-soft) 42%, transparent 72%),
+    linear-gradient(to bottom, transparent 0%, transparent 54%, var(--bg) 100%) !important;
+}
+.hero-main-glow {
+  background:radial-gradient(ellipse at 50% 0%, var(--lamp-glow-core) 0%, var(--lamp-glow-mid) 30%, var(--lamp-glow-soft) 58%, transparent 80%) !important;
+  filter:blur(58px) saturate(1) !important;
+}
+.hero-lamp-core {
+  background:radial-gradient(ellipse at center, var(--lamp-core-color) 0%, var(--lamp-core-mid) 38%, transparent 74%) !important;
+}
+.hero-cone {
+  background:radial-gradient(ellipse 78% 48% at 50% 0%, var(--lamp-cone-start) 0%, var(--lamp-cone-mid) 27%, var(--lamp-cone-soft) 52%, transparent 78%) !important;
+}
+[data-theme="light"] .google-btn svg,
+[data-theme="dark"] .google-btn svg {
+  filter:grayscale(1) contrast(1.1);
+}
+[data-theme="dark"] .btn-accent:hover,
+[data-theme="dark"] .auth-btn:hover {
+  color:#000 !important;
+}
+
+
+
+/* =========================================================
+   CUSTOMIZATION NOTES — HOLD FILE WARNING SYSTEM
+   ---------------------------------------------------------
+   This block controls the special warning style for Hold File.
+   Hold File = deals that are NOT paid yet because something is
+   missing: documents, funding, signatures, bank approval, etc.
+
+   Future edits:
+   - Main orange color:       --hold-warning
+   - Strong orange title:     --hold-warning-strong
+   - Soft card background:    --hold-warning-bg
+   - Stronger header bg:      --hold-warning-bg-strong
+   - Border/glow intensity:   --hold-warning-border / --hold-warning-shadow
+   - Table row highlight:     --hold-warning-row
+   - Spotlight glow color:    --hold-spotlight-color (HSL values)
+
+   Keep this section after the black/white theme overrides so the
+   Hold File can stay orange while the rest of the dashboard remains
+   minimal black/white.
+   ========================================================= */
+:root {
+  /* Hold File orange palette — light mode */
+  --hold-warning:#f97316;
+  --hold-warning-strong:#c2410c;
+  --hold-warning-text:#431407;
+  --hold-warning-bg:rgba(249,115,22,0.12);
+  --hold-warning-bg-strong:rgba(249,115,22,0.20);
+  --hold-warning-border:rgba(249,115,22,0.52);
+  --hold-warning-shadow:rgba(249,115,22,0.28);
+  --hold-warning-row:rgba(249,115,22,0.085);
+  --hold-warning-row-hover:rgba(249,115,22,0.15);
+  --hold-spotlight-color:24 95% 53%;
+}
+[data-theme="dark"] {
+  /* Hold File orange palette — dark mode */
+  --hold-warning:#fb923c;
+  --hold-warning-strong:#fdba74;
+  --hold-warning-text:#ffedd5;
+  --hold-warning-bg:rgba(251,146,60,0.105);
+  --hold-warning-bg-strong:rgba(251,146,60,0.18);
+  --hold-warning-border:rgba(251,146,60,0.48);
+  --hold-warning-shadow:rgba(251,146,60,0.22);
+  --hold-warning-row:rgba(251,146,60,0.075);
+  --hold-warning-row-hover:rgba(251,146,60,0.135);
+  --hold-spotlight-color:25 95% 60%;
+}
+.hold-warning-card.glass:not(#mainHeader),
+.sv-hold-total-card {
+  border-color:var(--hold-warning-border) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hold-warning) 18%, transparent),
+    0 18px 48px -28px var(--hold-warning-shadow),
+    var(--glass-shadow) !important;
+}
+.hold-warning-card.glass:not(#mainHeader) {
+  background-image:
+    radial-gradient(
+      360px 360px at calc(var(--spotlight-x) * 1px) calc(var(--spotlight-y) * 1px),
+      hsl(var(--hold-spotlight-color) / 0.18),
+      transparent 66%
+    ),
+    linear-gradient(180deg, var(--hold-warning-bg) 0%, transparent 42%) !important;
+}
+.hold-warning-card.glass:not(#mainHeader)::before,
+.sv-hold-total-card::before {
+  background-image:radial-gradient(
+    calc(var(--spotlight-size) * 0.86) calc(var(--spotlight-size) * 0.86) at
+    calc(var(--spotlight-x) * 1px)
+    calc(var(--spotlight-y) * 1px),
+    hsl(var(--hold-spotlight-color) / 0.95),
+    transparent 70%
+  ) !important;
+  filter:brightness(1.24) saturate(1.22) !important;
+}
+.hold-warning-card .panel-head {
+  background:
+    linear-gradient(90deg, var(--hold-warning-bg-strong), transparent 72%),
+    var(--panel-head-bg) !important;
+  border-bottom-color:var(--hold-warning-border) !important;
+}
+.hold-warning-card .panel-head > i,
+.hold-warning-card .panel-title,
+.hold-warning-card .hold-warning-pill i,
+.hold-warning-card .hold-alert-note i,
+.sv-hold-total-card .sv-card-label,
+.sv-hold-total-card .sv-card-val,
+.hold-total-badge {
+  color:var(--hold-warning) !important;
+}
+.hold-warning-card .panel-title {
+  letter-spacing:0.02em;
+}
+.hold-warning-pill {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-left:8px;
+  padding:3px 9px;
+  border:1px solid var(--hold-warning-border);
+  border-radius:999px;
+  background:var(--hold-warning-bg);
+  color:var(--hold-warning-text);
+  font-size:0.60rem;
+  font-weight:800;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+[data-theme="dark"] .hold-warning-pill {
+  color:var(--hold-warning-text);
+}
+.hold-warning-card .btn {
+  border-color:var(--hold-warning-border) !important;
+  background:var(--hold-warning-bg) !important;
+  color:var(--hold-warning-text) !important;
+}
+.hold-warning-card .btn:hover {
+  background:var(--hold-warning-bg-strong) !important;
+  box-shadow:0 8px 22px -14px var(--hold-warning-shadow) !important;
+}
+.hold-alert-note {
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  margin:0 0 12px;
+  padding:10px 12px;
+  border:1px solid var(--hold-warning-border);
+  border-radius:10px;
+  background:var(--hold-warning-bg);
+  color:var(--hold-warning-text);
+  font-size:0.68rem;
+  font-weight:650;
+  line-height:1.35;
+}
+.hold-alert-note strong {
+  color:var(--hold-warning-strong);
+}
+[data-theme="dark"] .hold-alert-note strong {
+  color:var(--hold-warning-strong);
+}
+.hold-warning-card .hold-table th {
+  color:color-mix(in srgb, var(--hold-warning) 78%, var(--text-dim)) !important;
+  border-bottom-color:var(--hold-warning-border) !important;
+}
+.hold-warning-card .hold-table td {
+  background:var(--hold-warning-row) !important;
+}
+.hold-warning-card .hold-table tbody tr:hover td {
+  background:var(--hold-warning-row-hover) !important;
+}
+.hold-warning-card .hold-table .totals-row td {
+  background:transparent !important;
+  border-top-color:var(--hold-warning) !important;
+  color:var(--hold-warning-text) !important;
+}
+.hold-warning-card .empty-table {
+  color:color-mix(in srgb, var(--hold-warning) 54%, var(--text-faint)) !important;
+}
+.hold-warning-card .empty-table i {
+  color:var(--hold-warning) !important;
+  opacity:0.38 !important;
+}
+.hold-total-badge {
+  background:var(--hold-warning-bg-strong) !important;
+  border:1px solid var(--hold-warning-border) !important;
+  box-shadow:0 0 18px -12px var(--hold-warning-shadow) !important;
+}
+.sv-hold-total-card {
+  background:
+    radial-gradient(260px 180px at 80% 0%, var(--hold-warning-bg-strong), transparent 72%),
+    var(--surface-mute) !important;
+}
+@media(max-width:700px) {
+  .hold-warning-pill {
+    order:3;
+    margin-left:0;
+    width:100%;
+    justify-content:center;
+  }
+  .hold-warning-card .panel-head {
+    flex-wrap:wrap;
+  }
+  .hold-warning-card .panel-head .btn {
+    margin-left:auto !important;
+  }
+}
+
+
+
+/* =========================================================
+   CUSTOMIZATION NOTES — DEAL LOG PRIORITY LAYOUT
+   ---------------------------------------------------------
+   Goal of this section:
+   1) Move Scan Deal Sheet + Pay Plan 2026 above Deal Log.
+   2) Make Deal Log full-width, more visible, and easier to read.
+   3) Keep the layout responsive on mobile.
+
+   Future edits:
+   - Top utility card widths: .top-action-row grid-template-columns
+   - Deal Log text size:      .deal-log-card .deals-table
+   - Deal Log height:         .deal-log-card min-height
+   - Mobile behavior:         @media(max-width:900px / 600px)
+   ========================================================= */
+.main-grid {
+  grid-template-columns:1fr !important;
+  gap:18px !important;
+  align-items:stretch !important;
+}
+.top-action-row {
+  order:1;
+  display:grid !important;
+  grid-template-columns:minmax(320px,0.85fr) minmax(460px,1.15fr);
+  gap:16px;
+  align-items:stretch;
+  width:100%;
+}
+.top-action-row > .glass {
+  min-height:100%;
+}
+.scan-deal-card .panel-body {
+  min-height:182px;
+}
+.top-action-row .pay-plan-panel {
+  display:grid;
+  grid-template-rows:auto auto auto auto 1fr auto;
+}
+.deal-log-card {
+  order:2;
+  width:100%;
+  min-height:520px;
+  border-width:1px;
+}
+.deal-log-card .panel-head {
+  padding:15px 18px !important;
+}
+.deal-log-card .panel-title {
+  font-size:0.98rem !important;
+  letter-spacing:0.015em;
+}
+.deal-log-card #dealCountBadge {
+  font-size:0.74rem !important;
+}
+.deal-log-card .panel-body {
+  padding:16px 18px 8px !important;
+}
+.deal-log-card .search-row select,
+.deal-log-card .search-row input {
+  font-size:0.82rem !important;
+  padding:8px 11px !important;
+}
+.deal-log-card .month-tab {
+  font-size:0.76rem !important;
+  padding:5px 12px !important;
+}
+.deal-log-card .deals-table {
+  font-size:0.84rem !important;
+}
+.deal-log-card .deals-table th {
+  font-size:0.72rem !important;
+  padding:9px 10px !important;
+}
+.deal-log-card .deals-table td {
+  font-size:0.82rem !important;
+  padding:11px 10px !important;
+}
+.deal-log-card .deals-table td div[style*="font-weight:600"] {
+  font-size:0.84rem !important;
+}
+.deal-log-card .deals-table td div[style*="color:var(--text-dim)"] {
+  font-size:0.72rem !important;
+}
+.deal-log-card .deals-table .totals-row td {
+  font-size:0.86rem !important;
+  padding-top:12px !important;
+  padding-bottom:12px !important;
+}
+.deal-log-card .status-badge,
+.deal-log-card .mismatch-badge,
+.deal-log-card .tag-period,
+.deal-log-card .tag-split {
+  font-size:0.68rem !important;
+}
+.deal-log-card .act-btn {
+  width:30px;
+  height:30px;
+}
+@media(max-width:900px) {
+  .top-action-row {
+    grid-template-columns:1fr;
+  }
+  .deal-log-card {
+    min-height:auto;
+  }
+}
+@media(max-width:600px) {
+  .main-grid {
+    gap:12px !important;
+  }
+  .deal-log-card .panel-head {
+    padding:11px 12px !important;
+  }
+  .deal-log-card .panel-title {
+    font-size:0.82rem !important;
+  }
+  .deal-log-card .panel-body {
+    padding:11px 12px 6px !important;
+  }
+  .deal-log-card .deals-table {
+    font-size:0.70rem !important;
+  }
+  .deal-log-card .deals-table th {
+    font-size:0.60rem !important;
+    padding:6px 6px !important;
+  }
+  .deal-log-card .deals-table td {
+    font-size:0.68rem !important;
+    padding:7px 6px !important;
+  }
+}
+
+/* =========================================================
+   CUSTOMIZATION NOTES — HOLD FILE SLOW LIGHT PULSE
+   ---------------------------------------------------------
+   This gives Hold File a very slow orange light pulse so the
+   user understands it needs attention without making it annoying.
+
+   Future edits:
+   - Speed:       change 8.5s in .hold-warning-card
+   - Intensity:   edit the box-shadow values in @keyframes
+   - Disable:     remove/comment animation lines below
+   ========================================================= */
+@keyframes holdFileSlowPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--hold-warning) 16%, transparent),
+      0 14px 42px -30px var(--hold-warning-shadow),
+      var(--glass-shadow) !important;
+    border-color:color-mix(in srgb, var(--hold-warning-border) 75%, var(--glass-border)) !important;
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--hold-warning) 38%, transparent),
+      0 0 28px -15px var(--hold-warning-shadow),
+      0 24px 62px -26px var(--hold-warning-shadow),
+      var(--glass-shadow-hover) !important;
+    border-color:var(--hold-warning) !important;
+  }
+}
+.hold-warning-card.glass:not(#mainHeader) {
+  animation:holdFileSlowPulse 8.5s ease-in-out infinite;
+}
+.hold-warning-card .panel-head > i {
+  animation:holdIconSoftGlow 8.5s ease-in-out infinite;
+}
+@keyframes holdIconSoftGlow {
+  0%, 100% { filter:drop-shadow(0 0 0 transparent); opacity:0.9; }
+  50% { filter:drop-shadow(0 0 8px var(--hold-warning-shadow)); opacity:1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hold-warning-card.glass:not(#mainHeader),
+  .hold-warning-card .panel-head > i {
+    animation:none !important;
+  }
+}
+
+
+
+/* =========================================================
+   SENIOR UI/UX PASS — COMPACT TOP ACTIONS + PRIMARY DEAL LOG
+   ---------------------------------------------------------
+   Why this exists:
+   - Scan Deal Sheet should work like a compact utility card, not a
+     large empty drop area.
+   - Pay Plan should stay visible above Deal Log, but in a compact
+     progress format so it does not steal attention.
+   - Deal Log is the main working surface, so it gets full width and
+     stronger table readability.
+
+   Future edits:
+   - Scan card width:      .top-action-row grid-template-columns
+   - Scan upload height:   .scan-deal-card .ocr-zone height
+   - Show Pay Plan details again: remove/comment the pp-section display:none rule
+   - Deal Log minimum height: .deal-log-card min-height
+   ========================================================= */
+.main-grid {
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:stretch !important;
+}
+.top-action-row {
+  order:1 !important;
+  display:grid !important;
+  grid-template-columns:clamp(300px, 26vw, 430px) minmax(0, 1fr) !important;
+  gap:14px !important;
+  align-items:stretch !important;
+  width:100% !important;
+}
+.top-action-row > .glass {
+  min-height:0 !important;
+}
+.scan-deal-card {
+  align-self:stretch !important;
+}
+.scan-deal-card .panel-head,
+.top-action-row .pay-plan-panel .panel-head {
+  padding:11px 14px !important;
+}
+.scan-deal-card .panel-title,
+.top-action-row .pay-plan-panel .panel-title {
+  font-size:0.82rem !important;
+}
+.scan-deal-card .panel-body {
+  min-height:0 !important;
+  padding:12px 14px !important;
+  display:grid !important;
+  grid-template-rows:auto auto auto !important;
+  gap:8px !important;
+}
+.scan-deal-card .ocr-zone {
+  height:104px !important;
+  min-height:104px !important;
+  margin:0 !important;
+  padding:12px 14px !important;
+  display:grid !important;
+  place-items:center !important;
+  align-content:center !important;
+}
+.scan-deal-card .ocr-zone-icon {
+  font-size:1.25rem !important;
+  margin-bottom:3px !important;
+  opacity:0.52 !important;
+}
+.scan-deal-card .ocr-zone-label {
+  font-size:0.74rem !important;
+}
+.scan-deal-card .ocr-zone-sub {
+  font-size:0.61rem !important;
+  margin-top:1px !important;
+}
+.scan-deal-card .ocr-status-text {
+  min-height:12px !important;
+  margin-top:0 !important;
+  font-size:0.60rem !important;
+}
+.scan-deal-card .panel-body > div[style*="margin-top:10px"] {
+  margin-top:0 !important;
+  font-size:0.61rem !important;
+  line-height:1.32 !important;
+}
+.scan-deal-card .panel-body > div[style*="margin-top:10px"] button {
+  height:31px !important;
+  min-height:31px !important;
+  margin-top:5px !important;
+  justify-content:center !important;
+}
+.top-action-row .pay-plan-panel {
+  align-self:stretch !important;
+  display:grid !important;
+  grid-template-rows:auto auto auto auto 1fr !important;
+}
+.top-action-row .pay-plan-panel .pp-dots {
+  grid-template-columns:repeat(15, minmax(8px, 1fr)) !important;
+  gap:4px !important;
+  padding:12px 16px 4px !important;
+}
+.top-action-row .pay-plan-panel .pp-dot {
+  width:8px !important;
+  height:8px !important;
+  border-radius:2px !important;
+  justify-self:center !important;
+}
+.top-action-row .pay-plan-panel .pp-dots-label {
+  padding:2px 16px 5px !important;
+  font-size:0.62rem !important;
+}
+.top-action-row .pay-plan-panel .pp-tier-pills {
+  padding:0 16px 8px !important;
+  gap:4px !important;
+}
+.top-action-row .pay-plan-panel .pp-pill {
+  font-size:0.58rem !important;
+  padding:3px 7px !important;
+}
+.top-action-row .pay-plan-panel .pp-tier-bars {
+  padding:0 16px 12px !important;
+  gap:4px !important;
+}
+.top-action-row .pay-plan-panel .pp-tier-bar-row {
+  font-size:0.61rem !important;
+  gap:7px !important;
+}
+.top-action-row .pay-plan-panel .pp-tier-bar-track {
+  height:6px !important;
+}
+/* Compact Pay Plan: keep progress visible; hide detailed rules to protect Deal Log space. */
+.top-action-row .pay-plan-panel .pp-section {
+  display:none !important;
+}
+.deal-log-card {
+  order:2 !important;
+  width:100% !important;
+  min-height:calc(100vh - 400px) !important;
+  border-width:1px !important;
+}
+.deal-log-card .panel-head {
+  padding:16px 20px !important;
+}
+.deal-log-card .panel-title {
+  font-size:1.02rem !important;
+}
+.deal-log-card .panel-body {
+  padding:17px 20px 10px !important;
+}
+.deal-log-card .deals-table {
+  font-size:0.86rem !important;
+}
+.deal-log-card .deals-table th {
+  font-size:0.74rem !important;
+  padding:10px 11px !important;
+}
+.deal-log-card .deals-table td {
+  font-size:0.84rem !important;
+  padding:12px 11px !important;
+}
+.deal-log-card .empty-table {
+  padding:44px 16px !important;
+  font-size:0.86rem !important;
+}
+@media(max-width:980px) {
+  .top-action-row {
+    grid-template-columns:1fr !important;
+  }
+  .scan-deal-card .ocr-zone {
+    height:96px !important;
+    min-height:96px !important;
+  }
+  .deal-log-card {
+    min-height:auto !important;
+  }
+}
+@media(max-width:600px) {
+  .top-action-row,
+  .main-grid {
+    gap:10px !important;
+  }
+  .scan-deal-card .panel-body {
+    padding:10px 12px !important;
+  }
+  .scan-deal-card .ocr-zone {
+    height:86px !important;
+    min-height:86px !important;
+  }
+  .top-action-row .pay-plan-panel .pp-dots {
+    grid-template-columns:repeat(10, 1fr) !important;
+  }
+  .deal-log-card .panel-head {
+    padding:12px 13px !important;
+  }
+  .deal-log-card .panel-body {
+    padding:12px 13px 7px !important;
+  }
+}
+
+/* =========================================================
+   SENIOR UI/UX PASS — HOLD FILE VISIBLE ORANGE BREATHING PULSE
+   ---------------------------------------------------------
+   Fix: previous pulse used box-shadow/border declarations that were
+   competing with !important styles. This version animates filter,
+   outline and header accents, so it visibly breathes without breaking
+   the spotlight/glass system.
+
+   Future edits:
+   - Speed: change 6.8s below
+   - Intensity: edit drop-shadow values in holdFileOrangeBreath
+   - Disable: comment the animation lines in .hold-warning-card,
+     .hold-warning-card .panel-head::after and .hold-warning-pill
+   ========================================================= */
+.hold-warning-card.glass:not(#mainHeader) {
+  position:relative !important;
+  outline:1px solid color-mix(in srgb, var(--hold-warning) 16%, transparent) !important;
+  outline-offset:0 !important;
+  animation:holdFileOrangeBreath 6.8s ease-in-out infinite !important;
+}
+.hold-warning-card .panel-head {
+  position:relative !important;
+  overflow:hidden !important;
+}
+.hold-warning-card .panel-head::after {
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--hold-warning), transparent);
+  opacity:0.25;
+  animation:holdFileHeaderLinePulse 6.8s ease-in-out infinite;
+}
+.hold-warning-pill,
+.hold-warning-card .hold-alert-note,
+.hold-total-badge {
+  animation:holdFilePillPulse 6.8s ease-in-out infinite !important;
+}
+.hold-warning-card .panel-head > i {
+  animation:holdFileIconPulse 6.8s ease-in-out infinite !important;
+}
+@keyframes holdFileOrangeBreath {
+  0%, 100% {
+    filter:drop-shadow(0 0 0 rgba(249,115,22,0));
+    outline-color:color-mix(in srgb, var(--hold-warning) 16%, transparent);
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 10px color-mix(in srgb, var(--hold-warning) 36%, transparent))
+      drop-shadow(0 0 24px color-mix(in srgb, var(--hold-warning) 22%, transparent));
+    outline-color:color-mix(in srgb, var(--hold-warning) 58%, transparent);
+  }
+}
+@keyframes holdFileHeaderLinePulse {
+  0%, 100% { opacity:0.18; transform:scaleX(0.55); }
+  50% { opacity:0.95; transform:scaleX(1); }
+}
+@keyframes holdFilePillPulse {
+  0%, 100% {
+    box-shadow:0 0 0 rgba(249,115,22,0);
+    filter:saturate(1);
+  }
+  50% {
+    box-shadow:0 0 18px -8px var(--hold-warning-shadow);
+    filter:saturate(1.2) brightness(1.06);
+  }
+}
+@keyframes holdFileIconPulse {
+  0%, 100% { filter:drop-shadow(0 0 0 transparent); opacity:0.78; }
+  50% { filter:drop-shadow(0 0 10px var(--hold-warning)); opacity:1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hold-warning-card.glass:not(#mainHeader),
+  .hold-warning-card .panel-head::after,
+  .hold-warning-pill,
+  .hold-warning-card .hold-alert-note,
+  .hold-total-badge,
+  .hold-warning-card .panel-head > i {
+    animation:none !important;
+  }
+}
+
+
+
+/* 🔐 HIDDEN ADMIN SUBSCRIPTIONS PANEL — future subscription management */
+.admin-modal{max-width:1080px}
+.admin-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.admin-kpi{background:var(--surface-mute);border:1px solid var(--border-line);border-radius:12px;padding:12px 14px}
+.admin-kpi-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);font-weight:700;margin-bottom:5px}
+.admin-kpi-val{font-family:var(--font-mono);font-size:1.1rem;color:var(--ink);font-weight:600}
+.admin-panel-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:14px;align-items:start}
+.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.admin-toolbar input,.admin-toolbar select{padding:7px 10px;border-radius:8px;border:1px solid var(--border-line);background:var(--input-bg);color:var(--text);font-size:0.72rem;font-family:inherit;outline:none}
+.admin-toolbar input{flex:1;min-width:180px}
+.admin-table-wrap{overflow:auto;border:1px solid var(--border-line);border-radius:12px;background:var(--surface-row)}
+.admin-table{width:100%;border-collapse:collapse;font-size:0.7rem;min-width:760px}
+.admin-table th{padding:8px 9px;text-align:left;color:var(--text-dim);font-weight:700;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border-line);white-space:nowrap}
+.admin-table td{padding:8px 9px;border-bottom:1px solid var(--sep);vertical-align:middle}
+.admin-table tr:hover td{background:var(--surface-mute)}
+.admin-side-card{background:var(--surface-mute);border:1px solid var(--border-line);border-radius:12px;padding:14px}
+.admin-side-title{font-size:0.78rem;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.admin-form-grid .full{grid-column:1/-1}
+.admin-status{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:20px;font-size:0.6rem;font-weight:800;text-transform:uppercase;background:var(--mono-chip-bg);color:var(--text)}
+.admin-status.active,.admin-status.trial{background:rgba(34,197,94,0.14);color:var(--green)}
+.admin-status.past_due{background:rgba(249,115,22,0.17);color:var(--orange)}
+.admin-status.blocked,.admin-status.cancelled{background:rgba(239,68,68,0.13);color:var(--red)}
+.admin-actions{display:flex;gap:5px;white-space:nowrap}
+.admin-mini-note{font-size:0.66rem;color:var(--text-dim);line-height:1.45;margin-top:10px}
+@media(max-width:900px){.admin-kpi-grid{grid-template-columns:repeat(2,1fr)}.admin-panel-grid{grid-template-columns:1fr}.admin-modal{max-width:95vw}}
+@media(max-width:560px){.admin-kpi-grid{grid-template-columns:1fr}.admin-form-grid{grid-template-columns:1fr}.admin-form-grid .full{grid-column:auto}}
+
 </style>
 </head>
 <body>
+<div class="dashboard-hero-bg" aria-hidden="true">
+  <div class="hero-blur-cap"></div>
+  <div class="hero-main-glow"></div>
+  <div class="hero-lamp-core"></div>
+  <div class="hero-top-line"></div>
+  <div class="hero-cone hero-cone-left"></div>
+  <div class="hero-cone hero-cone-right"></div>
+</div>
 <div class="app">
 <header class="glass" id="mainHeader">
 <div class="header-logo">
@@ -469,7 +1879,8 @@ details[open] summary{color:var(--text)}
 </div>
 </div>
 <div class="main-grid">
-<div class="glass" style="overflow:hidden">
+<!-- CUSTOM NOTE: Deal Log is the priority card. Layout rules below make it full-width and move Scan/Pay Plan above it. -->
+<div class="glass deal-log-card" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-list-ul" style="color:var(--accent);font-size:0.85rem"></i>
 <span class="panel-title">Deal Log</span>
@@ -517,8 +1928,9 @@ details[open] summary{color:var(--text)}
 </div>
 </div>
 </div>
-<div class="right-col">
-<div class="glass" style="overflow:hidden">
+<div class="right-col top-action-row">
+<!-- CUSTOM NOTE: These utility cards sit above Deal Log so the log stays the main focus. -->
+<div class="glass scan-deal-card" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-camera" style="color:var(--accent);font-size:0.85rem"></i>
 <span class="panel-title">Scan Deal Sheet</span>
@@ -575,13 +1987,13 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
-<div class="glass" style="overflow:hidden;margin-bottom:20px">
+<div class="glass dashboard-chart-card" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-chart-area" style="color:var(--accent);font-size:0.85rem"></i>
 <span class="panel-title">Daily Commission Tracker</span>
 <div class="chart-legend-manual" style="margin-left:auto;padding:0">
 <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Cumulative</div>
-<div class="legend-item"><div class="legend-dot" style="background:rgba(59,130,246,0.6)"></div>Daily</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--mono-chart-daily)"></div>Daily</div>
 </div>
 </div>
 <div class="chart-container">
@@ -644,7 +2056,9 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <div class="sv-card-label">Mismatches</div>
 <div class="sv-card-val" id="sv-mismatches" style="color:var(--orange)">—</div>
 </div>
-<div class="sv-card">
+<!-- CUSTOM NOTE: Hold Total uses the same orange warning palette as Hold File.
+     To adjust it later, edit the CSS variables in the "HOLD FILE WARNING SYSTEM" block. -->
+<div class="sv-card sv-hold-total-card">
 <div class="sv-card-label">Hold Total</div>
 <div class="sv-card-val hold-total-badge" id="holdTotal">$0.00</div>
 </div>
@@ -657,13 +2071,19 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 </div>
 </div>
-<div class="glass" style="overflow:hidden">
+<!-- CUSTOM NOTE: Hold File warning card.
+     Business meaning: these deals are not paid yet until pending requirements are cleared.
+     Visual style: controlled by .hold-warning-card and --hold-warning variables in CSS. -->
+<div class="glass hold-warning-card" style="overflow:hidden">
 <div class="panel-head">
-<i class="fas fa-pause-circle" style="color:var(--orange);font-size:0.85rem"></i>
+<i class="fas fa-triangle-exclamation" style="color:var(--orange);font-size:0.88rem"></i>
 <span class="panel-title">Hold File</span>
+<span class="hold-warning-pill"><i class="fas fa-lock"></i> Unpaid / Action Required</span>
 <button class="btn btn-sm" style="margin-left:auto" onclick="openHoldModal(null)"><i class="fas fa-plus"></i> Add Hold</button>
 </div>
 <div class="panel-body" style="padding-bottom:4px">
+<!-- CUSTOM NOTE: Edit this message if the dealership uses a different Hold File process. -->
+<div class="hold-alert-note"><i class="fas fa-circle-exclamation"></i><span><strong>Priority queue:</strong> deals in Hold File are not paid until missing documents, funding, signatures, or other issues are cleared.</span></div>
 <div style="overflow-x:auto">
 <table class="hold-table">
 <thead>
@@ -976,6 +2396,68 @@ Continue with Google
 </div>
 </div>
 </div>
+
+<div class="modal-overlay" id="adminOverlay" onclick="if(event.target===this)closeAdminPanel()">
+<div class="modal admin-modal">
+<div class="modal-head">
+<span class="modal-title"><i class="fas fa-user-shield" style="color:var(--accent);margin-right:6px"></i>Admin · Subscriptions</span>
+<button class="modal-close" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<div class="admin-kpi-grid">
+<div class="admin-kpi"><div class="admin-kpi-label">Total Users</div><div class="admin-kpi-val" id="adminKpiUsers">0</div></div>
+<div class="admin-kpi"><div class="admin-kpi-label">Active</div><div class="admin-kpi-val" id="adminKpiActive">0</div></div>
+<div class="admin-kpi"><div class="admin-kpi-label">Past Due / Blocked</div><div class="admin-kpi-val" id="adminKpiRisk">0</div></div>
+<div class="admin-kpi"><div class="admin-kpi-label">Projected MRR</div><div class="admin-kpi-val" id="adminKpiMrr">$0.00</div></div>
+</div>
+<div class="admin-panel-grid">
+<div>
+<div class="admin-toolbar">
+<input id="adminSearch" placeholder="Search user, email, plan…" oninput="filterAdminSubscriptions()"/>
+<select id="adminStatusFilter" onchange="filterAdminSubscriptions()">
+<option value="all">All status</option>
+<option value="active">Active</option>
+<option value="trial">Trial</option>
+<option value="past_due">Past due</option>
+<option value="blocked">Blocked</option>
+<option value="cancelled">Cancelled</option>
+</select>
+<button class="btn btn-sm" onclick="loadAdminSubscriptions(true)"><i class="fas fa-rotate"></i> Refresh</button>
+</div>
+<div class="admin-table-wrap">
+<table class="admin-table">
+<thead><tr><th>User</th><th>Plan</th><th>Status</th><th>Amount</th><th>Paid Until</th><th>Access</th><th>Actions</th></tr></thead>
+<tbody id="adminSubsBody"><tr><td colspan="7" class="empty-table">No subscription records yet</td></tr></tbody>
+</table>
+</div>
+<div class="admin-mini-note">
+Hidden access is for navigation only. Real admin security must be enforced with Firebase Auth + Firestore Rules or Cloud Functions before charging or blocking users.
+</div>
+</div>
+<div class="admin-side-card">
+<div class="admin-side-title"><i class="fas fa-pen-to-square"></i><span id="adminFormTitle">Create / Update Subscription</span></div>
+<input type="hidden" id="as-id"/>
+<div class="admin-form-grid">
+<div class="form-group full"><label class="form-label">User Email</label><input class="form-input" id="as-email" type="email" placeholder="user@example.com"/></div>
+<div class="form-group full"><label class="form-label">User Name</label><input class="form-input" id="as-name" placeholder="Full name"/></div>
+<div class="form-group"><label class="form-label">Plan</label><select class="form-select" id="as-plan"><option value="Starter">Starter</option><option value="Pro">Pro</option><option value="Premium">Premium</option><option value="Enterprise">Enterprise</option></select></div>
+<div class="form-group"><label class="form-label">Status</label><select class="form-select" id="as-status"><option value="active">Active</option><option value="trial">Trial</option><option value="past_due">Past due</option><option value="blocked">Blocked</option><option value="cancelled">Cancelled</option></select></div>
+<div class="form-group"><label class="form-label">Monthly Amount</label><input class="form-input" id="as-amount" type="number" step="0.01" placeholder="5.00"/></div>
+<div class="form-group"><label class="form-label">Paid Until</label><input class="form-input" id="as-paiduntil" type="date"/></div>
+<div class="form-group"><label class="form-label">Payment Method</label><select class="form-select" id="as-method"><option value="Manual">Manual</option><option value="Venmo">Venmo</option><option value="Bank Transfer">Bank Transfer</option><option value="Cash">Cash</option><option value="Other">Other</option></select></div>
+<div class="form-group"><label class="form-label">User UID</label><input class="form-input" id="as-uid" placeholder="Firebase UID optional"/></div>
+<div class="form-group full"><label class="form-label">Notes</label><input class="form-input" id="as-notes" placeholder="Payment reference, internal notes…"/></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+<button class="btn btn-sm" onclick="clearAdminSubscriptionForm()"><i class="fas fa-eraser"></i> Clear</button>
+<button class="btn btn-sm btn-accent" onclick="saveAdminSubscription()"><i class="fas fa-save"></i> Save Subscription</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
 <div class="notif" id="notif"></div>
 <script>
 // 🔍 SEARCH: FIREBASE CONFIG
@@ -989,7 +2471,19 @@ appId: "1:177697774434:web:e3e110a335f5e452036a3b",
 measurementId: "G-VE12MRTHPJ"
 };
 const FIREBASE_CONFIGURED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
-let db = null, fbAuth = null, unsubscribeDeals = null;
+
+// 🔐 HIDDEN ADMIN ACCESS
+// Create/sign in with this email, then open the hidden route: #admin-subscriptions
+const ADMIN_ACCESS = {
+  emails: ['alejandro.mendez.vazquez@gmail.com'],
+  route: '#admin-subscriptions',
+  shortcut: 'Ctrl + Alt + A'
+};
+const ADMIN_SUBS_LOCAL_KEY = 'vhonda_admin_subscriptions_v1';
+let adminSubscriptions = [];
+let adminSubscriptionsLoaded = false;
+
+let db = null, fbAuth = null, unsubscribeDeals = null, unsubscribeAdminSubscriptions = null;
 
 // 🔍 SEARCH: PAY PLAN 2026
 const PP = {
@@ -1045,14 +2539,25 @@ function saveState() { saveStateLocal(); savePrefsFirestore(); }
 function isDark() { return document.documentElement.getAttribute('data-theme')==='dark'; }
 function chartColors() {
 return isDark() ? {
-comm:'rgba(230,87,60,0.85)', aftmkt:'rgba(139,92,246,0.75)',
-fni:'rgba(59,130,246,0.75)', ub:'rgba(34,197,94,0.75)',
-grid:'rgba(255,255,255,0.05)', tick:'rgba(255,255,255,0.35)',
-legend:'rgba(255,255,255,0.45)'
+comm:'rgba(255,255,255,0.92)',
+aftmkt:'rgba(210,210,210,0.72)',
+fni:'rgba(165,165,165,0.68)',
+acc:'rgba(130,130,130,0.62)',
+ub:'rgba(235,235,235,0.78)',
+daily:'rgba(190,190,190,0.50)',
+grid:'rgba(255,255,255,0.07)',
+tick:'rgba(255,255,255,0.42)',
+legend:'rgba(255,255,255,0.58)'
 } : {
-comm:'rgba(230,57,0,0.8)', aftmkt:'rgba(139,92,246,0.7)',
-fni:'rgba(59,130,246,0.7)', ub:'rgba(34,197,94,0.7)',
-grid:'rgba(0,0,0,0.06)', tick:'#888', legend:'#555'
+comm:'rgba(0,0,0,0.86)',
+aftmkt:'rgba(35,35,35,0.58)',
+fni:'rgba(80,80,80,0.48)',
+acc:'rgba(120,120,120,0.45)',
+ub:'rgba(10,10,10,0.64)',
+daily:'rgba(0,0,0,0.36)',
+grid:'rgba(0,0,0,0.08)',
+tick:'rgba(0,0,0,0.48)',
+legend:'rgba(0,0,0,0.58)'
 };
 }
 const fmt = n => '$'+(parseFloat(n)||0).toFixed(2);
@@ -1251,10 +2756,14 @@ hideAuthOverlay();
 setSyncStatus('ok');
 if(!user.isOffline && db) subscribeFirestore(user.uid);
 else { renderAll(); renderHoldTable(); renderSummaryVerification(); }
+maybeOpenAdminFromHash();
 notify(`Welcome, ${name.split(' ')[0]} ✓`);
 }
 function onLogout() {
 if(unsubscribeDeals){ unsubscribeDeals(); unsubscribeDeals=null; }
+if(unsubscribeAdminSubscriptions){ unsubscribeAdminSubscriptions(); unsubscribeAdminSubscriptions=null; }
+adminSubscriptionsLoaded=false;
+closeAdminPanel();
 const pill = document.getElementById('userPill');
 if(pill) pill.style.display='none';
 document.getElementById('mainHeader').style.visibility='hidden';
@@ -1274,6 +2783,204 @@ if(m) m.classList.toggle('open');
 function closeUserMenu() {
 const m = document.getElementById('userMenu');
 if(m) m.classList.remove('open');
+}
+
+
+// 🔐 SEARCH: HIDDEN ADMIN SUBSCRIPTIONS PANEL
+function adminEmailList() {
+return (ADMIN_ACCESS.emails||[]).map(e=>String(e||'').trim().toLowerCase()).filter(Boolean);
+}
+function isAdminUser(user=window._currentUser) {
+const email=String(user?.email||'').trim().toLowerCase();
+return !!email && adminEmailList().includes(email);
+}
+function setupAdminHiddenAccess() {
+window.openAdminSubscriptions = requestAdminPanel;
+window.addEventListener('hashchange', maybeOpenAdminFromHash);
+document.addEventListener('keydown', e=>{
+if(e.ctrlKey && e.altKey && String(e.key||'').toLowerCase()==='a') {
+e.preventDefault(); requestAdminPanel();
+}
+});
+maybeOpenAdminFromHash();
+}
+function maybeOpenAdminFromHash() {
+if(location.hash===ADMIN_ACCESS.route) requestAdminPanel(false);
+}
+function requestAdminPanel(showHint=true) {
+if(!window._currentUser) { if(showHint) notify('Sign in first, then open admin.'); return; }
+if(!isAdminUser()) { notify('Admin access denied.'); return; }
+openAdminPanel();
+}
+function openAdminPanel() {
+const overlay=document.getElementById('adminOverlay');
+if(!overlay) return;
+overlay.classList.add('open');
+loadAdminSubscriptions(false);
+}
+function closeAdminPanel() {
+const overlay=document.getElementById('adminOverlay');
+if(overlay) overlay.classList.remove('open');
+if(location.hash===ADMIN_ACCESS.route) history.replaceState(null,'',location.pathname+location.search);
+}
+function adminDocIdFromEmail(email) {
+return String(email||'').trim().toLowerCase().replace(/[^a-z0-9._-]+/g,'_').replace(/^_+|_+$/g,'') || crypto.randomUUID();
+}
+function adminTodayISO() { return new Date().toISOString().slice(0,10); }
+function getAdminLocalSubs() {
+try { return JSON.parse(localStorage.getItem(ADMIN_SUBS_LOCAL_KEY)||'[]')||[]; } catch { return []; }
+}
+function saveAdminLocalSubs() {
+localStorage.setItem(ADMIN_SUBS_LOCAL_KEY, JSON.stringify(adminSubscriptions));
+}
+function cleanAdminSub(raw={}) {
+const amount=parseFloat(raw.amount ?? raw.monthlyAmount ?? 0)||0;
+const email=String(raw.email||'').trim().toLowerCase();
+return {
+id: raw.id || adminDocIdFromEmail(email),
+uid: String(raw.uid||''),
+email,
+name: String(raw.name||''),
+plan: String(raw.plan||'Starter'),
+status: String(raw.status||'active'),
+amount,
+monthlyAmount: amount,
+paidUntil: raw.paidUntil || '',
+paymentMethod: String(raw.paymentMethod||'Manual'),
+notes: String(raw.notes||''),
+createdAt: raw.createdAt || new Date().toISOString(),
+updatedAt: new Date().toISOString(),
+updatedBy: window._currentUser?.email || ''
+};
+}
+function subscriptionHasAccess(sub) {
+const status=String(sub.status||'').toLowerCase();
+if(status==='blocked'||status==='cancelled') return false;
+if(status==='active'||status==='trial') {
+if(!sub.paidUntil) return true;
+return sub.paidUntil >= adminTodayISO();
+}
+return false;
+}
+function subscriptionStatusLabel(status) {
+const s=String(status||'active').toLowerCase();
+return `<span class="admin-status ${esc(s)}">${esc(s.replace('_',' '))}</span>`;
+}
+async function loadAdminSubscriptions(force=false) {
+if(!isAdminUser()) return;
+if(adminSubscriptionsLoaded && !force) { renderAdminSubscriptions(); return; }
+adminSubscriptionsLoaded=true;
+if(unsubscribeAdminSubscriptions) { unsubscribeAdminSubscriptions(); unsubscribeAdminSubscriptions=null; }
+if(db && _uid()) {
+try {
+setSyncStatus('syncing');
+unsubscribeAdminSubscriptions = db.collection('subscriptions').orderBy('createdAt','desc').onSnapshot(snap=>{
+adminSubscriptions=[];
+snap.forEach(doc=>adminSubscriptions.push(cleanAdminSub({id:doc.id,...doc.data()})));
+saveAdminLocalSubs();
+renderAdminSubscriptions();
+setSyncStatus('ok');
+}, err=>{
+console.warn('[Admin subscriptions] Firestore read failed:', err);
+adminSubscriptions=getAdminLocalSubs();
+renderAdminSubscriptions();
+setSyncStatus('error');
+notify('Admin panel using local fallback. Check Firestore Rules.');
+});
+return;
+} catch(err) {
+console.warn('[Admin subscriptions] fallback:', err);
+}
+}
+adminSubscriptions=getAdminLocalSubs();
+renderAdminSubscriptions();
+}
+function renderAdminSubscriptions() {
+renderAdminKPIs();
+filterAdminSubscriptions();
+}
+function renderAdminKPIs() {
+const total=adminSubscriptions.length;
+const active=adminSubscriptions.filter(subscriptionHasAccess).length;
+const risk=adminSubscriptions.filter(s=>!subscriptionHasAccess(s)).length;
+const mrr=adminSubscriptions.filter(subscriptionHasAccess).reduce((sum,s)=>sum+(parseFloat(s.amount)||0),0);
+setEl('adminKpiUsers', total);
+setEl('adminKpiActive', active);
+setEl('adminKpiRisk', risk);
+setEl('adminKpiMrr', fmt(mrr));
+}
+function filterAdminSubscriptions() {
+const tbody=document.getElementById('adminSubsBody');
+if(!tbody) return;
+const q=String(document.getElementById('adminSearch')?.value||'').toLowerCase().trim();
+const status=String(document.getElementById('adminStatusFilter')?.value||'all').toLowerCase();
+let rows=adminSubscriptions.slice();
+if(status!=='all') rows=rows.filter(s=>String(s.status||'').toLowerCase()===status);
+if(q) rows=rows.filter(s=>[s.email,s.name,s.plan,s.status,s.paymentMethod,s.notes,s.uid].some(v=>String(v||'').toLowerCase().includes(q)));
+if(!rows.length){
+tbody.innerHTML='<tr><td colspan="7" class="empty-table">No matching subscriptions</td></tr>';
+return;
+}
+tbody.innerHTML=rows.map(s=>{
+const access=subscriptionHasAccess(s);
+return `<tr>
+<td><div style="font-weight:700">${esc(s.name||'—')}</div><div style="color:var(--text-dim);font-size:0.63rem">${esc(s.email||'—')}</div></td>
+<td>${esc(s.plan||'Starter')}</td>
+<td>${subscriptionStatusLabel(s.status)}</td>
+<td>${fmt(s.amount||0)}</td>
+<td>${esc(s.paidUntil||'—')}</td>
+<td><span class="match-badge ${access?'match-ok':'match-bad'}"><i class="fas fa-${access?'unlock':'lock'}"></i>${access?'Allowed':'Blocked'}</span></td>
+<td><div class="admin-actions"><button class="act-btn" title="Edit" onclick="editAdminSubscription('${esc(s.id)}')"><i class="fas fa-pen"></i></button><button class="act-btn del" title="Delete" onclick="deleteAdminSubscription('${esc(s.id)}')"><i class="fas fa-trash"></i></button></div></td>
+</tr>`;
+}).join('');
+}
+function clearAdminSubscriptionForm() {
+['as-id','as-email','as-name','as-uid','as-notes'].forEach(id=>setF(id,''));
+setF('as-plan','Starter'); setF('as-status','active'); setF('as-amount','5.00'); setF('as-paiduntil',''); setF('as-method','Manual');
+setEl('adminFormTitle','Create / Update Subscription');
+}
+function editAdminSubscription(id) {
+const s=adminSubscriptions.find(x=>x.id===id);
+if(!s) return;
+setF('as-id',s.id||''); setF('as-email',s.email||''); setF('as-name',s.name||''); setF('as-plan',s.plan||'Starter');
+setF('as-status',s.status||'active'); setF('as-amount',s.amount||'5.00'); setF('as-paiduntil',s.paidUntil||''); setF('as-method',s.paymentMethod||'Manual');
+setF('as-uid',s.uid||''); setF('as-notes',s.notes||''); setEl('adminFormTitle','Edit Subscription');
+}
+async function saveAdminSubscription() {
+if(!isAdminUser()) { notify('Admin access denied.'); return; }
+const email=document.getElementById('as-email')?.value.trim().toLowerCase()||'';
+if(!email) { notify('User email is required.'); return; }
+const existingId=document.getElementById('as-id')?.value.trim()||'';
+const sub=cleanAdminSub({
+id: existingId || adminDocIdFromEmail(email),
+email,
+name:document.getElementById('as-name')?.value.trim()||'',
+plan:document.getElementById('as-plan')?.value||'Starter',
+status:document.getElementById('as-status')?.value||'active',
+amount:parseFloat(document.getElementById('as-amount')?.value)||0,
+paidUntil:document.getElementById('as-paiduntil')?.value||'',
+paymentMethod:document.getElementById('as-method')?.value||'Manual',
+uid:document.getElementById('as-uid')?.value.trim()||'',
+notes:document.getElementById('as-notes')?.value.trim()||''
+});
+const idx=adminSubscriptions.findIndex(x=>x.id===sub.id);
+if(idx>=0) adminSubscriptions[idx]=sub; else adminSubscriptions.unshift(sub);
+saveAdminLocalSubs(); renderAdminSubscriptions(); clearAdminSubscriptionForm();
+try {
+if(db && _uid()) await db.doc(`subscriptions/${sub.id}`).set(cleanForFirestore(sub));
+notify('Subscription saved ✓');
+} catch(err) {
+console.error('[Admin subscriptions] save failed:', err);
+notify('Saved locally. Firestore save failed.');
+}
+}
+async function deleteAdminSubscription(id) {
+if(!isAdminUser()) { notify('Admin access denied.'); return; }
+if(!confirm('Delete this subscription record?')) return;
+adminSubscriptions=adminSubscriptions.filter(s=>s.id!==id);
+saveAdminLocalSubs(); renderAdminSubscriptions();
+try { if(db && _uid()) await db.doc(`subscriptions/${id}`).delete(); notify('Subscription deleted ✓'); }
+catch(err) { console.error('[Admin subscriptions] delete failed:', err); notify('Deleted locally. Firestore delete failed.'); }
 }
 
 // 🔍 SEARCH: FIRESTORE SYNC
@@ -1576,7 +3283,7 @@ type:'doughnut',
 data:{
 labels:['Commission','Aftermarket','F&I','Accessories','Unit Bonus'],
 datasets:[{data:[mComm,mAft,mFni,mAcc,mUb],
-backgroundColor:[cc.comm,cc.aftmkt,cc.fni,'rgba(234,179,8,0.7)',cc.ub],
+backgroundColor:[cc.comm,cc.aftmkt,cc.fni,cc.acc,cc.ub],
 borderWidth:0,hoverOffset:6}]
 },
 options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
@@ -1621,12 +3328,12 @@ fill:true, backgroundColor:(context)=>{
 const chart=context.chart; const {ctx:c,chartArea}=chart;
 if(!chartArea) return 'transparent';
 const g=c.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
-g.addColorStop(0,isDark()?'rgba(230,87,60,0.3)':'rgba(230,57,0,0.15)');
+g.addColorStop(0,isDark()?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.10)');
 g.addColorStop(1,'transparent');
 return g;
 }, tension:0.4 },
 { type:'bar', label:'Daily', data:daily, yAxisID:'yDaily',
-backgroundColor:isDark()?'rgba(59,130,246,0.5)':'rgba(59,130,246,0.45)',
+backgroundColor:cc.daily,
 borderRadius:3, borderSkipped:false }
 ]
 },
@@ -2063,7 +3770,7 @@ if(!deal) return;
 editingId=id;
 document.querySelector('.modal-title').innerHTML='<i class="fas fa-pen" style="color:var(--accent);margin-right:6px"></i>Edit Deal';
 const e=deal.extracted||{};
-setF('dm-deal','');
+setF('dm-deal',deal.dealNo||'');
 setF('dm-stock',deal.vehicle?.stock||'');
 setF('dm-vehicle',deal.vehicle?.model||'');
 setF('dm-customer',deal.customer||'');
@@ -2143,7 +3850,77 @@ notify('Moved to Hold File ✓');
 }
 
 // 🔍 IMPORTANTE: saveDeal con async/await
+function normalizeDealValue(v) {
+return String(v||'').trim().toUpperCase().replace(/\s+/g,' ');
+}
+function normalizeMoneyValue(v) {
+const n=parseFloat(v);
+return Number.isFinite(n)?n:0;
+}
+function sameMoneyValue(a,b) {
+return Math.abs(normalizeMoneyValue(a)-normalizeMoneyValue(b))<=0.009;
+}
+function findDuplicateDeal(candidate) {
+const newDealNo=normalizeDealValue(candidate.dealNo);
+const newStock=normalizeDealValue(candidate.vehicle?.stock);
+const newCustomer=normalizeDealValue(candidate.customer);
+const newModel=normalizeDealValue(candidate.vehicle?.model);
+return state.deals.find(d=>{
+if(editingId && d.id===editingId) return false;
+const oldDealNo=normalizeDealValue(d.dealNo);
+const oldStock=normalizeDealValue(d.vehicle?.stock);
+if(newDealNo && oldDealNo && newDealNo===oldDealNo) return true;
+if(newStock && oldStock && newStock===oldStock) return true;
+const oldCustomer=normalizeDealValue(d.customer);
+const oldModel=normalizeDealValue(d.vehicle?.model);
+return !!(newCustomer && oldCustomer && newModel && oldModel && candidate.date && d.date &&
+newCustomer===oldCustomer && newModel===oldModel && candidate.date===d.date);
+})||null;
+}
+function dealDifferences(oldDeal,newDeal) {
+const diffs=[];
+const textFields=[
+['Deal #',oldDeal.dealNo,newDeal.dealNo],
+['Stock #',oldDeal.vehicle?.stock,newDeal.vehicle?.stock],
+['Vehicle',oldDeal.vehicle?.model,newDeal.vehicle?.model],
+['Customer',oldDeal.customer,newDeal.customer],
+['Date',oldDeal.date,newDeal.date],
+['Status',oldDeal.status,newDeal.status],
+['Pay Period',oldDeal.payPeriodOverride,newDeal.payPeriodOverride],
+['Split',oldDeal.splitWith,newDeal.splitWith],
+['Hold Reason',oldDeal.holdReason,newDeal.holdReason]
+];
+textFields.forEach(([label,a,b])=>{
+if(normalizeDealValue(a)!==normalizeDealValue(b)) diffs.push(label);
+});
+const oldE=oldDeal.extracted||{}, newE=newDeal.extracted||{};
+[
+['Commission No.1','commissionNo1'],
+['Accessories','accessories'],
+['Aftermarket 1','aftermarket1'],
+['F&I Bonus 1','fBonus1'],
+['Profit of Sale','profitOfSale'],
+['Acc./AM Profit','amProfit']
+].forEach(([label,key])=>{
+if(!sameMoneyValue(oldE[key],newE[key])) diffs.push(label);
+});
+return diffs;
+}
+function mergeDuplicateDeal(oldDeal,newDeal) {
+const keepStatus=(pendingOCR && newDeal.status==='Pending' && oldDeal.status && oldDeal.status!=='Pending');
+return {
+...oldDeal,
+...newDeal,
+id:oldDeal.id,
+vehicle:{...(oldDeal.vehicle||{}),...(newDeal.vehicle||{})},
+extracted:{...(oldDeal.extracted||{}),...(newDeal.extracted||{})},
+calculated:newDeal.calculated,
+status:keepStatus?oldDeal.status:newDeal.status
+};
+}
 async function saveDeal() {
+const isEdit=!!editingId;
+const dealNo=document.getElementById('dm-deal')?.value.trim()||'';
 const id = editingId||crypto.randomUUID();
 const stock=document.getElementById('dm-stock')?.value.trim()||'';
 const model=document.getElementById('dm-vehicle')?.value.trim()||'';
@@ -2164,7 +3941,7 @@ amProfit:parseFloat(document.getElementById('dm-amprofit')?.value)||0
 };
 const payout=e.commissionNo1+e.accessories+e.aftermarket1+e.fBonus1;
 const ocrConf=pendingOCR?.ocrConfidence??100;
-const deal={id,date,vehicle:{stock,model},customer,extracted:e,
+let deal={id,dealNo,date,vehicle:{stock,model},customer,extracted:e,
 calculated:{totalCommission:payout},status,
 ocrConfidence:ocrConf, needsReview:ocrConf<70,
 sourceFile:pendingOCR?.sourceFile||'',
@@ -2173,14 +3950,26 @@ payPeriodOverride:periodVal||undefined,
 splitWith:splitVal||undefined,
 holdReason:holdReason||undefined
 };
-if(editingId){
+const duplicate=!isEdit?findDuplicateDeal(deal):null;
+let duplicateUpdated=false;
+if(duplicate){
+const diffs=dealDifferences(duplicate,deal);
+if(diffs.length===0){
+notify('Duplicate warning: this deal already exists. No changes made.');
+return;
+}
+deal=mergeDuplicateDeal(duplicate,deal);
+const idx=state.deals.findIndex(d=>d.id===duplicate.id);
+if(idx>=0) state.deals[idx]=deal;
+duplicateUpdated=true;
+} else if(isEdit){
 const idx=state.deals.findIndex(d=>d.id===editingId);
 if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
 } else { state.deals.unshift(deal); }
 saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
 try {
 await saveDealFirestore(deal);
-notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
+notify(duplicateUpdated?'Duplicate warning: existing deal updated with differences ✓':isEdit?'Deal updated & synced ✓':'Deal saved & synced ✓');
 } catch(err) {
 console.error('Firestore save error:', err);
 notify('Saved locally, sync failed ✗');
@@ -2737,6 +4526,31 @@ notify(`Limpiados ${removed} datos antiguos ✓`);
 localStorage.setItem(CLEANUP_FLAG, 'true');
 }
 
+
+// ✨ SPOTLIGHT GLOW EFFECT — coordenadas globales del cursor para todas las cards
+let spotlightRAF = null;
+let spotlightPointer = { x: -9999, y: -9999, xp: 0.5 };
+function initSpotlightEffect() {
+  const root = document.documentElement;
+  const sync = () => {
+    root.style.setProperty('--spotlight-x', spotlightPointer.x.toFixed(2));
+    root.style.setProperty('--spotlight-y', spotlightPointer.y.toFixed(2));
+    root.style.setProperty('--spotlight-xp', spotlightPointer.xp.toFixed(4));
+    spotlightRAF = null;
+  };
+  document.addEventListener('pointermove', (event) => {
+    spotlightPointer.x = event.clientX;
+    spotlightPointer.y = event.clientY;
+    spotlightPointer.xp = window.innerWidth ? event.clientX / window.innerWidth : 0.5;
+    if (!spotlightRAF) spotlightRAF = requestAnimationFrame(sync);
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => {
+    spotlightPointer = { x: -9999, y: -9999, xp: 0.5 };
+    if (!spotlightRAF) spotlightRAF = requestAnimationFrame(sync);
+  }, { passive: true });
+}
+initSpotlightEffect();
+
 // 🔍 SEARCH: INIT
 window._currentUser=null;
 window._userProfile=null;
@@ -2762,6 +4576,7 @@ filterReviews('all');
 updateUserMentionBadge();
 updateReviewsMonthLabel();
 buildPinPad();
+setupAdminHiddenAccess();
 initAuth();
 const spinStyle=document.createElement('style');
 spinStyle.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
