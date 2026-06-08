@@ -2026,35 +2026,58 @@ body {
 
 
 
-/* 📐 CHART WIDTH ALIGNMENT — Daily, 6-Month and Monthly Mix match the header/menu width */
+/* 📐 CHART WIDTH ALIGNMENT — Daily, 6-Month and Monthly Mix align to the same rail as the header/menu */
+:root{
+  --dashboard-rail-width:min(1600px, calc(100vw - 40px));
+}
+.dashboard-chart-card,
+.bottom-grid,
+.page-divider{
+  width:var(--dashboard-rail-width) !important;
+  max-width:var(--dashboard-rail-width) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  box-sizing:border-box !important;
+}
 .dashboard-chart-card,
 .bottom-grid{
-  width:100% !important;
-  max-width:100% !important;
-  margin-left:0 !important;
-  margin-right:0 !important;
-  box-sizing:border-box !important;
+  min-width:0 !important;
 }
 .bottom-grid{
   align-items:stretch;
+  grid-template-columns:minmax(0,2fr) minmax(0,1fr);
 }
 .bottom-grid > .glass,
 .dashboard-chart-card{
   min-width:0 !important;
 }
+.dashboard-chart-card .panel-head,
+.bottom-grid .panel-head{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+}
 .dashboard-chart-card .chart-container,
 .bottom-grid .chart-container{
+  width:100% !important;
   max-width:100% !important;
   overflow:hidden !important;
 }
+.dashboard-chart-card .trading-chart-wrap,
+.bottom-grid .chart-wrap,
 .dashboard-chart-card canvas,
 .bottom-grid canvas{
+  width:100% !important;
   max-width:100% !important;
 }
 @media(max-width:800px){
-  .dashboard-chart-card,
   .bottom-grid{
-    width:100% !important;
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+@media(max-width:600px){
+  :root{
+    --dashboard-rail-width:min(1600px, calc(100vw - 20px));
   }
 }
 
@@ -3208,7 +3231,7 @@ async function initUserSubscription(user){
     return;
   }
   const email=String(user.email||'').trim().toLowerCase();
-  const id=user.uid || subscriptionDocId(email);
+  const id=subscriptionDocId(email);
   const ref=db.collection(SUBSCRIPTION_SETTINGS.collection).doc(id);
   try{
     const snap=await ref.get();
@@ -3304,7 +3327,7 @@ async function submitPaymentGenerated(){
   const user=window._currentUser;
   if(!user || user.isOffline || !user.email || !db){ notify('Cloud account required to notify admin.'); return; }
   const email=String(user.email||'').trim().toLowerCase();
-  const id=user.uid || subscriptionDocId(email);
+  const id=subscriptionDocId(email);
   const note=document.getElementById('subscriptionPaymentNote')?.value.trim()||'';
   const existing=currentSubscription||normalizeSubscription({id,email,uid:user.uid,name:user.displayName||email.split('@')[0]});
   const patch={
