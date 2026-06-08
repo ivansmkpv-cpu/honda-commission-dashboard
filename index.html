@@ -189,6 +189,15 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .sv-matched{color:var(--green)}
 .sv-mismatch{color:var(--orange)}
 .sv-unknown{color:var(--text-faint)}
+.sv-verify-actions{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.sv-verify-btn{min-height:28px;padding:5px 10px}
+.sv-verify-status{display:none;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;border:1px solid var(--border-line);background:var(--surface-mute);font-size:0.64rem;font-weight:700;white-space:nowrap}
+.sv-verify-status.show{display:inline-flex}
+.sv-verify-status.ok{color:var(--green)}
+.sv-verify-status.warn{color:var(--orange)}
+.sv-verify-status.bad{color:var(--red)}
+.sv-month-label{font-size:0.65rem;color:var(--text-dim);white-space:nowrap}
+@media(max-width:600px){.sv-verify-actions{width:100%;margin-left:0;justify-content:flex-start}.sv-verify-btn{min-height:32px}}
 .blank-state{text-align:center;padding:32px 20px;color:var(--text-faint)}
 .blank-state-icon{font-size:2rem;margin-bottom:10px;opacity:0.4}
 .blank-state-text{font-size:0.78rem;line-height:1.5}
@@ -739,7 +748,7 @@ body {
 
 /* ✅ AJUSTE FINAL: Hero/Lamp estático + más espacio superior para apreciarlo */
 :root {
-  --hero-top-safe-area: 112px;
+  --hero-top-safe-area: 162px;
 }
 [data-theme="dark"] {
   --bg:#000000;
@@ -815,7 +824,7 @@ body > .app:first-of-type {
   top: 24px;
 }
 @media(max-width:700px) {
-  :root { --hero-top-safe-area: 86px; }
+  :root { --hero-top-safe-area: 136px; }
   .dashboard-hero-bg { height: 560px; }
   .dashboard-hero-bg::before,
   .hero-top-line { width: 86vw; }
@@ -825,7 +834,7 @@ body > .app:first-of-type {
   #mainHeader { top: 0; }
 }
 @media(max-height:500px) and (orientation:landscape) {
-  :root { --hero-top-safe-area: 64px; }
+  :root { --hero-top-safe-area: 114px; }
 }
 
 
@@ -1109,6 +1118,56 @@ body {
 .hero-cone {
   background:radial-gradient(ellipse 78% 48% at 50% 0%, var(--lamp-cone-start) 0%, var(--lamp-cone-mid) 27%, var(--lamp-cone-soft) 52%, transparent 78%) !important;
 }
+
+
+/* 📷 HERO GRAIN — subtle camera/wall texture for the lamp projection */
+.hero-grain{
+  position:absolute;
+  inset:-2% -2% 0;
+  pointer-events:none;
+  z-index:7;
+  opacity:0.14;
+  mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px 180px;
+  filter:contrast(150%) brightness(112%);
+  -webkit-mask-image:radial-gradient(ellipse 84% 58% at 50% 8%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.92) 34%, rgba(0,0,0,0.60) 56%, rgba(0,0,0,0.20) 70%, transparent 82%);
+  mask-image:radial-gradient(ellipse 84% 58% at 50% 8%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.92) 34%, rgba(0,0,0,0.60) 56%, rgba(0,0,0,0.20) 70%, transparent 82%);
+}
+.hero-grain::before,
+.hero-grain::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background-repeat:repeat;
+}
+.hero-grain::before{
+  opacity:0.75;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n2)'/%3E%3C/svg%3E");
+  background-size:120px 120px;
+}
+.hero-grain::after{
+  opacity:0.35;
+  background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.20) 0 0.8px, transparent 1px), radial-gradient(circle at 72% 62%, rgba(255,255,255,0.16) 0 0.9px, transparent 1.2px), radial-gradient(circle at 42% 82%, rgba(255,255,255,0.10) 0 0.7px, transparent 1px);
+  background-size:110px 110px, 140px 140px, 90px 90px;
+}
+[data-theme="dark"] .hero-grain{
+  opacity:0.22;
+  mix-blend-mode:screen;
+}
+[data-theme="light"] .hero-grain{
+  opacity:0.10;
+  mix-blend-mode:multiply;
+}
+@media(max-width:700px){
+  .hero-grain{
+    opacity:0.12;
+    background-size:140px 140px;
+  }
+  [data-theme="dark"] .hero-grain{ opacity:0.18; }
+}
+
 [data-theme="light"] .google-btn svg,
 [data-theme="dark"] .google-btn svg {
   filter:grayscale(1) contrast(1.1);
@@ -1797,6 +1856,239 @@ body {
 @media(max-width:900px){.admin-kpi-grid{grid-template-columns:repeat(2,1fr)}.admin-panel-grid{grid-template-columns:1fr}.admin-modal{max-width:95vw}}
 @media(max-width:560px){.admin-kpi-grid{grid-template-columns:1fr}.admin-form-grid{grid-template-columns:1fr}.admin-form-grid .full{grid-column:auto}}
 
+
+
+
+/* ✅ HEADER ALIGNMENT PATCH — same height for all top-right controls */
+.header-right{
+  align-items:center !important;
+  gap:10px !important;
+}
+.header-right > .btn,
+.header-right > div,
+.header-right .user-pill{
+  height:42px !important;
+  min-height:42px !important;
+  display:flex !important;
+  align-items:center !important;
+}
+.header-right > .btn{
+  justify-content:center !important;
+  line-height:1 !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+}
+.header-right > .btn:not(.btn-icon){
+  padding-left:16px !important;
+  padding-right:16px !important;
+}
+.header-right > .btn-icon{
+  width:42px !important;
+  height:42px !important;
+  min-width:42px !important;
+  border-radius:13px !important;
+  padding:0 !important;
+}
+.header-right .user-pill{
+  padding:0 14px 0 6px !important;
+  border-radius:999px !important;
+}
+.header-right .user-avatar{
+  width:32px !important;
+  height:32px !important;
+}
+.header-right .sync-dot{
+  width:12px !important;
+  height:12px !important;
+  margin:0 4px 0 0 !important;
+  align-self:center !important;
+}
+.header-right i{
+  line-height:1 !important;
+}
+@media(max-width:600px){
+  .header-right{gap:6px !important;}
+  .header-right > .btn,
+  .header-right > div,
+  .header-right .user-pill{
+    height:36px !important;
+    min-height:36px !important;
+  }
+  .header-right > .btn-icon{
+    width:36px !important;
+    height:36px !important;
+    min-width:36px !important;
+  }
+  .header-right .user-avatar{
+    width:26px !important;
+    height:26px !important;
+  }
+  .header-right .sync-dot{
+    width:10px !important;
+    height:10px !important;
+  }
+}
+
+
+
+/* =========================================================
+   NEW USER TUTORIAL — focused coach marks with blurred page
+   --------------------------------------------------------- */
+.tutorial-layer{position:fixed;inset:0;z-index:9990;display:none;pointer-events:none}
+.tutorial-layer.open{display:block}
+.tutorial-blur-panel{position:fixed;background:rgba(0,0,0,0.58);backdrop-filter:blur(9px) saturate(70%);-webkit-backdrop-filter:blur(9px) saturate(70%);pointer-events:auto;transition:all .22s cubic-bezier(.4,0,.2,1)}
+[data-theme="light"] .tutorial-blur-panel{background:rgba(247,247,245,0.58)}
+.tutorial-spotlight{position:fixed;border:2px solid var(--accent);border-radius:18px;box-shadow:0 0 0 1px rgba(255,255,255,0.18),0 0 34px rgba(255,255,255,0.30),0 18px 60px rgba(0,0,0,0.30);pointer-events:none;transition:all .22s cubic-bezier(.4,0,.2,1)}
+[data-theme="light"] .tutorial-spotlight{box-shadow:0 0 0 1px rgba(0,0,0,0.10),0 0 28px rgba(0,0,0,0.18),0 18px 46px rgba(0,0,0,0.16)}
+.tutorial-card{position:fixed;width:min(380px,calc(100vw - 28px));background:var(--modal-bg);border:1px solid var(--glass-border);box-shadow:0 24px 70px rgba(0,0,0,0.38);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:18px;padding:16px 16px 14px;pointer-events:auto;transition:top .22s cubic-bezier(.4,0,.2,1),left .22s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.tutorial-card::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 160px at 20% 0%,rgba(255,255,255,0.10),transparent 62%);pointer-events:none}
+.tutorial-card>*{position:relative;z-index:1}
+.tutorial-kicker{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tutorial-title{font-size:.92rem;font-weight:800;letter-spacing:-.01em;color:var(--text);margin-bottom:6px}
+.tutorial-body{font-size:.74rem;line-height:1.55;color:var(--text-dim)}
+.tutorial-body strong{color:var(--text);font-weight:800}
+.tutorial-progress{height:4px;background:var(--progress-bg);border-radius:999px;overflow:hidden;margin:13px 0 12px}
+.tutorial-progress-bar{height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .22s ease}
+.tutorial-foot{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tutorial-count{font-family:var(--font-mono);font-size:.66rem;color:var(--text-faint);white-space:nowrap}
+.tutorial-actions{display:flex;gap:6px;align-items:center}
+.tutorial-actions .btn{min-height:30px}
+.tutorial-skip{border:none;background:transparent;color:var(--text-dim);font-size:.7rem;font-weight:700;cursor:pointer;padding:6px 4px}
+.tutorial-skip:hover{color:var(--text)}
+.tutorial-help-pulse{animation:tutorialPulse 1.4s ease-in-out infinite}
+@keyframes tutorialPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.0)}50%{box-shadow:0 0 0 5px rgba(255,255,255,0.15)}}
+@media(max-width:700px){.tutorial-card{padding:14px}.tutorial-title{font-size:.86rem}.tutorial-body{font-size:.7rem}.tutorial-blur-panel{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}}
+
+
+/* ✅ USER DASHBOARD PATCH: sync status + Hold File reminder */
+.sync-dot.ok,
+.sync-dot.syncing {
+  background:#22c55e !important;
+  box-shadow:0 0 0 3px rgba(34,197,94,0.16), 0 0 12px rgba(34,197,94,0.42) !important;
+  animation:none !important;
+}
+.sync-dot.error {
+  background:#ef4444 !important;
+  box-shadow:0 0 0 3px rgba(239,68,68,0.16), 0 0 12px rgba(239,68,68,0.42) !important;
+  animation:none !important;
+}
+.hold-review-btn {
+  position:relative;
+  overflow:visible;
+}
+.hold-review-btn.hold-has-items {
+  border-color:var(--hold-warning-border) !important;
+  background:var(--hold-warning-bg) !important;
+  color:var(--hold-warning) !important;
+  box-shadow:0 0 18px -12px var(--hold-warning-shadow) !important;
+}
+.hold-review-btn.hold-has-items i {
+  animation:holdReviewBell 1.8s ease-in-out infinite;
+}
+.hold-review-badge {
+  display:none;
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  min-width:16px;
+  height:16px;
+  padding:0 4px;
+  border-radius:999px;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--font-mono);
+  font-size:0.56rem;
+  font-weight:800;
+  background:var(--hold-warning);
+  color:#fff;
+  border:1px solid var(--modal-bg);
+}
+.hold-review-btn.hold-has-items .hold-review-badge {
+  display:flex;
+}
+.hold-file-card:not(.hold-warning-card) .hold-warning-pill,
+.hold-file-card:not(.hold-warning-card) .hold-alert-note {
+  display:none;
+}
+.hold-file-card:not(.hold-warning-card) .panel-head > i {
+  color:var(--text-dim) !important;
+}
+@keyframes holdReviewBell {
+  0%,100% { transform:rotate(0deg); }
+  20% { transform:rotate(-12deg); }
+  40% { transform:rotate(10deg); }
+  60% { transform:rotate(-6deg); }
+  80% { transform:rotate(4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hold-review-btn.hold-has-items i { animation:none; }
+}
+
+
+
+/* 📐 CHART WIDTH ALIGNMENT — Daily, 6-Month and Monthly Mix match the header/menu width */
+.dashboard-chart-card,
+.bottom-grid{
+  width:100% !important;
+  max-width:100% !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+  box-sizing:border-box !important;
+}
+.bottom-grid{
+  align-items:stretch;
+}
+.bottom-grid > .glass,
+.dashboard-chart-card{
+  min-width:0 !important;
+}
+.dashboard-chart-card .chart-container,
+.bottom-grid .chart-container{
+  max-width:100% !important;
+  overflow:hidden !important;
+}
+.dashboard-chart-card canvas,
+.bottom-grid canvas{
+  max-width:100% !important;
+}
+@media(max-width:800px){
+  .dashboard-chart-card,
+  .bottom-grid{
+    width:100% !important;
+  }
+}
+
+
+
+/* 💳 SUBSCRIPTION GATE — 7-day trial + manual payment request */
+.subscription-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.62);z-index:130;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:18px}
+.subscription-overlay.open{display:flex}
+.subscription-card{width:100%;max-width:520px;background:var(--modal-bg);border:1px solid var(--glass-border);box-shadow:0 26px 80px rgba(0,0,0,0.36);border-radius:22px;overflow:hidden;backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px)}
+.subscription-head{padding:20px 22px;border-bottom:1px solid var(--sep);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.subscription-kicker{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.10em;color:var(--text-dim);font-weight:900;margin-bottom:5px}
+.subscription-title{font-size:1.15rem;font-weight:900;letter-spacing:-0.03em;line-height:1.12}
+.subscription-close{width:30px;height:30px;border-radius:9px;border:1px solid var(--border-line);background:transparent;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.subscription-close:hover{background:var(--surface-mute);color:var(--text)}
+.subscription-body{padding:18px 22px 20px}
+.subscription-price{display:flex;align-items:flex-end;gap:6px;margin-bottom:6px}
+.subscription-price-main{font-family:var(--font-mono);font-size:2.15rem;font-weight:700;color:var(--ink);line-height:1}
+.subscription-price-sub{font-size:0.78rem;color:var(--text-dim);font-weight:700;padding-bottom:4px}
+.subscription-note{font-size:0.74rem;color:var(--text-dim);line-height:1.55;margin-bottom:14px}
+.subscription-status-box{border:1px solid var(--border-line);background:var(--surface-mute);border-radius:12px;padding:11px 12px;margin-bottom:14px;font-size:0.72rem;line-height:1.5;color:var(--text-dim)}
+.subscription-status-box strong{color:var(--text)}
+.subscription-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.subscription-method{border:1px solid var(--border-line);border-radius:12px;padding:10px 8px;cursor:pointer;background:var(--surface-mute);text-align:center;transition:all 0.15s;font-size:0.68rem;font-weight:900;color:var(--text-dim)}
+.subscription-method:hover,.subscription-method.active{border-color:var(--accent);background:var(--glass-bg-hover);color:var(--text)}
+.subscription-method i{display:block;font-size:1rem;margin-bottom:5px;color:var(--text)}
+.subscription-ref{width:100%;min-height:68px;resize:vertical;border:1px solid var(--border-line);border-radius:12px;background:var(--input-bg);color:var(--text);font-family:inherit;font-size:0.74rem;padding:10px 11px;outline:none;margin-bottom:12px}
+.subscription-ref:focus{border-color:var(--accent)}
+.subscription-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.subscription-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 8px;font-size:0.62rem;font-weight:900;background:var(--surface-mute);border:1px solid var(--border-line);color:var(--text-dim);margin-top:8px}
+.subscription-pill.ok{background:rgba(34,197,94,0.12);color:var(--green)}
+.subscription-pill.warn{background:rgba(249,115,22,0.13);color:var(--orange)}
+.subscription-pill.bad{background:rgba(239,68,68,0.13);color:var(--red)}
+@media(max-width:560px){.subscription-methods{grid-template-columns:1fr}.subscription-card{max-width:94vw}.subscription-price-main{font-size:1.8rem}.subscription-actions{justify-content:stretch}.subscription-actions .btn{width:100%;justify-content:center}}
+
 </style>
 </head>
 <body>
@@ -1805,6 +2097,7 @@ body {
   <div class="hero-main-glow"></div>
   <div class="hero-lamp-core"></div>
   <div class="hero-top-line"></div>
+  <div class="hero-grain"></div>
   <div class="hero-cone hero-cone-left"></div>
   <div class="hero-cone hero-cone-right"></div>
 </div>
@@ -1821,6 +2114,7 @@ body {
 <div id="currentDateLabel" style="font-size:0.7rem;color:var(--text-dim)"></div>
 <div class="header-right">
 <span class="sync-dot ok" id="syncDot" title="Sync status"></span>
+<button class="btn btn-sm btn-icon hold-review-btn" id="holdReviewBtn" onclick="scrollToHoldFile()" title="Review Hold File"><i class="fas fa-bell"></i><span id="holdReviewBadge" class="hold-review-badge">0</span></button>
 <button class="btn btn-sm" onclick="exportCSV()" title="Export CSV"><i class="fas fa-download"></i> CSV</button>
 <button class="btn btn-sm btn-accent" onclick="openAddModal(null)"><i class="fas fa-plus"></i> Add Deal</button>
 <button class="btn btn-sm btn-icon" onclick="toggleTheme()" id="themeBtn" title="Toggle theme"><i class="fas fa-moon"></i></button>
@@ -1833,6 +2127,8 @@ body {
 <div class="user-menu" id="userMenu">
 <div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
 <div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
+<div class="user-menu-item" onclick="openSubscriptionModal(false)"><i class="fas fa-credit-card"></i> Subscription</div>
+<div class="user-menu-item" onclick="startUserTutorial(true)"><i class="fas fa-route"></i> Quick Tutorial</div>
 <div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
 <div class="user-menu-sep"></div>
 <div class="user-menu-item danger" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</div>
@@ -2040,7 +2336,11 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <div class="panel-head">
 <i class="fas fa-check-double" style="color:var(--green);font-size:0.85rem"></i>
 <span class="panel-title">Commission Summary Verification</span>
-<span id="svMonthLabel" style="margin-left:auto;font-size:0.65rem;color:var(--text-dim)"></span>
+<div class="sv-verify-actions">
+<button class="btn btn-sm sv-verify-btn" id="svVerifyBtn" onclick="verifyCommissionSummary()" title="Verify that every deal matches the Commission Summary"><i class="fas fa-circle-check"></i> Verify Match</button>
+<span class="sv-verify-status" id="svVerifyStatus"></span>
+<span id="svMonthLabel" class="sv-month-label"></span>
+</div>
 </div>
 <div class="panel-body">
 <div class="sv-grid">
@@ -2058,9 +2358,9 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 <!-- CUSTOM NOTE: Hold Total uses the same orange warning palette as Hold File.
      To adjust it later, edit the CSS variables in the "HOLD FILE WARNING SYSTEM" block. -->
-<div class="sv-card sv-hold-total-card">
+<div class="sv-card" id="svHoldTotalCard">
 <div class="sv-card-label">Hold Total</div>
-<div class="sv-card-val hold-total-badge" id="holdTotal">$0.00</div>
+<div class="sv-card-val" id="holdTotal">$0.00</div>
 </div>
 </div>
 <div id="svTableWrap">
@@ -2074,7 +2374,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <!-- CUSTOM NOTE: Hold File warning card.
      Business meaning: these deals are not paid yet until pending requirements are cleared.
      Visual style: controlled by .hold-warning-card and --hold-warning variables in CSS. -->
-<div class="glass hold-warning-card" style="overflow:hidden">
+<div class="glass hold-file-card" id="holdFileCard" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-triangle-exclamation" style="color:var(--orange);font-size:0.88rem"></i>
 <span class="panel-title">Hold File</span>
@@ -2458,6 +2758,60 @@ Hidden access is for navigation only. Real admin security must be enforced with 
 </div>
 </div>
 
+
+<div class="tutorial-layer" id="tutorialLayer" aria-hidden="true">
+  <div class="tutorial-blur-panel" id="tutorialBlurTop"></div>
+  <div class="tutorial-blur-panel" id="tutorialBlurRight"></div>
+  <div class="tutorial-blur-panel" id="tutorialBlurBottom"></div>
+  <div class="tutorial-blur-panel" id="tutorialBlurLeft"></div>
+  <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+  <div class="tutorial-card glass" id="tutorialCard" role="dialog" aria-live="polite">
+    <div class="tutorial-kicker"><i class="fas fa-compass"></i><span id="tutorialKicker">Quick start</span></div>
+    <div class="tutorial-title" id="tutorialTitle">Welcome</div>
+    <div class="tutorial-body" id="tutorialBody"></div>
+    <div class="tutorial-progress"><div class="tutorial-progress-bar" id="tutorialProgressBar"></div></div>
+    <div class="tutorial-foot">
+      <button class="tutorial-skip" onclick="endUserTutorial(true)">Skip</button>
+      <span class="tutorial-count" id="tutorialCount">1 / 1</span>
+      <div class="tutorial-actions">
+        <button class="btn btn-sm" id="tutorialBackBtn" onclick="prevTutorialStep()"><i class="fas fa-arrow-left"></i></button>
+        <button class="btn btn-sm btn-accent" id="tutorialNextBtn" onclick="nextTutorialStep()">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="subscription-overlay" id="subscriptionOverlay" aria-hidden="true">
+  <div class="subscription-card glass" role="dialog" aria-live="polite">
+    <div class="subscription-head">
+      <div>
+        <div class="subscription-kicker">Monthly access</div>
+        <div class="subscription-title" id="subscriptionTitle">Commission Dashboard Subscription</div>
+        <div class="subscription-pill" id="subscriptionStatusPill"><i class="fas fa-circle-info"></i> Checking access…</div>
+      </div>
+      <button class="subscription-close" id="subscriptionCloseBtn" onclick="closeSubscriptionModal()" title="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="subscription-body">
+      <div class="subscription-price"><div class="subscription-price-main">$5.99</div><div class="subscription-price-sub">/ month</div></div>
+      <div class="subscription-note">New users receive a 7-day trial. After the trial, access is renewed manually when the admin confirms your payment.</div>
+      <div class="subscription-status-box" id="subscriptionStatusBox">Loading subscription status…</div>
+      <div class="form-label" style="margin-bottom:7px">Payment method used</div>
+      <div class="subscription-methods" id="subscriptionMethods">
+        <div class="subscription-method active" data-method="Transfer" onclick="selectSubscriptionMethod('Transfer')"><i class="fas fa-building-columns"></i>Transfer</div>
+        <div class="subscription-method" data-method="Apple Cash" onclick="selectSubscriptionMethod('Apple Cash')"><i class="fab fa-apple"></i>Apple Cash</div>
+        <div class="subscription-method" data-method="Cash" onclick="selectSubscriptionMethod('Cash')"><i class="fas fa-money-bill-wave"></i>Cash</div>
+      </div>
+      <textarea class="subscription-ref" id="subscriptionPaymentNote" placeholder="Optional: payment reference, date, amount, or note for the admin"></textarea>
+      <div class="subscription-actions">
+        <button class="btn" onclick="copySubscriptionAmount()"><i class="fas fa-copy"></i> Copy $5.99</button>
+        <button class="btn btn-accent" onclick="submitPaymentGenerated()"><i class="fas fa-bell"></i> I generated the payment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="notif" id="notif"></div>
 <script>
 // 🔍 SEARCH: FIREBASE CONFIG
@@ -2480,6 +2834,16 @@ const ADMIN_ACCESS = {
   shortcut: 'Ctrl + Alt + A'
 };
 const ADMIN_SUBS_LOCAL_KEY = 'vhonda_admin_subscriptions_v1';
+const SUBSCRIPTION_SETTINGS = {
+  collection: 'subscriptions',
+  plan: 'Monthly',
+  monthlyAmount: 5.99,
+  trialDays: 7,
+  methods: ['Transfer','Apple Cash','Cash']
+};
+let currentSubscription = null;
+let unsubscribeUserSubscription = null;
+let selectedSubscriptionMethod = 'Transfer';
 let adminSubscriptions = [];
 let adminSubscriptionsLoaded = false;
 
@@ -2673,6 +3037,7 @@ let cred;
 if(isReg) {
 cred = await fbAuth.createUserWithEmailAndPassword(email, pw);
 if(nameF) await cred.user.updateProfile({displayName: nameF});
+sessionStorage.setItem('vhonda_force_tutorial','1');
 } else {
 cred = await fbAuth.signInWithEmailAndPassword(email, pw);
 }
@@ -2693,7 +3058,8 @@ if(!FIREBASE_CONFIGURED) { createOfflineSession(); onLoginSuccess(OFFLINE_USER);
 try {
 const provider = new firebase.auth.GoogleAuthProvider();
 provider.setCustomParameters({prompt:'select_account'});
-await fbAuth.signInWithPopup(provider);
+const result = await fbAuth.signInWithPopup(provider);
+if(result?.additionalUserInfo?.isNewUser) sessionStorage.setItem('vhonda_force_tutorial','1');
 } catch(e) { showAuthErr(e.message); }
 }
 async function forgotPassword() {
@@ -2751,6 +3117,7 @@ if(avatar) avatar.textContent=initials;
 if(dn) dn.textContent = name;
 setEl('headerUserName', name);
 window._currentUser = user;
+initUserSubscription(user);
 loadUserProfile(user.uid||'offline');
 hideAuthOverlay();
 setSyncStatus('ok');
@@ -2758,10 +3125,14 @@ if(!user.isOffline && db) subscribeFirestore(user.uid);
 else { renderAll(); renderHoldTable(); renderSummaryVerification(); }
 maybeOpenAdminFromHash();
 notify(`Welcome, ${name.split(' ')[0]} ✓`);
+scheduleNewUserTutorial();
 }
 function onLogout() {
 if(unsubscribeDeals){ unsubscribeDeals(); unsubscribeDeals=null; }
 if(unsubscribeAdminSubscriptions){ unsubscribeAdminSubscriptions(); unsubscribeAdminSubscriptions=null; }
+if(unsubscribeUserSubscription){ unsubscribeUserSubscription(); unsubscribeUserSubscription=null; }
+currentSubscription=null;
+closeSubscriptionModal(true);
 adminSubscriptionsLoaded=false;
 closeAdminPanel();
 const pill = document.getElementById('userPill');
@@ -2785,6 +3156,180 @@ const m = document.getElementById('userMenu');
 if(m) m.classList.remove('open');
 }
 
+
+
+
+// 💳 SEARCH: USER SUBSCRIPTION / 7-DAY TRIAL
+function subscriptionTodayISO(){ return new Date().toISOString().slice(0,10); }
+function subscriptionAddDaysISO(days){ const d=new Date(subscriptionTodayISO()+'T00:00:00'); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+function subscriptionDocId(email){ return String(email||'').trim().toLowerCase().replace(/[^a-z0-9._-]+/g,'_').replace(/^_+|_+$/g,'') || 'unknown_user'; }
+function normalizeSubscription(raw={}){
+  const amount=parseFloat(raw.amount ?? raw.monthlyAmount ?? SUBSCRIPTION_SETTINGS.monthlyAmount)||SUBSCRIPTION_SETTINGS.monthlyAmount;
+  return {
+    id: raw.id || subscriptionDocId(raw.email),
+    uid: String(raw.uid||''),
+    email: String(raw.email||'').trim().toLowerCase(),
+    name: String(raw.name||''),
+    plan: String(raw.plan||SUBSCRIPTION_SETTINGS.plan),
+    status: String(raw.status||'trial').toLowerCase(),
+    amount,
+    monthlyAmount: amount,
+    paidUntil: raw.paidUntil || '',
+    trialStart: raw.trialStart || '',
+    trialEnd: raw.trialEnd || '',
+    paymentMethod: String(raw.paymentMethod||'Transfer'),
+    paymentStatus: String(raw.paymentStatus||''),
+    paymentGenerated: !!raw.paymentGenerated,
+    paymentGeneratedAt: raw.paymentGeneratedAt || '',
+    paymentNote: String(raw.paymentNote||''),
+    notes: String(raw.notes||''),
+    createdAt: raw.createdAt || new Date().toISOString(),
+    updatedAt: raw.updatedAt || new Date().toISOString(),
+    updatedBy: raw.updatedBy || ''
+  };
+}
+function userSubscriptionHasAccess(sub){
+  if(!sub) return false;
+  const status=String(sub.status||'').toLowerCase();
+  if(status==='blocked'||status==='cancelled'||status==='past_due') return false;
+  if(status==='active'||status==='trial') return !sub.paidUntil || sub.paidUntil >= subscriptionTodayISO();
+  return false;
+}
+function userSubscriptionDaysLeft(sub){
+  if(!sub?.paidUntil) return null;
+  const end=new Date(sub.paidUntil+'T00:00:00').getTime();
+  const now=new Date(subscriptionTodayISO()+'T00:00:00').getTime();
+  return Math.ceil((end-now)/(24*3600*1000));
+}
+async function initUserSubscription(user){
+  if(unsubscribeUserSubscription){ unsubscribeUserSubscription(); unsubscribeUserSubscription=null; }
+  if(!user || user.isOffline || !user.email || !db) {
+    currentSubscription = normalizeSubscription({status:'active', paidUntil:'', email:user?.email||'', name:user?.displayName||'Offline User'});
+    return;
+  }
+  const email=String(user.email||'').trim().toLowerCase();
+  const id=user.uid || subscriptionDocId(email);
+  const ref=db.collection(SUBSCRIPTION_SETTINGS.collection).doc(id);
+  try{
+    const snap=await ref.get();
+    if(!snap.exists){
+      const trialEnd=subscriptionAddDaysISO(SUBSCRIPTION_SETTINGS.trialDays);
+      const trialSub=normalizeSubscription({
+        id,email,uid:user.uid,name:user.displayName||email.split('@')[0],plan:SUBSCRIPTION_SETTINGS.plan,
+        status:'trial',amount:SUBSCRIPTION_SETTINGS.monthlyAmount,monthlyAmount:SUBSCRIPTION_SETTINGS.monthlyAmount,
+        paidUntil:trialEnd,trialStart:subscriptionTodayISO(),trialEnd,paymentMethod:'Transfer',paymentStatus:'trial',
+        createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),updatedBy:email
+      });
+      await ref.set(cleanForFirestore(trialSub),{merge:true});
+      notify('7-day trial activated ✓');
+    }
+    unsubscribeUserSubscription = ref.onSnapshot(doc=>{
+      currentSubscription = normalizeSubscription({id:doc.id,...(doc.data()||{})});
+      renderSubscriptionStatus();
+      enforceSubscriptionAccess();
+    },err=>{
+      console.warn('[Subscription] read failed:',err);
+      notify('Subscription check failed. Check Firebase Rules.');
+      setSyncStatus('error');
+    });
+  }catch(err){
+    console.warn('[Subscription] init failed:',err);
+    notify('Subscription could not be verified. Check Firebase Rules.');
+    setSyncStatus('error');
+  }
+}
+function renderSubscriptionStatus(){
+  const sub=currentSubscription;
+  const box=document.getElementById('subscriptionStatusBox');
+  const pill=document.getElementById('subscriptionStatusPill');
+  const close=document.getElementById('subscriptionCloseBtn');
+  if(!box||!pill) return;
+  const access=userSubscriptionHasAccess(sub);
+  const days=userSubscriptionDaysLeft(sub);
+  const status=String(sub?.status||'unknown').replace('_',' ');
+  let msg='Subscription status unavailable.';
+  let pillClass='subscription-pill';
+  let icon='fa-circle-info';
+  if(access){
+    pillClass+=' ok'; icon='fa-unlock';
+    if(sub.status==='trial') msg=`<strong>Trial active.</strong> You have ${days===0?'less than 1':days} day${days===1?'':'s'} left. Monthly access is <strong>$5.99</strong> after the trial.`;
+    else msg=`<strong>Access active.</strong> Your current access is valid${sub.paidUntil?` until <strong>${esc(sub.paidUntil)}</strong>`:''}.`;
+  } else {
+    pillClass+=' bad'; icon='fa-lock';
+    msg=`<strong>Access locked.</strong> Your subscription is ${esc(status)}${sub?.paidUntil?` / expired on <strong>${esc(sub.paidUntil)}</strong>`:''}. Generate your $5.99 monthly payment and notify the admin below.`;
+  }
+  if(sub?.paymentGenerated && sub.paymentStatus==='generated'){
+    pillClass='subscription-pill warn'; icon='fa-bell';
+    msg += `<br><br><strong>Payment generated.</strong> Admin has been notified. Your access will update once the payment is confirmed.`;
+  }
+  pill.className=pillClass;
+  pill.innerHTML=`<i class="fas ${icon}"></i> ${access?'Access allowed':(sub?.paymentGenerated?'Payment pending':'Payment required')}`;
+  box.innerHTML=msg;
+  if(close) close.style.display=access?'flex':'none';
+}
+function enforceSubscriptionAccess(){
+  const sub=currentSubscription;
+  if(!sub) return;
+  if(userSubscriptionHasAccess(sub)) {
+    renderSubscriptionStatus();
+    return;
+  }
+  openSubscriptionModal(true);
+}
+function openSubscriptionModal(lock=false){
+  renderSubscriptionStatus();
+  const o=document.getElementById('subscriptionOverlay');
+  if(!o) return;
+  o.dataset.lock = lock ? '1' : '0';
+  o.classList.add('open');
+  o.setAttribute('aria-hidden','false');
+}
+function closeSubscriptionModal(force=false){
+  const o=document.getElementById('subscriptionOverlay');
+  if(!o) return;
+  if(!force && o.dataset.lock==='1' && !userSubscriptionHasAccess(currentSubscription)) return;
+  o.classList.remove('open');
+  o.setAttribute('aria-hidden','true');
+}
+function selectSubscriptionMethod(method){
+  selectedSubscriptionMethod = method;
+  document.querySelectorAll('.subscription-method').forEach(el=>el.classList.toggle('active', el.dataset.method===method));
+}
+function copySubscriptionAmount(){
+  const text='$5.99';
+  if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>notify('Amount copied ✓')).catch(()=>notify('$5.99 monthly subscription'));
+  else notify('$5.99 monthly subscription');
+}
+async function submitPaymentGenerated(){
+  const user=window._currentUser;
+  if(!user || user.isOffline || !user.email || !db){ notify('Cloud account required to notify admin.'); return; }
+  const email=String(user.email||'').trim().toLowerCase();
+  const id=user.uid || subscriptionDocId(email);
+  const note=document.getElementById('subscriptionPaymentNote')?.value.trim()||'';
+  const existing=currentSubscription||normalizeSubscription({id,email,uid:user.uid,name:user.displayName||email.split('@')[0]});
+  const patch={
+    ...existing,
+    id,email,uid:user.uid,name:user.displayName||existing.name||email.split('@')[0],plan:SUBSCRIPTION_SETTINGS.plan,
+    amount:SUBSCRIPTION_SETTINGS.monthlyAmount,monthlyAmount:SUBSCRIPTION_SETTINGS.monthlyAmount,
+    paymentMethod:selectedSubscriptionMethod,
+    paymentStatus:'generated',
+    paymentGenerated:true,
+    paymentGeneratedAt:new Date().toISOString(),
+    paymentNote:note,
+    updatedAt:new Date().toISOString(),
+    updatedBy:email
+  };
+  try{
+    await db.collection(SUBSCRIPTION_SETTINGS.collection).doc(id).set(cleanForFirestore(patch),{merge:true});
+    currentSubscription=normalizeSubscription(patch);
+    renderSubscriptionStatus();
+    notify('Admin notified about your payment ✓');
+  }catch(err){
+    console.error('[Subscription] payment notification failed:',err);
+    notify('Could not notify admin. Check Firebase Rules.');
+    setSyncStatus('error');
+  }
+}
 
 // 🔐 SEARCH: HIDDEN ADMIN SUBSCRIPTIONS PANEL
 function adminEmailList() {
@@ -2987,7 +3532,10 @@ catch(err) { console.error('[Admin subscriptions] delete failed:', err); notify(
 function setSyncStatus(status) {
 const dot = document.getElementById('syncDot');
 if(!dot) return;
-dot.className = `sync-dot ${status}`;
+const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+const finalStatus = (offline || status === 'error') ? 'error' : 'ok';
+dot.className = `sync-dot ${finalStatus}`;
+dot.title = finalStatus === 'ok' ? 'Cloud sync online' : 'Offline / sync unavailable';
 }
 function _uid() { return fbAuth?.currentUser?.uid||null; }
 
@@ -3066,11 +3614,12 @@ state.holdDeals.forEach(h => batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`),
 await batch.commit();
 }
 notify('Sync complete ✓');
+setSyncStatus('ok');
 } catch(err) {
 console.error('[Sync] Error:', err);
-notify('Sync failed ');
+notify('Sync failed ✗');
+setSyncStatus('error');
 }
-setSyncStatus('ok');
 }
 
 async function saveDealFirestore(deal) {
@@ -3368,12 +3917,39 @@ x:{ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,maxTicksLimi
 }
 });
 }
+function scrollToHoldFile() {
+const card = document.getElementById('holdFileCard');
+if(card) {
+  card.scrollIntoView({behavior:'smooth', block:'center'});
+  card.style.outline='2px solid var(--hold-warning, var(--accent))';
+  card.style.outlineOffset='3px';
+  setTimeout(()=>{ card.style.outline=''; card.style.outlineOffset=''; }, 1400);
+}
+}
+function updateNetworkSyncStatus() {
+setSyncStatus(navigator.onLine === false ? 'error' : 'ok');
+}
+window.addEventListener('online', updateNetworkSyncStatus);
+window.addEventListener('offline', updateNetworkSyncStatus);
 function renderHoldTable() {
 const tbody = document.getElementById('holdBody');
 if(!tbody) return;
 const h = state.holdDeals||[];
+const hasHolds = h.length > 0;
+const holdFileCard = document.getElementById('holdFileCard');
+const holdTotalCard = document.getElementById('svHoldTotalCard');
+const holdReviewBtn = document.getElementById('holdReviewBtn');
+const holdReviewBadge = document.getElementById('holdReviewBadge');
+if(holdFileCard) holdFileCard.classList.toggle('hold-warning-card', hasHolds);
+if(holdTotalCard) holdTotalCard.classList.toggle('sv-hold-total-card', hasHolds);
+if(holdReviewBtn) {
+  holdReviewBtn.classList.toggle('hold-has-items', hasHolds);
+  holdReviewBtn.title = hasHolds ? `Review Hold File: ${h.length} item${h.length===1?'':'s'} pending` : 'No Hold File items';
+}
+if(holdReviewBadge) holdReviewBadge.textContent = h.length;
 let totTotal=0;
 const holdTotalEl = document.getElementById('holdTotal');
+if(holdTotalEl) holdTotalEl.classList.toggle('hold-total-badge', hasHolds);
 if(!h.length){
 tbody.innerHTML=`<tr><td colspan="8" class="empty-table"><i class="fas fa-check-circle" style="font-size:1.2rem;opacity:0.3;display:block;margin-bottom:6px"></i>No deals on hold</td></tr>`;
 if(holdTotalEl) holdTotalEl.textContent='$0.00';
@@ -3451,6 +4027,48 @@ return `<tr>
 <td><span class="match-badge ${cls==='sv-matched'?'match-ok':cls==='sv-mismatch'?'match-bad':'match-na'}">${icon}</span></td>
 </tr>`;
 }).join('')}</tbody></table></div>`;
+}
+
+function setSummaryVerifyStatus(kind, text) {
+const el = document.getElementById('svVerifyStatus');
+if(!el) return;
+el.className = `sv-verify-status show ${kind||''}`;
+el.innerHTML = text;
+}
+function verifyCommissionSummary() {
+renderSummaryVerification();
+const summary = state.commissionSummary||[];
+const deals = getMonthDeals(state.selectedMonth);
+if(!summary.length) {
+setSummaryVerifyStatus('warn', '<i class="fas fa-file-circle-question"></i> Summary needed');
+notify('Scan your Commission Summary first to verify.');
+return;
+}
+if(!deals.length) {
+setSummaryVerifyStatus('warn', '<i class="fas fa-circle-info"></i> No deals');
+notify('No deals this month to verify.');
+return;
+}
+let matched=0, mismatched=0, missing=0;
+deals.forEach(d=>{
+const cm = checkCommissionMatch(d);
+if(cm.matched===true) matched++;
+else if(cm.matched===false) mismatched++;
+else missing++;
+});
+const issues = mismatched + missing;
+if(!issues) {
+setSummaryVerifyStatus('ok', `<i class="fas fa-check-circle"></i> All match · ${matched}`);
+notify(`Verification complete: all ${matched} deals match ✓`);
+return;
+}
+setSummaryVerifyStatus('bad', `<i class="fas fa-triangle-exclamation"></i> ${issues} issue${issues===1?'':'s'}`);
+const parts = [];
+if(mismatched) parts.push(`${mismatched} mismatch${mismatched===1?'':'es'}`);
+if(missing) parts.push(`${missing} not found in summary`);
+notify(`Verification complete: ${parts.join(' · ')}`, 5200);
+const wrap = document.getElementById('svTableWrap');
+if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 // 🔍 SEARCH: SEARCH DEALS
@@ -4524,6 +5142,194 @@ console.log(`[Cleanup] Total eliminado: ${removed} claves legacy`);
 notify(`Limpiados ${removed} datos antiguos ✓`);
 }
 localStorage.setItem(CLEANUP_FLAG, 'true');
+}
+
+
+
+
+// 🔍 SEARCH: NEW USER TUTORIAL
+let tutorialIndex = 0;
+let tutorialActive = false;
+let tutorialOpenedDealModal = false;
+const tutorialPad = 10;
+const TUTORIAL_STEPS = [
+  {
+    selector:'#mainHeader',
+    title:'Welcome to your Commission Dashboard',
+    body:'This dashboard helps you track <strong>deals, payouts, hold file, and mismatches</strong> in one place. The top bar shows sync, export, manual entry, settings, and your profile menu.'
+  },
+  {
+    selector:'.kpi-grid',
+    title:'Start with the KPI cards',
+    body:'These cards summarize the month: <strong>MTD payout, units, unit bonus, gross profit, F&I bonuses, and deals that need review</strong>. Use them as your daily snapshot.'
+  },
+  {
+    selector:'.scan-deal-card',
+    title:'Scan a deal sheet',
+    body:'Drop a photo/PDF here or click the card. The dashboard runs OCR, fills the deal form, and flags low-confidence scans so you can review before saving.'
+  },
+  {
+    selector:'.scan-deal-card button',
+    title:'Scan Commission Summary too',
+    body:'Upload the <strong>Commission Summary</strong> PDF to compare what you entered against what the store summary shows. This powers mismatch detection.'
+  },
+  {
+    selector:'button[onclick="openAddModal(null)"]',
+    title:'Add a deal manually',
+    body:'Use <strong>Add Deal</strong> when you want to enter a deal yourself instead of scanning. The next step opens the form so you can see the key fields.',
+    afterNext:()=>{ tutorialOpenedDealModal=true; openAddModal(null); }
+  },
+  {
+    selector:'#dealOverlay .modal',
+    title:'Manual deal fields',
+    body:'Fill the essentials first: <strong>Deal #, Stock #, Vehicle, Customer, Date, Status, Commission, Accessories, Aftermarket, F&I, and Profit</strong>. The estimated payout updates as you type.',
+    before:()=>{ if(!document.getElementById('dealOverlay')?.classList.contains('open')){ tutorialOpenedDealModal=true; openAddModal(null); } switchModalTab(0); }
+  },
+  {
+    selector:'#dealTab1',
+    title:'Options tab',
+    body:'Use Options for advanced cases: <strong>Move to Hold File</strong>, ignore a known mismatch, override pay period, or mark a split deal with another salesperson.',
+    before:()=>{ if(!document.getElementById('dealOverlay')?.classList.contains('open')){ tutorialOpenedDealModal=true; openAddModal(null); } switchModalTab(1); }
+  },
+  {
+    selector:'#dealOverlay .modal-foot .btn-accent',
+    title:'Save only after reviewing',
+    body:'When everything looks correct, press <strong>Save Deal</strong>. The app also checks for duplicates so scanned and manual entries do not repeat the same deal.',
+    before:()=>{ if(!document.getElementById('dealOverlay')?.classList.contains('open')){ tutorialOpenedDealModal=true; openAddModal(null); } }
+  },
+  {
+    selector:'.deal-log-card',
+    title:'Your Deal Log is the source of truth',
+    body:'All saved deals appear here. Search by customer, stock, date, model, status, pay period, amount, or show mismatches only. Use the action buttons to edit or delete.',
+    before:()=>{ if(tutorialOpenedDealModal) closeModal(); }
+  },
+  {
+    selector:'.section-row .glass:first-child',
+    title:'Verify that everything matches',
+    body:'Use <strong>Commission Summary Verification</strong> and the Verify Match button to confirm each deal matches the scanned summary. Mismatches and missing deals are highlighted.'
+  },
+  {
+    selector:'#holdFileCard',
+    title:'Review Hold File every day',
+    body:'Hold File deals are not paid until the issue is cleared. If the bell in the top menu alerts you, come here and resolve missing documents, signatures, funding, or other blockers.'
+  }
+];
+function getTutorialKey(){
+  const u=window._currentUser||{};
+  return 'vhonda_tutorial_seen_'+(u.uid||u.email||'offline');
+}
+function scheduleNewUserTutorial(){
+  const forced=sessionStorage.getItem('vhonda_force_tutorial')==='1';
+  const seen=localStorage.getItem(getTutorialKey())==='1';
+  if(!forced && seen) return;
+  setTimeout(()=>startUserTutorial(forced),900);
+}
+function startUserTutorial(force=false){
+  closeUserMenu();
+  if(!force && localStorage.getItem(getTutorialKey())==='1') return;
+  sessionStorage.removeItem('vhonda_force_tutorial');
+  tutorialActive=true;
+  tutorialIndex=0;
+  tutorialOpenedDealModal=false;
+  const layer=document.getElementById('tutorialLayer');
+  if(layer){ layer.classList.add('open'); layer.setAttribute('aria-hidden','false'); }
+  showTutorialStep();
+  window.addEventListener('resize', positionTutorial, {passive:true});
+  window.addEventListener('scroll', positionTutorial, {passive:true});
+}
+function endUserTutorial(markSeen=true){
+  if(markSeen) localStorage.setItem(getTutorialKey(),'1');
+  tutorialActive=false;
+  const layer=document.getElementById('tutorialLayer');
+  if(layer){ layer.classList.remove('open'); layer.setAttribute('aria-hidden','true'); }
+  if(tutorialOpenedDealModal) { closeModal(); tutorialOpenedDealModal=false; }
+  window.removeEventListener('resize', positionTutorial);
+  window.removeEventListener('scroll', positionTutorial);
+}
+function nextTutorialStep(){
+  const step=TUTORIAL_STEPS[tutorialIndex];
+  if(step?.afterNext) step.afterNext();
+  if(tutorialIndex>=TUTORIAL_STEPS.length-1){ endUserTutorial(true); notify('Tutorial completed ✓'); return; }
+  tutorialIndex++;
+  showTutorialStep();
+}
+function prevTutorialStep(){
+  if(tutorialIndex<=0) return;
+  tutorialIndex--;
+  showTutorialStep();
+}
+function findTutorialTarget(step){
+  let el=step?.selector?document.querySelector(step.selector):document.getElementById('mainHeader');
+  if(!el || !el.getBoundingClientRect) el=document.getElementById('mainHeader')||document.body;
+  return el;
+}
+
+function scrollTutorialTargetIntoView(target){
+  if(!target || !target.getBoundingClientRect) return;
+  const rect=target.getBoundingClientRect();
+  const vh=window.innerHeight || document.documentElement.clientHeight;
+  const vw=window.innerWidth || document.documentElement.clientWidth;
+  const isInsideModal=!!target.closest?.('.modal-body');
+  const safeTop=96;
+  const safeBottom=90;
+  const needsVerticalScroll=rect.top<safeTop || rect.bottom>(vh-safeBottom) || rect.height>vh*0.72;
+  const needsHorizontalScroll=rect.left<12 || rect.right>(vw-12);
+  if(needsVerticalScroll || needsHorizontalScroll){
+    target.scrollIntoView({behavior:'smooth', block:isInsideModal?'nearest':'center', inline:'nearest'});
+  }
+}
+function showTutorialStep(){
+  if(!tutorialActive) return;
+  const step=TUTORIAL_STEPS[tutorialIndex];
+  if(step?.before) step.before();
+  setEl('tutorialTitle', step.title||'Tutorial');
+  const body=document.getElementById('tutorialBody'); if(body) body.innerHTML=step.body||'';
+  setEl('tutorialKicker','Quick start');
+  setEl('tutorialCount',`${tutorialIndex+1} / ${TUTORIAL_STEPS.length}`);
+  const progress=document.getElementById('tutorialProgressBar');
+  if(progress) progress.style.width=`${((tutorialIndex+1)/TUTORIAL_STEPS.length)*100}%`;
+  const back=document.getElementById('tutorialBackBtn');
+  if(back) back.style.visibility=tutorialIndex===0?'hidden':'visible';
+  const next=document.getElementById('tutorialNextBtn');
+  if(next) next.innerHTML=tutorialIndex===TUTORIAL_STEPS.length-1?'Finish <i class="fas fa-check"></i>':'Next <i class="fas fa-arrow-right"></i>';
+  const target=findTutorialTarget(step);
+  scrollTutorialTargetIntoView(target);
+  requestAnimationFrame(positionTutorial);
+  setTimeout(positionTutorial, 180);
+  setTimeout(positionTutorial, 420);
+  setTimeout(positionTutorial, 760);
+}
+function positionTutorial(){
+  if(!tutorialActive) return;
+  const step=TUTORIAL_STEPS[tutorialIndex];
+  const target=findTutorialTarget(step);
+  const raw=target.getBoundingClientRect();
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const rect={
+    left:Math.max(8, raw.left-tutorialPad),
+    top:Math.max(8, raw.top-tutorialPad),
+    right:Math.min(vw-8, raw.right+tutorialPad),
+    bottom:Math.min(vh-8, raw.bottom+tutorialPad)
+  };
+  rect.width=Math.max(40, rect.right-rect.left);
+  rect.height=Math.max(32, rect.bottom-rect.top);
+  const top=document.getElementById('tutorialBlurTop'), right=document.getElementById('tutorialBlurRight'), bottom=document.getElementById('tutorialBlurBottom'), left=document.getElementById('tutorialBlurLeft');
+  if(top){ top.style.left='0px'; top.style.top='0px'; top.style.width=vw+'px'; top.style.height=rect.top+'px'; }
+  if(bottom){ bottom.style.left='0px'; bottom.style.top=rect.bottom+'px'; bottom.style.width=vw+'px'; bottom.style.height=Math.max(0,vh-rect.bottom)+'px'; }
+  if(left){ left.style.left='0px'; left.style.top=rect.top+'px'; left.style.width=rect.left+'px'; left.style.height=rect.height+'px'; }
+  if(right){ right.style.left=rect.right+'px'; right.style.top=rect.top+'px'; right.style.width=Math.max(0,vw-rect.right)+'px'; right.style.height=rect.height+'px'; }
+  const spot=document.getElementById('tutorialSpotlight');
+  if(spot){ spot.style.left=rect.left+'px'; spot.style.top=rect.top+'px'; spot.style.width=rect.width+'px'; spot.style.height=rect.height+'px'; }
+  const card=document.getElementById('tutorialCard');
+  if(!card) return;
+  const cw=card.offsetWidth||380, ch=card.offsetHeight||220;
+  let x=rect.left + rect.width/2 - cw/2;
+  x=Math.min(Math.max(14,x), Math.max(14,vw-cw-14));
+  let y=rect.bottom+18;
+  if(y+ch>vh-14) y=rect.top-ch-18;
+  if(y<14) y=Math.min(vh-ch-14, Math.max(14, rect.top+rect.height/2-ch/2));
+  card.style.left=x+'px';
+  card.style.top=y+'px';
 }
 
 
