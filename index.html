@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Dealership Commission Dashboard</title>
+<meta name="theme-color" content="#000000">
+<title>Dealership Commission Dashboard Web</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -189,15 +190,6 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .sv-matched{color:var(--green)}
 .sv-mismatch{color:var(--orange)}
 .sv-unknown{color:var(--text-faint)}
-.sv-verify-actions{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.sv-verify-btn{min-height:28px;padding:5px 10px}
-.sv-verify-status{display:none;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;border:1px solid var(--border-line);background:var(--surface-mute);font-size:0.64rem;font-weight:700;white-space:nowrap}
-.sv-verify-status.show{display:inline-flex}
-.sv-verify-status.ok{color:var(--green)}
-.sv-verify-status.warn{color:var(--orange)}
-.sv-verify-status.bad{color:var(--red)}
-.sv-month-label{font-size:0.65rem;color:var(--text-dim);white-space:nowrap}
-@media(max-width:600px){.sv-verify-actions{width:100%;margin-left:0;justify-content:flex-start}.sv-verify-btn{min-height:32px}}
 .blank-state{text-align:center;padding:32px 20px;color:var(--text-faint)}
 .blank-state-icon{font-size:2rem;margin-bottom:10px;opacity:0.4}
 .blank-state-text{font-size:0.78rem;line-height:1.5}
@@ -748,7 +740,7 @@ body {
 
 /* ✅ AJUSTE FINAL: Hero/Lamp estático + más espacio superior para apreciarlo */
 :root {
-  --hero-top-safe-area: 162px;
+  --hero-top-safe-area: 112px;
 }
 [data-theme="dark"] {
   --bg:#000000;
@@ -824,7 +816,7 @@ body > .app:first-of-type {
   top: 24px;
 }
 @media(max-width:700px) {
-  :root { --hero-top-safe-area: 136px; }
+  :root { --hero-top-safe-area: 86px; }
   .dashboard-hero-bg { height: 560px; }
   .dashboard-hero-bg::before,
   .hero-top-line { width: 86vw; }
@@ -834,7 +826,7 @@ body > .app:first-of-type {
   #mainHeader { top: 0; }
 }
 @media(max-height:500px) and (orientation:landscape) {
-  :root { --hero-top-safe-area: 114px; }
+  :root { --hero-top-safe-area: 64px; }
 }
 
 
@@ -1118,56 +1110,6 @@ body {
 .hero-cone {
   background:radial-gradient(ellipse 78% 48% at 50% 0%, var(--lamp-cone-start) 0%, var(--lamp-cone-mid) 27%, var(--lamp-cone-soft) 52%, transparent 78%) !important;
 }
-
-
-/* 📷 HERO GRAIN — subtle camera/wall texture for the lamp projection */
-.hero-grain{
-  position:absolute;
-  inset:-2% -2% 0;
-  pointer-events:none;
-  z-index:7;
-  opacity:0.14;
-  mix-blend-mode:soft-light;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:180px 180px;
-  filter:contrast(150%) brightness(112%);
-  -webkit-mask-image:radial-gradient(ellipse 84% 58% at 50% 8%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.92) 34%, rgba(0,0,0,0.60) 56%, rgba(0,0,0,0.20) 70%, transparent 82%);
-  mask-image:radial-gradient(ellipse 84% 58% at 50% 8%, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.92) 34%, rgba(0,0,0,0.60) 56%, rgba(0,0,0,0.20) 70%, transparent 82%);
-}
-.hero-grain::before,
-.hero-grain::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background-repeat:repeat;
-}
-.hero-grain::before{
-  opacity:0.75;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n2)'/%3E%3C/svg%3E");
-  background-size:120px 120px;
-}
-.hero-grain::after{
-  opacity:0.35;
-  background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.20) 0 0.8px, transparent 1px), radial-gradient(circle at 72% 62%, rgba(255,255,255,0.16) 0 0.9px, transparent 1.2px), radial-gradient(circle at 42% 82%, rgba(255,255,255,0.10) 0 0.7px, transparent 1px);
-  background-size:110px 110px, 140px 140px, 90px 90px;
-}
-[data-theme="dark"] .hero-grain{
-  opacity:0.22;
-  mix-blend-mode:screen;
-}
-[data-theme="light"] .hero-grain{
-  opacity:0.10;
-  mix-blend-mode:multiply;
-}
-@media(max-width:700px){
-  .hero-grain{
-    opacity:0.12;
-    background-size:140px 140px;
-  }
-  [data-theme="dark"] .hero-grain{ opacity:0.18; }
-}
-
 [data-theme="light"] .google-btn svg,
 [data-theme="dark"] .google-btn svg {
   filter:grayscale(1) contrast(1.1);
@@ -1828,291 +1770,338 @@ body {
 
 
 
-/* 🔐 HIDDEN ADMIN SUBSCRIPTIONS PANEL — future subscription management */
-.admin-modal{max-width:1080px}
-.admin-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.admin-kpi{background:var(--surface-mute);border:1px solid var(--border-line);border-radius:12px;padding:12px 14px}
-.admin-kpi-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);font-weight:700;margin-bottom:5px}
-.admin-kpi-val{font-family:var(--font-mono);font-size:1.1rem;color:var(--ink);font-weight:600}
-.admin-panel-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:14px;align-items:start}
-.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
-.admin-toolbar input,.admin-toolbar select{padding:7px 10px;border-radius:8px;border:1px solid var(--border-line);background:var(--input-bg);color:var(--text);font-size:0.72rem;font-family:inherit;outline:none}
-.admin-toolbar input{flex:1;min-width:180px}
-.admin-table-wrap{overflow:auto;border:1px solid var(--border-line);border-radius:12px;background:var(--surface-row)}
-.admin-table{width:100%;border-collapse:collapse;font-size:0.7rem;min-width:760px}
-.admin-table th{padding:8px 9px;text-align:left;color:var(--text-dim);font-weight:700;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border-line);white-space:nowrap}
-.admin-table td{padding:8px 9px;border-bottom:1px solid var(--sep);vertical-align:middle}
-.admin-table tr:hover td{background:var(--surface-mute)}
-.admin-side-card{background:var(--surface-mute);border:1px solid var(--border-line);border-radius:12px;padding:14px}
-.admin-side-title{font-size:0.78rem;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:7px}
-.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.admin-form-grid .full{grid-column:1/-1}
-.admin-status{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:20px;font-size:0.6rem;font-weight:800;text-transform:uppercase;background:var(--mono-chip-bg);color:var(--text)}
-.admin-status.active,.admin-status.trial{background:rgba(34,197,94,0.14);color:var(--green)}
-.admin-status.past_due{background:rgba(249,115,22,0.17);color:var(--orange)}
-.admin-status.blocked,.admin-status.cancelled{background:rgba(239,68,68,0.13);color:var(--red)}
-.admin-actions{display:flex;gap:5px;white-space:nowrap}
-.admin-mini-note{font-size:0.66rem;color:var(--text-dim);line-height:1.45;margin-top:10px}
-@media(max-width:900px){.admin-kpi-grid{grid-template-columns:repeat(2,1fr)}.admin-panel-grid{grid-template-columns:1fr}.admin-modal{max-width:95vw}}
-@media(max-width:560px){.admin-kpi-grid{grid-template-columns:1fr}.admin-form-grid{grid-template-columns:1fr}.admin-form-grid .full{grid-column:auto}}
+/* =========================================================
+   CUSTOM NOTE — FIRST USER ONBOARDING TUTORIAL
+   ---------------------------------------------------------
+   Purpose:
+   - New users see a short click-by-click tutorial after first login/register.
+   - Existing users can relaunch it from the user menu: "Dashboard Tutorial".
 
+   Future edits:
+   - Tutorial text/order: edit ONBOARDING_STEPS in the JavaScript block.
+   - Highlight color: edit --onboarding-accent below.
+   - Background blur outside active step: edit --onboarding-bg-blur below.
+   - Tooltip size: edit .onboarding-tooltip width/max-width.
+   - Show again to everyone: change ONBOARDING_VERSION in JavaScript.
+   ========================================================= */
+:root {
+  --onboarding-accent:#ffffff;
+  --onboarding-overlay:rgba(0,0,0,0.64);
+  --onboarding-bg-blur:9px;
+  --onboarding-bg-saturate:70%;
+  --onboarding-card:rgba(12,12,14,0.94);
+  --onboarding-border:rgba(255,255,255,0.16);
+  --onboarding-muted:rgba(255,255,255,0.62);
+  --onboarding-shadow:0 24px 80px rgba(0,0,0,0.55);
+}
+[data-theme="light"] {
+  --onboarding-accent:#000000;
+  --onboarding-overlay:rgba(255,255,255,0.58);
+  --onboarding-bg-blur:9px;
+  --onboarding-bg-saturate:70%;
+  --onboarding-card:rgba(255,255,255,0.96);
+  --onboarding-border:rgba(0,0,0,0.14);
+  --onboarding-muted:rgba(0,0,0,0.58);
+  --onboarding-shadow:0 24px 80px rgba(0,0,0,0.22);
+}
+.onboarding-overlay {
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  pointer-events:auto;
+}
+.onboarding-overlay.open {
+  display:block;
+}
 
-
-
-/* ✅ HEADER ALIGNMENT PATCH — same height for all top-right controls */
-.header-right{
-  align-items:center !important;
-  gap:10px !important;
+.onboarding-blur-layer {
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
 }
-.header-right > .btn,
-.header-right > div,
-.header-right .user-pill{
-  height:42px !important;
-  min-height:42px !important;
-  display:flex !important;
-  align-items:center !important;
+.onboarding-blur-piece {
+  position:fixed;
+  background:var(--onboarding-overlay);
+  backdrop-filter:blur(var(--onboarding-bg-blur)) saturate(var(--onboarding-bg-saturate));
+  -webkit-backdrop-filter:blur(var(--onboarding-bg-blur)) saturate(var(--onboarding-bg-saturate));
+  transition:top .28s ease,left .28s ease,width .28s ease,height .28s ease,opacity .2s ease;
 }
-.header-right > .btn{
-  justify-content:center !important;
-  line-height:1 !important;
-  padding-top:0 !important;
-  padding-bottom:0 !important;
+.onboarding-focus {
+  position:fixed;
+  border-radius:18px;
+  border:1px solid var(--onboarding-accent);
+  z-index:1;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--onboarding-accent) 34%, transparent),
+    0 0 0 7px color-mix(in srgb, var(--onboarding-accent) 9%, transparent),
+    0 0 42px color-mix(in srgb, var(--onboarding-accent) 28%, transparent);
+  transition:top .28s ease,left .28s ease,width .28s ease,height .28s ease,border-radius .28s ease;
+  pointer-events:none;
+  background:transparent;
 }
-.header-right > .btn:not(.btn-icon){
-  padding-left:16px !important;
-  padding-right:16px !important;
+.onboarding-tooltip {
+  position:fixed;
+  z-index:2;
+  width:min(380px, calc(100vw - 32px));
+  background:var(--onboarding-card);
+  color:var(--text);
+  border:1px solid var(--onboarding-border);
+  border-radius:18px;
+  box-shadow:var(--onboarding-shadow);
+  backdrop-filter:blur(24px) saturate(160%);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  padding:16px;
+  transition:top .28s ease,left .28s ease,transform .28s ease;
 }
-.header-right > .btn-icon{
-  width:42px !important;
-  height:42px !important;
-  min-width:42px !important;
-  border-radius:13px !important;
-  padding:0 !important;
+.onboarding-kicker {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.64rem;
+  font-weight:800;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:var(--onboarding-muted);
+  margin-bottom:8px;
 }
-.header-right .user-pill{
-  padding:0 14px 0 6px !important;
-  border-radius:999px !important;
+.onboarding-kicker::before {
+  content:"";
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--onboarding-accent);
+  box-shadow:0 0 16px color-mix(in srgb, var(--onboarding-accent) 38%, transparent);
 }
-.header-right .user-avatar{
-  width:32px !important;
-  height:32px !important;
+.onboarding-title {
+  font-size:1rem;
+  font-weight:850;
+  letter-spacing:-.015em;
+  margin-bottom:6px;
 }
-.header-right .sync-dot{
-  width:12px !important;
-  height:12px !important;
-  margin:0 4px 0 0 !important;
-  align-self:center !important;
+.onboarding-text {
+  font-size:.78rem;
+  line-height:1.55;
+  color:var(--text-dim);
 }
-.header-right i{
-  line-height:1 !important;
+.onboarding-progress {
+  height:4px;
+  background:var(--progress-bg);
+  border-radius:99px;
+  overflow:hidden;
+  margin:14px 0 12px;
 }
-@media(max-width:600px){
-  .header-right{gap:6px !important;}
-  .header-right > .btn,
-  .header-right > div,
-  .header-right .user-pill{
-    height:36px !important;
-    min-height:36px !important;
+.onboarding-progress-fill {
+  height:100%;
+  width:0%;
+  background:var(--onboarding-accent);
+  transition:width .25s ease;
+}
+.onboarding-actions {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.onboarding-count {
+  font-family:var(--font-mono);
+  font-size:.68rem;
+  color:var(--onboarding-muted);
+  white-space:nowrap;
+}
+.onboarding-btns {
+  display:flex;
+  gap:8px;
+}
+.onboarding-btn {
+  border:1px solid var(--border-line);
+  background:var(--surface-mute);
+  color:var(--text);
+  border-radius:10px;
+  padding:7px 12px;
+  font-family:inherit;
+  font-size:.72rem;
+  font-weight:750;
+  cursor:pointer;
+  transition:transform .15s ease,background .15s ease,border-color .15s ease;
+}
+.onboarding-btn:hover {
+  transform:translateY(-1px);
+  background:var(--glass-bg-hover);
+}
+.onboarding-btn.primary {
+  background:var(--ink);
+  color:var(--ink-inv);
+  border-color:var(--ink);
+}
+.onboarding-hint {
+  margin-top:10px;
+  font-size:.66rem;
+  color:var(--onboarding-muted);
+}
+.onboarding-skip {
+  position:fixed;
+  top:18px;
+  right:18px;
+  z-index:3;
+  border:1px solid var(--onboarding-border);
+  background:var(--onboarding-card);
+  color:var(--text);
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:.7rem;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:var(--onboarding-shadow);
+  backdrop-filter:blur(18px);
+}
+@media(max-width:700px) {
+  .onboarding-tooltip {
+    left:16px !important;
+    right:16px !important;
+    top:auto !important;
+    bottom:16px !important;
+    width:auto;
+    transform:none !important;
   }
-  .header-right > .btn-icon{
-    width:36px !important;
-    height:36px !important;
-    min-width:36px !important;
+  .onboarding-skip {
+    top:10px;
+    right:10px;
   }
-  .header-right .user-avatar{
-    width:26px !important;
-    height:26px !important;
-  }
-  .header-right .sync-dot{
-    width:10px !important;
-    height:10px !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-blur-piece,
+  .onboarding-focus,
+  .onboarding-tooltip,
+  .onboarding-progress-fill,
+  .onboarding-btn {
+    transition:none !important;
   }
 }
 
 
 
 /* =========================================================
-   NEW USER TUTORIAL — focused coach marks with blurred page
-   --------------------------------------------------------- */
-.tutorial-layer{position:fixed;inset:0;z-index:9990;display:none;pointer-events:none}
-.tutorial-layer.open{display:block}
-.tutorial-blur-panel{position:fixed;background:rgba(0,0,0,0.58);backdrop-filter:blur(9px) saturate(70%);-webkit-backdrop-filter:blur(9px) saturate(70%);pointer-events:auto;transition:all .22s cubic-bezier(.4,0,.2,1)}
-[data-theme="light"] .tutorial-blur-panel{background:rgba(247,247,245,0.58)}
-.tutorial-spotlight{position:fixed;border:2px solid var(--accent);border-radius:18px;box-shadow:0 0 0 1px rgba(255,255,255,0.18),0 0 34px rgba(255,255,255,0.30),0 18px 60px rgba(0,0,0,0.30);pointer-events:none;transition:all .22s cubic-bezier(.4,0,.2,1)}
-[data-theme="light"] .tutorial-spotlight{box-shadow:0 0 0 1px rgba(0,0,0,0.10),0 0 28px rgba(0,0,0,0.18),0 18px 46px rgba(0,0,0,0.16)}
-.tutorial-card{position:fixed;width:min(380px,calc(100vw - 28px));background:var(--modal-bg);border:1px solid var(--glass-border);box-shadow:0 24px 70px rgba(0,0,0,0.38);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:18px;padding:16px 16px 14px;pointer-events:auto;transition:top .22s cubic-bezier(.4,0,.2,1),left .22s cubic-bezier(.4,0,.2,1);overflow:hidden}
-.tutorial-card::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 160px at 20% 0%,rgba(255,255,255,0.10),transparent 62%);pointer-events:none}
-.tutorial-card>*{position:relative;z-index:1}
-.tutorial-kicker{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.tutorial-title{font-size:.92rem;font-weight:800;letter-spacing:-.01em;color:var(--text);margin-bottom:6px}
-.tutorial-body{font-size:.74rem;line-height:1.55;color:var(--text-dim)}
-.tutorial-body strong{color:var(--text);font-weight:800}
-.tutorial-progress{height:4px;background:var(--progress-bg);border-radius:999px;overflow:hidden;margin:13px 0 12px}
-.tutorial-progress-bar{height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .22s ease}
-.tutorial-foot{display:flex;align-items:center;gap:8px;justify-content:space-between}
-.tutorial-count{font-family:var(--font-mono);font-size:.66rem;color:var(--text-faint);white-space:nowrap}
-.tutorial-actions{display:flex;gap:6px;align-items:center}
-.tutorial-actions .btn{min-height:30px}
-.tutorial-skip{border:none;background:transparent;color:var(--text-dim);font-size:.7rem;font-weight:700;cursor:pointer;padding:6px 4px}
-.tutorial-skip:hover{color:var(--text)}
-.tutorial-help-pulse{animation:tutorialPulse 1.4s ease-in-out infinite}
-@keyframes tutorialPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.0)}50%{box-shadow:0 0 0 5px rgba(255,255,255,0.15)}}
-@media(max-width:700px){.tutorial-card{padding:14px}.tutorial-title{font-size:.86rem}.tutorial-body{font-size:.7rem}.tutorial-blur-panel{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}}
+   CUSTOM FIX — ALWAYS START AT TOP + KEEP PRIMARY CARDS VISIBLE
+   ---------------------------------------------------------
+   Problem fixed: browsers can restore the last scroll position,
+   making it look like only chart cards loaded. This patch forces top load
+   and keeps the first dashboard section visible.
 
-
-/* ✅ USER DASHBOARD PATCH: sync status + Hold File reminder */
-.sync-dot.ok,
-.sync-dot.syncing {
-  background:#22c55e !important;
-  box-shadow:0 0 0 3px rgba(34,197,94,0.16), 0 0 12px rgba(34,197,94,0.42) !important;
-  animation:none !important;
+   Future edits:
+   - More/less top lamp space: --hero-top-safe-area
+   - Main content width: .app max-width
+   ========================================================= */
+html { scroll-padding-top: 0 !important; }
+body { scroll-behavior: auto !important; }
+#mainHeader, .kpi-grid, .main-grid, .dashboard-chart-card {
+  visibility: visible;
 }
-.sync-dot.error {
-  background:#ef4444 !important;
-  box-shadow:0 0 0 3px rgba(239,68,68,0.16), 0 0 12px rgba(239,68,68,0.42) !important;
-  animation:none !important;
+body > .app:first-of-type {
+  min-height: auto !important;
 }
-.hold-review-btn {
-  position:relative;
-  overflow:visible;
-}
-.hold-review-btn.hold-has-items {
-  border-color:var(--hold-warning-border) !important;
-  background:var(--hold-warning-bg) !important;
-  color:var(--hold-warning) !important;
-  box-shadow:0 0 18px -12px var(--hold-warning-shadow) !important;
-}
-.hold-review-btn.hold-has-items i {
-  animation:holdReviewBell 1.8s ease-in-out infinite;
-}
-.hold-review-badge {
-  display:none;
-  position:absolute;
-  top:-6px;
-  right:-6px;
-  min-width:16px;
-  height:16px;
-  padding:0 4px;
-  border-radius:999px;
-  align-items:center;
-  justify-content:center;
-  font-family:var(--font-mono);
-  font-size:0.56rem;
-  font-weight:800;
-  background:var(--hold-warning);
-  color:#fff;
-  border:1px solid var(--modal-bg);
-}
-.hold-review-btn.hold-has-items .hold-review-badge {
-  display:flex;
-}
-.hold-file-card:not(.hold-warning-card) .hold-warning-pill,
-.hold-file-card:not(.hold-warning-card) .hold-alert-note {
-  display:none;
-}
-.hold-file-card:not(.hold-warning-card) .panel-head > i {
-  color:var(--text-dim) !important;
-}
-@keyframes holdReviewBell {
-  0%,100% { transform:rotate(0deg); }
-  20% { transform:rotate(-12deg); }
-  40% { transform:rotate(10deg); }
-  60% { transform:rotate(-6deg); }
-  80% { transform:rotate(4deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hold-review-btn.hold-has-items i { animation:none; }
+@media (max-width:700px) {
+  body > .app:first-of-type {
+    padding-top: 76px !important;
+  }
 }
 
 
 
-/* 📐 CHART WIDTH ALIGNMENT — Daily, 6-Month and Monthly Mix align to the same rail as the header/menu */
+/* =========================================================
+   SUBSCRIPTION GATE — $5/MONTH
+   Future edits:
+   - Change --sub-accent if you want another subscription color.
+   - Payment copy and admin IDs are configured in the JS block marked
+     "SUBSCRIPTION CONFIG".
+   - This front-end gate is for UX. For production security, also protect
+     Firestore rules / backend APIs so unpaid users cannot write data directly.
+   ========================================================= */
 :root{
-  --dashboard-rail-width:min(1600px, calc(100vw - 40px));
+  --sub-accent:#000000;
+  --sub-accent-soft:rgba(0,0,0,0.08);
+  --sub-warn:#f97316;
+  --sub-success:#22c55e;
 }
-.dashboard-chart-card,
-.bottom-grid,
-.page-divider{
-  width:var(--dashboard-rail-width) !important;
-  max-width:var(--dashboard-rail-width) !important;
-  margin-left:auto !important;
-  margin-right:auto !important;
-  box-sizing:border-box !important;
+[data-theme="dark"]{
+  --sub-accent:#ffffff;
+  --sub-accent-soft:rgba(255,255,255,0.10);
 }
-.dashboard-chart-card,
-.bottom-grid{
-  min-width:0 !important;
-}
-.bottom-grid{
-  align-items:stretch;
-  grid-template-columns:minmax(0,2fr) minmax(0,1fr);
-}
-.bottom-grid > .glass,
-.dashboard-chart-card{
-  min-width:0 !important;
-}
-.dashboard-chart-card .panel-head,
-.bottom-grid .panel-head{
-  min-height:44px;
-  display:flex;
-  align-items:center;
-}
-.dashboard-chart-card .chart-container,
-.bottom-grid .chart-container{
-  width:100% !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-}
-.dashboard-chart-card .trading-chart-wrap,
-.bottom-grid .chart-wrap,
-.dashboard-chart-card canvas,
-.bottom-grid canvas{
-  width:100% !important;
-  max-width:100% !important;
-}
-@media(max-width:800px){
-  .bottom-grid{
-    grid-template-columns:minmax(0,1fr);
-  }
-}
-@media(max-width:600px){
-  :root{
-    --dashboard-rail-width:min(1600px, calc(100vw - 20px));
-  }
-}
+.subscription-overlay{z-index:260;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.subscription-modal{max-width:760px;border:1px solid var(--glass-border);background:var(--modal-bg)}
+.subscription-modal.locked{box-shadow:0 0 0 1px var(--sub-accent-soft),0 30px 100px rgba(0,0,0,.35)}
+.subscription-hero{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:stretch}
+@media(max-width:760px){.subscription-hero{grid-template-columns:1fr}.subscription-modal{max-width:94vw}}
+.subscription-price-card{border:1px solid var(--border-line);background:var(--surface-mute);border-radius:16px;padding:18px;position:relative;overflow:hidden}
+.subscription-price-card::before{content:'';position:absolute;inset:-80px auto auto -80px;width:190px;height:190px;border-radius:50%;background:var(--sub-accent-soft);filter:blur(18px)}
+.subscription-eyebrow{font-size:.64rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);font-weight:800;margin-bottom:7px}
+.subscription-title{font-size:1.28rem;font-weight:900;letter-spacing:-.03em;line-height:1.05;margin-bottom:8px;color:var(--ink)}
+.subscription-copy{font-size:.78rem;color:var(--text-dim);line-height:1.55;max-width:44rem}
+.subscription-price{font-family:var(--font-mono);font-size:2.25rem;font-weight:700;letter-spacing:-.08em;color:var(--ink);margin:16px 0 2px}
+.subscription-price span{font-size:.78rem;letter-spacing:0;color:var(--text-dim);font-family:var(--font-body);font-weight:700}
+.subscription-status-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;border:1px solid var(--border-line);background:var(--surface-mute);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim)}
+.subscription-status-badge.paid{color:var(--sub-success);background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.24)}
+.subscription-status-badge.pending{color:var(--sub-warn);background:rgba(249,115,22,.12);border-color:rgba(249,115,22,.28)}
+.subscription-status-badge.blocked{color:var(--red);background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.22)}
+.payment-methods{display:flex;flex-direction:column;gap:10px}
+.payment-method-card{border:1px solid var(--border-line);background:var(--surface-mute);border-radius:13px;padding:12px 13px}
+.payment-method-title{font-size:.74rem;font-weight:900;color:var(--ink);display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.payment-method-body{font-size:.69rem;color:var(--text-dim);line-height:1.45}
+.payment-method-body code{font-family:var(--font-mono);font-size:.68rem;color:var(--ink);background:var(--input-bg);border:1px solid var(--border-line);border-radius:6px;padding:2px 5px}
+.subscription-request-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media(max-width:620px){.subscription-request-grid{grid-template-columns:1fr}}
+.subscription-note{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(249,115,22,.10);border:1px solid rgba(249,115,22,.22);color:var(--text-dim);font-size:.7rem;line-height:1.45}
+.subscription-lock-strip{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.20);color:var(--red);font-size:.72rem;font-weight:800;margin-bottom:12px}
+.subscription-admin-panel{max-width:980px}
+.subscription-admin-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.subscription-admin-table{width:100%;border-collapse:collapse;font-size:.72rem}
+.subscription-admin-table th{padding:8px;text-align:left;color:var(--text-dim);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border-line)}
+.subscription-admin-table td{padding:9px 8px;border-bottom:1px solid var(--sep);vertical-align:middle}
+.subscription-admin-table tbody tr:nth-child(odd){background:var(--surface-row)}
+.subscription-admin-actions{display:flex;gap:5px;flex-wrap:wrap}
+.subscription-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:760px){.subscription-kpi-row{grid-template-columns:repeat(2,1fr)}}
+.subscription-kpi{border:1px solid var(--border-line);border-radius:12px;background:var(--surface-mute);padding:10px 12px}
+.subscription-kpi-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);font-weight:800;margin-bottom:4px}
+.subscription-kpi-value{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--ink)}
+body.subscription-locked .app,body.subscription-locked #mainHeader{filter:blur(2px);pointer-events:none;user-select:none}
+body.subscription-locked .subscription-overlay{pointer-events:auto}
 
 
 
-/* 💳 SUBSCRIPTION GATE — 7-day trial + manual payment request */
-.subscription-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.62);z-index:130;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:18px}
-.subscription-overlay.open{display:flex}
-.subscription-card{width:100%;max-width:520px;background:var(--modal-bg);border:1px solid var(--glass-border);box-shadow:0 26px 80px rgba(0,0,0,0.36);border-radius:22px;overflow:hidden;backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px)}
-.subscription-head{padding:20px 22px;border-bottom:1px solid var(--sep);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-.subscription-kicker{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.10em;color:var(--text-dim);font-weight:900;margin-bottom:5px}
-.subscription-title{font-size:1.15rem;font-weight:900;letter-spacing:-0.03em;line-height:1.12}
-.subscription-close{width:30px;height:30px;border-radius:9px;border:1px solid var(--border-line);background:transparent;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.subscription-close:hover{background:var(--surface-mute);color:var(--text)}
-.subscription-body{padding:18px 22px 20px}
-.subscription-price{display:flex;align-items:flex-end;gap:6px;margin-bottom:6px}
-.subscription-price-main{font-family:var(--font-mono);font-size:2.15rem;font-weight:700;color:var(--ink);line-height:1}
-.subscription-price-sub{font-size:0.78rem;color:var(--text-dim);font-weight:700;padding-bottom:4px}
-.subscription-note{font-size:0.74rem;color:var(--text-dim);line-height:1.55;margin-bottom:14px}
-.subscription-status-box{border:1px solid var(--border-line);background:var(--surface-mute);border-radius:12px;padding:11px 12px;margin-bottom:14px;font-size:0.72rem;line-height:1.5;color:var(--text-dim)}
-.subscription-status-box strong{color:var(--text)}
-.subscription-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.subscription-method{border:1px solid var(--border-line);border-radius:12px;padding:10px 8px;cursor:pointer;background:var(--surface-mute);text-align:center;transition:all 0.15s;font-size:0.68rem;font-weight:900;color:var(--text-dim)}
-.subscription-method:hover,.subscription-method.active{border-color:var(--accent);background:var(--glass-bg-hover);color:var(--text)}
-.subscription-method i{display:block;font-size:1rem;margin-bottom:5px;color:var(--text)}
-.subscription-ref{width:100%;min-height:68px;resize:vertical;border:1px solid var(--border-line);border-radius:12px;background:var(--input-bg);color:var(--text);font-family:inherit;font-size:0.74rem;padding:10px 11px;outline:none;margin-bottom:12px}
-.subscription-ref:focus{border-color:var(--accent)}
-.subscription-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-.subscription-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 8px;font-size:0.62rem;font-weight:900;background:var(--surface-mute);border:1px solid var(--border-line);color:var(--text-dim);margin-top:8px}
-.subscription-pill.ok{background:rgba(34,197,94,0.12);color:var(--green)}
-.subscription-pill.warn{background:rgba(249,115,22,0.13);color:var(--orange)}
-.subscription-pill.bad{background:rgba(239,68,68,0.13);color:var(--red)}
-@media(max-width:560px){.subscription-methods{grid-template-columns:1fr}.subscription-card{max-width:94vw}.subscription-price-main{font-size:1.8rem}.subscription-actions{justify-content:stretch}.subscription-actions .btn{width:100%;justify-content:center}}
+/* ==========================================================
+   CUSTOM DATA ACCOUNTING — Sale Month vs Payment Month
+   ----------------------------------------------------------
+   Senior data rule:
+   - saleDate/date = when the vehicle was sold. This month gets the UNIT count.
+   - paidDate/paymentReleaseDate = when the commission was released/paid. This month gets the PAYOUT.
+   Example: stock 93480 sold on 2026-05-29 but released on 2026-06-08.
+   Result: May Units +1, June Payout +commission.
+   Edit these classes if you want stronger/lighter payment status styling.
+   ========================================================== */
+.payment-pending-row td{background:rgba(249,115,22,0.055)!important}
+.paid-date-badge,.sale-date-badge,.pending-pay-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:0.6rem;font-weight:700;margin-left:4px;white-space:nowrap}
+.sale-date-badge{background:var(--surface-mute);color:var(--text-dim)}
+.paid-date-badge{background:rgba(34,197,94,0.12);color:var(--green)}
+.pending-pay-badge{background:rgba(249,115,22,0.16);color:var(--orange)}
+.pay-summary-note{display:inline-flex;align-items:center;gap:6px;margin-left:8px;font-size:0.62rem;color:var(--text-dim);font-weight:600}
+.payment-rule-help{font-size:0.66rem;color:var(--text-faint);line-height:1.45;margin-top:6px}
 
 </style>
+
+<!-- CUSTOM FIX: prevent browser from restoring an old scroll position.
+     This ensures the user always lands at the top where Header, KPIs, Scan, Pay Plan and Deal Log are visible. -->
+<script>
+(function(){
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(e) {}
+  window.addEventListener('pageshow', function(){
+    setTimeout(function(){ window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }, 0);
+    setTimeout(function(){ window.scrollTo(0, 0); }, 180);
+    setTimeout(function(){ window.scrollTo(0, 0); }, 700);
+  });
+})();
+</script>
 </head>
 <body>
 <div class="dashboard-hero-bg" aria-hidden="true">
@@ -2120,7 +2109,6 @@ body {
   <div class="hero-main-glow"></div>
   <div class="hero-lamp-core"></div>
   <div class="hero-top-line"></div>
-  <div class="hero-grain"></div>
   <div class="hero-cone hero-cone-left"></div>
   <div class="hero-cone hero-cone-right"></div>
 </div>
@@ -2137,7 +2125,6 @@ body {
 <div id="currentDateLabel" style="font-size:0.7rem;color:var(--text-dim)"></div>
 <div class="header-right">
 <span class="sync-dot ok" id="syncDot" title="Sync status"></span>
-<button class="btn btn-sm btn-icon hold-review-btn" id="holdReviewBtn" onclick="scrollToHoldFile()" title="Review Hold File"><i class="fas fa-bell"></i><span id="holdReviewBadge" class="hold-review-badge">0</span></button>
 <button class="btn btn-sm" onclick="exportCSV()" title="Export CSV"><i class="fas fa-download"></i> CSV</button>
 <button class="btn btn-sm btn-accent" onclick="openAddModal(null)"><i class="fas fa-plus"></i> Add Deal</button>
 <button class="btn btn-sm btn-icon" onclick="toggleTheme()" id="themeBtn" title="Toggle theme"><i class="fas fa-moon"></i></button>
@@ -2149,9 +2136,10 @@ body {
 </div>
 <div class="user-menu" id="userMenu">
 <div class="user-menu-item" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> Sync Now</div>
+<div class="user-menu-item" onclick="startDashboardTutorial({manual:true})"><i class="fas fa-route"></i> Dashboard Tutorial</div>
 <div class="user-menu-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> My Profile</div>
-<div class="user-menu-item" onclick="openSubscriptionModal(false)"><i class="fas fa-credit-card"></i> Subscription</div>
-<div class="user-menu-item" onclick="startUserTutorial(true)"><i class="fas fa-route"></i> Quick Tutorial</div>
+<div class="user-menu-item" onclick="openSubscriptionStatus()"><i class="fas fa-credit-card"></i> Subscription</div>
+<div class="user-menu-item" id="adminSubscriptionsMenu" style="display:none" onclick="openAdminSubscriptions()"><i class="fas fa-user-shield"></i> Admin Subscriptions</div>
 <div class="user-menu-item" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Clear All Data</div>
 <div class="user-menu-sep"></div>
 <div class="user-menu-item danger" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</div>
@@ -2359,11 +2347,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <div class="panel-head">
 <i class="fas fa-check-double" style="color:var(--green);font-size:0.85rem"></i>
 <span class="panel-title">Commission Summary Verification</span>
-<div class="sv-verify-actions">
-<button class="btn btn-sm sv-verify-btn" id="svVerifyBtn" onclick="verifyCommissionSummary()" title="Verify that every deal matches the Commission Summary"><i class="fas fa-circle-check"></i> Verify Match</button>
-<span class="sv-verify-status" id="svVerifyStatus"></span>
-<span id="svMonthLabel" class="sv-month-label"></span>
-</div>
+<span id="svMonthLabel" style="margin-left:auto;font-size:0.65rem;color:var(--text-dim)"></span>
 </div>
 <div class="panel-body">
 <div class="sv-grid">
@@ -2381,9 +2365,9 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 </div>
 <!-- CUSTOM NOTE: Hold Total uses the same orange warning palette as Hold File.
      To adjust it later, edit the CSS variables in the "HOLD FILE WARNING SYSTEM" block. -->
-<div class="sv-card" id="svHoldTotalCard">
+<div class="sv-card sv-hold-total-card">
 <div class="sv-card-label">Hold Total</div>
-<div class="sv-card-val" id="holdTotal">$0.00</div>
+<div class="sv-card-val hold-total-badge" id="holdTotal">$0.00</div>
 </div>
 </div>
 <div id="svTableWrap">
@@ -2397,7 +2381,7 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <!-- CUSTOM NOTE: Hold File warning card.
      Business meaning: these deals are not paid yet until pending requirements are cleared.
      Visual style: controlled by .hold-warning-card and --hold-warning variables in CSS. -->
-<div class="glass hold-file-card" id="holdFileCard" style="overflow:hidden">
+<div class="glass hold-warning-card" id="holdFileCard" data-onboarding-target="hold-file" style="overflow:hidden">
 <div class="panel-head">
 <i class="fas fa-triangle-exclamation" style="color:var(--orange);font-size:0.88rem"></i>
 <span class="panel-title">Hold File</span>
@@ -2720,116 +2704,80 @@ Continue with Google
 </div>
 </div>
 
-<div class="modal-overlay" id="adminOverlay" onclick="if(event.target===this)closeAdminPanel()">
-<div class="modal admin-modal">
-<div class="modal-head">
-<span class="modal-title"><i class="fas fa-user-shield" style="color:var(--accent);margin-right:6px"></i>Admin · Subscriptions</span>
-<button class="modal-close" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
-</div>
-<div class="modal-body">
-<div class="admin-kpi-grid">
-<div class="admin-kpi"><div class="admin-kpi-label">Total Users</div><div class="admin-kpi-val" id="adminKpiUsers">0</div></div>
-<div class="admin-kpi"><div class="admin-kpi-label">Active</div><div class="admin-kpi-val" id="adminKpiActive">0</div></div>
-<div class="admin-kpi"><div class="admin-kpi-label">Past Due / Blocked</div><div class="admin-kpi-val" id="adminKpiRisk">0</div></div>
-<div class="admin-kpi"><div class="admin-kpi-label">Projected MRR</div><div class="admin-kpi-val" id="adminKpiMrr">$0.00</div></div>
-</div>
-<div class="admin-panel-grid">
-<div>
-<div class="admin-toolbar">
-<input id="adminSearch" placeholder="Search user, email, plan…" oninput="filterAdminSubscriptions()"/>
-<select id="adminStatusFilter" onchange="filterAdminSubscriptions()">
-<option value="all">All status</option>
-<option value="active">Active</option>
-<option value="trial">Trial</option>
-<option value="past_due">Past due</option>
-<option value="blocked">Blocked</option>
-<option value="cancelled">Cancelled</option>
-</select>
-<button class="btn btn-sm" onclick="loadAdminSubscriptions(true)"><i class="fas fa-rotate"></i> Refresh</button>
-</div>
-<div class="admin-table-wrap">
-<table class="admin-table">
-<thead><tr><th>User</th><th>Plan</th><th>Status</th><th>Amount</th><th>Paid Until</th><th>Access</th><th>Actions</th></tr></thead>
-<tbody id="adminSubsBody"><tr><td colspan="7" class="empty-table">No subscription records yet</td></tr></tbody>
-</table>
-</div>
-<div class="admin-mini-note">
-Hidden access is for navigation only. Real admin security must be enforced with Firebase Auth + Firestore Rules or Cloud Functions before charging or blocking users.
-</div>
-</div>
-<div class="admin-side-card">
-<div class="admin-side-title"><i class="fas fa-pen-to-square"></i><span id="adminFormTitle">Create / Update Subscription</span></div>
-<input type="hidden" id="as-id"/>
-<div class="admin-form-grid">
-<div class="form-group full"><label class="form-label">User Email</label><input class="form-input" id="as-email" type="email" placeholder="user@example.com"/></div>
-<div class="form-group full"><label class="form-label">User Name</label><input class="form-input" id="as-name" placeholder="Full name"/></div>
-<div class="form-group"><label class="form-label">Plan</label><select class="form-select" id="as-plan"><option value="Starter">Starter</option><option value="Pro">Pro</option><option value="Premium">Premium</option><option value="Enterprise">Enterprise</option></select></div>
-<div class="form-group"><label class="form-label">Status</label><select class="form-select" id="as-status"><option value="active">Active</option><option value="trial">Trial</option><option value="past_due">Past due</option><option value="blocked">Blocked</option><option value="cancelled">Cancelled</option></select></div>
-<div class="form-group"><label class="form-label">Monthly Amount</label><input class="form-input" id="as-amount" type="number" step="0.01" placeholder="5.00"/></div>
-<div class="form-group"><label class="form-label">Paid Until</label><input class="form-input" id="as-paiduntil" type="date"/></div>
-<div class="form-group"><label class="form-label">Payment Method</label><select class="form-select" id="as-method"><option value="Manual">Manual</option><option value="Venmo">Venmo</option><option value="Bank Transfer">Bank Transfer</option><option value="Cash">Cash</option><option value="Other">Other</option></select></div>
-<div class="form-group"><label class="form-label">User UID</label><input class="form-input" id="as-uid" placeholder="Firebase UID optional"/></div>
-<div class="form-group full"><label class="form-label">Notes</label><input class="form-input" id="as-notes" placeholder="Payment reference, internal notes…"/></div>
-</div>
-<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
-<button class="btn btn-sm" onclick="clearAdminSubscriptionForm()"><i class="fas fa-eraser"></i> Clear</button>
-<button class="btn btn-sm btn-accent" onclick="saveAdminSubscription()"><i class="fas fa-save"></i> Save Subscription</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-
-<div class="tutorial-layer" id="tutorialLayer" aria-hidden="true">
-  <div class="tutorial-blur-panel" id="tutorialBlurTop"></div>
-  <div class="tutorial-blur-panel" id="tutorialBlurRight"></div>
-  <div class="tutorial-blur-panel" id="tutorialBlurBottom"></div>
-  <div class="tutorial-blur-panel" id="tutorialBlurLeft"></div>
-  <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
-  <div class="tutorial-card glass" id="tutorialCard" role="dialog" aria-live="polite">
-    <div class="tutorial-kicker"><i class="fas fa-compass"></i><span id="tutorialKicker">Quick start</span></div>
-    <div class="tutorial-title" id="tutorialTitle">Welcome</div>
-    <div class="tutorial-body" id="tutorialBody"></div>
-    <div class="tutorial-progress"><div class="tutorial-progress-bar" id="tutorialProgressBar"></div></div>
-    <div class="tutorial-foot">
-      <button class="tutorial-skip" onclick="endUserTutorial(true)">Skip</button>
-      <span class="tutorial-count" id="tutorialCount">1 / 1</span>
-      <div class="tutorial-actions">
-        <button class="btn btn-sm" id="tutorialBackBtn" onclick="prevTutorialStep()"><i class="fas fa-arrow-left"></i></button>
-        <button class="btn btn-sm btn-accent" id="tutorialNextBtn" onclick="nextTutorialStep()">Next <i class="fas fa-arrow-right"></i></button>
+<!-- =========================================================
+     SUBSCRIPTION / PAYWALL MODALS
+     Future edits:
+     - Payment labels are filled by JS constants below.
+     - Admin panel reads/writes Firestore collection: subscriptions/{uid}.
+     - Keep these IDs if you move the modals: subscriptionOverlay, adminSubscriptionOverlay.
+     ========================================================= -->
+<div class="modal-overlay subscription-overlay" id="subscriptionOverlay" onclick="if(event.target===this)closeSubscriptionOverlay()">
+  <div class="modal modal-wide subscription-modal" id="subscriptionModalBox">
+    <div class="modal-head">
+      <span class="modal-title"><i class="fas fa-lock" style="color:var(--sub-accent);margin-right:6px"></i>Monthly Subscription</span>
+      <button class="modal-close" id="subscriptionCloseBtn" onclick="closeSubscriptionOverlay()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="subscriptionLockStrip" class="subscription-lock-strip" style="display:none"><i class="fas fa-ban"></i><span>Your access is blocked until this month is approved by an admin.</span></div>
+      <div class="subscription-hero">
+        <div class="subscription-price-card">
+          <div class="subscription-eyebrow">Commission Dashboard Access</div>
+          <div class="subscription-title">$5/month to keep using the dashboard</div>
+          <div class="subscription-copy">Monthly access is checked automatically. If the current month is not marked as paid, the dashboard locks until admin approval.</div>
+          <div class="subscription-price">$5.00 <span>/ month</span></div>
+          <div class="subscription-status-badge blocked" id="subscriptionStatusBadge"><i class="fas fa-circle"></i><span>Checking</span></div>
+          <div style="margin-top:10px;font-size:.67rem;color:var(--text-faint)">User ID: <span id="subscriptionUserId" style="font-family:var(--font-mono)">—</span></div>
+          <div style="font-size:.67rem;color:var(--text-faint)">Current month: <span id="subscriptionCurrentMonth" style="font-family:var(--font-mono)">—</span></div>
+        </div>
+        <div class="payment-methods">
+          <div class="payment-method-card">
+            <div class="payment-method-title"><i class="fab fa-vimeo-v"></i>Venmo</div>
+            <div class="payment-method-body">Send <strong>$5.00</strong> to <code id="subVenmoUser">@your-venmo</code><br><a id="subVenmoLink" href="#" target="_blank" rel="noopener" style="color:var(--ink);font-weight:800">Open Venmo</a></div>
+          </div>
+          <div class="payment-method-card">
+            <div class="payment-method-title"><i class="fas fa-building-columns"></i>Bank transfer</div>
+            <div class="payment-method-body" id="subBankDetails">Bank details pending setup.</div>
+          </div>
+        </div>
       </div>
+      <div class="subscription-note"><strong>Important:</strong> Venmo/bank transfers do not confirm automatically inside this HTML. The user submits the reference/proof, and the admin approves the month. Once approved, the dashboard unlocks automatically for that month.</div>
+      <div class="subscription-request-grid">
+        <div class="form-group"><label class="form-label">Payment method</label><select class="form-select" id="subMethod"><option value="Venmo">Venmo</option><option value="Bank transfer">Bank transfer</option><option value="Other">Other</option></select></div>
+        <div class="form-group"><label class="form-label">Reference / transaction ID</label><input class="form-input" id="subReference" placeholder="Venmo note, bank ref, last 4, etc."/></div>
+        <div class="form-group"><label class="form-label">Name used to pay</label><input class="form-input" id="subPayerName" placeholder="Payer name"/></div>
+        <div class="form-group"><label class="form-label">Note</label><input class="form-input" id="subNote" placeholder="Optional note for admin"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="copySubscriptionPaymentInfo()"><i class="fas fa-copy"></i> Copy payment info</button>
+      <button class="btn btn-accent" onclick="submitSubscriptionRequest()"><i class="fas fa-paper-plane"></i> I paid / request approval</button>
     </div>
   </div>
 </div>
 
-
-
-<div class="subscription-overlay" id="subscriptionOverlay" aria-hidden="true">
-  <div class="subscription-card glass" role="dialog" aria-live="polite">
-    <div class="subscription-head">
-      <div>
-        <div class="subscription-kicker">Monthly access</div>
-        <div class="subscription-title" id="subscriptionTitle">Commission Dashboard Subscription</div>
-        <div class="subscription-pill" id="subscriptionStatusPill"><i class="fas fa-circle-info"></i> Checking access…</div>
-      </div>
-      <button class="subscription-close" id="subscriptionCloseBtn" onclick="closeSubscriptionModal()" title="Close"><i class="fas fa-times"></i></button>
+<div class="modal-overlay subscription-overlay" id="adminSubscriptionOverlay" onclick="if(event.target===this)closeAdminSubscriptions()">
+  <div class="modal modal-wide subscription-modal subscription-admin-panel">
+    <div class="modal-head">
+      <span class="modal-title"><i class="fas fa-user-shield" style="color:var(--sub-accent);margin-right:6px"></i>Admin · Subscriptions</span>
+      <button class="modal-close" onclick="closeAdminSubscriptions()"><i class="fas fa-times"></i></button>
     </div>
-    <div class="subscription-body">
-      <div class="subscription-price"><div class="subscription-price-main">$5.99</div><div class="subscription-price-sub">/ month</div></div>
-      <div class="subscription-note">New users receive a 7-day trial. After the trial, access is renewed manually when the admin confirms your payment.</div>
-      <div class="subscription-status-box" id="subscriptionStatusBox">Loading subscription status…</div>
-      <div class="form-label" style="margin-bottom:7px">Payment method used</div>
-      <div class="subscription-methods" id="subscriptionMethods">
-        <div class="subscription-method active" data-method="Transfer" onclick="selectSubscriptionMethod('Transfer')"><i class="fas fa-building-columns"></i>Transfer</div>
-        <div class="subscription-method" data-method="Apple Cash" onclick="selectSubscriptionMethod('Apple Cash')"><i class="fab fa-apple"></i>Apple Cash</div>
-        <div class="subscription-method" data-method="Cash" onclick="selectSubscriptionMethod('Cash')"><i class="fas fa-money-bill-wave"></i>Cash</div>
+    <div class="modal-body">
+      <div class="subscription-admin-toolbar">
+        <input class="form-input" id="adminSubMonth" type="month" style="width:150px"/>
+        <button class="btn btn-sm" onclick="renderAdminSubscriptions()"><i class="fas fa-rotate"></i> Refresh</button>
+        <button class="btn btn-sm" onclick="exportSubscriptionsCSV()"><i class="fas fa-download"></i> Export CSV</button>
       </div>
-      <textarea class="subscription-ref" id="subscriptionPaymentNote" placeholder="Optional: payment reference, date, amount, or note for the admin"></textarea>
-      <div class="subscription-actions">
-        <button class="btn" onclick="copySubscriptionAmount()"><i class="fas fa-copy"></i> Copy $5.99</button>
-        <button class="btn btn-accent" onclick="submitPaymentGenerated()"><i class="fas fa-bell"></i> I generated the payment</button>
+      <div class="subscription-kpi-row">
+        <div class="subscription-kpi"><div class="subscription-kpi-label">Paid</div><div class="subscription-kpi-value" id="subKpiPaid">0</div></div>
+        <div class="subscription-kpi"><div class="subscription-kpi-label">Pending</div><div class="subscription-kpi-value" id="subKpiPending">0</div></div>
+        <div class="subscription-kpi"><div class="subscription-kpi-label">Blocked</div><div class="subscription-kpi-value" id="subKpiBlocked">0</div></div>
+        <div class="subscription-kpi"><div class="subscription-kpi-label">MRR</div><div class="subscription-kpi-value" id="subKpiMrr">$0</div></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="subscription-admin-table">
+          <thead><tr><th>User</th><th>Contact</th><th>Month</th><th>Status</th><th>Method / Ref</th><th>Updated</th><th>Actions</th></tr></thead>
+          <tbody id="adminSubsBody"><tr><td colspan="7" class="empty-table">Loading subscriptions…</td></tr></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -2848,29 +2796,7 @@ appId: "1:177697774434:web:e3e110a335f5e452036a3b",
 measurementId: "G-VE12MRTHPJ"
 };
 const FIREBASE_CONFIGURED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
-
-// 🔐 HIDDEN ADMIN ACCESS
-// Create/sign in with this email, then open the hidden route: #admin-subscriptions
-const ADMIN_ACCESS = {
-  emails: ['alejandro.mendez.vazquez@gmail.com'],
-  route: '#admin-subscriptions',
-  shortcut: 'Ctrl + Alt + A'
-};
-const ADMIN_SUBS_LOCAL_KEY = 'vhonda_admin_subscriptions_v1';
-const SUBSCRIPTION_SETTINGS = {
-  collection: 'subscriptions',
-  plan: 'Monthly',
-  monthlyAmount: 5.99,
-  trialDays: 7,
-  methods: ['Transfer','Apple Cash','Cash']
-};
-let currentSubscription = null;
-let unsubscribeUserSubscription = null;
-let selectedSubscriptionMethod = 'Transfer';
-let adminSubscriptions = [];
-let adminSubscriptionsLoaded = false;
-
-let db = null, fbAuth = null, unsubscribeDeals = null, unsubscribeAdminSubscriptions = null;
+let db = null, fbAuth = null, unsubscribeDeals = null;
 
 // 🔍 SEARCH: PAY PLAN 2026
 const PP = {
@@ -2899,6 +2825,278 @@ let earningsChartObj=null, mixChartObj=null, tradingChartObj=null;
 let _tessReady=null, _pdfjsReady=null;
 let reviewsAll=[], reviewsVisible=12, currentFilter='all', currentSearchText='';
 let pinEntry = '';
+
+// =========================================================
+// WEB SUBSCRIPTION CONFIG — $5/MONTH
+// Future edits:
+// 1) Put your real admin email below.
+// 2) Put your real Venmo username and bank transfer details below.
+// 3) This front-end gate blocks UX automatically each month. For real security,
+//    add Firestore Security Rules or a backend that rejects unpaid users.
+// =========================================================
+const SUBSCRIPTION_PRICE = 5;
+const SUBSCRIPTION_COLLECTION = 'subscriptions';
+const SUBSCRIPTION_ADMIN_EMAILS = ['admin@azendyn.io']; // Example: replace/add your Firebase login email.
+const SUBSCRIPTION_VENMO_USERNAME = 'your-venmo'; // Change to your real Venmo username, without @.
+const SUBSCRIPTION_BANK_DETAILS = {
+  bank: 'Your Bank Name',
+  accountName: 'Your Business / Name',
+  routing: 'Routing number',
+  account: 'Account number / Zelle email / transfer memo'
+};
+let subscriptionState = { checked:false, locked:true, isAdmin:false, currentMonth:'', data:null };
+let _adminSubscriptionsCache = [];
+
+function getSubscriptionMonth(date = new Date()) { return date.toISOString().slice(0,7); }
+function subscriptionUid(user = window._currentUser) { return String(user?.uid || 'unknown-user').replace(/[^a-zA-Z0-9_\-:.]/g,'_'); }
+function subscriptionContact(user = window._currentUser) {
+  if(!user) return '';
+  return user.email || '';
+}
+function isSubscriptionAdmin(user = window._currentUser) {
+  if(!user) return false;
+  const email = String(user.email||'').toLowerCase();
+  return SUBSCRIPTION_ADMIN_EMAILS.map(x=>String(x).toLowerCase()).includes(email);
+}
+function monthRecordFromDoc(data, month) { return data?.months?.[month] || null; }
+function monthRecordIsPaid(record) { return !!record && record.status === 'paid'; }
+function updateSubscriptionPaymentUI() {
+  const venmo = document.getElementById('subVenmoUser');
+  const link = document.getElementById('subVenmoLink');
+  const bank = document.getElementById('subBankDetails');
+  if(venmo) venmo.textContent = '@' + SUBSCRIPTION_VENMO_USERNAME;
+  if(link) link.href = `https://venmo.com/u/${encodeURIComponent(SUBSCRIPTION_VENMO_USERNAME)}`;
+  if(bank) bank.innerHTML = `Bank: <code>${esc(SUBSCRIPTION_BANK_DETAILS.bank)}</code><br>Account name: <code>${esc(SUBSCRIPTION_BANK_DETAILS.accountName)}</code><br>Routing: <code>${esc(SUBSCRIPTION_BANK_DETAILS.routing)}</code><br>Account/Zelle/Memo: <code>${esc(SUBSCRIPTION_BANK_DETAILS.account)}</code>`;
+}
+function updateSubscriptionBadge(status, label) {
+  const badge = document.getElementById('subscriptionStatusBadge');
+  if(!badge) return;
+  badge.className = 'subscription-status-badge ' + (status || 'blocked');
+  badge.innerHTML = `<i class="fas fa-circle"></i><span>${esc(label||status||'Checking')}</span>`;
+}
+function applySubscriptionLock(locked, reason='') {
+  subscriptionState.locked = !!locked;
+  document.body.classList.toggle('subscription-locked', !!locked);
+  const strip = document.getElementById('subscriptionLockStrip');
+  const close = document.getElementById('subscriptionCloseBtn');
+  const box = document.getElementById('subscriptionModalBox');
+  if(strip) { strip.style.display = locked ? 'flex' : 'none'; strip.querySelector('span').textContent = reason || 'Your access is blocked until this month is approved by an admin.'; }
+  if(close) close.style.display = locked ? 'none' : 'flex';
+  if(box) box.classList.toggle('locked', !!locked);
+  if(locked) setTelegramMainVisible(false); else configureTelegramMainButton();
+initSubscriptionGate(user);
+}
+function showSubscriptionOverlay(locked=false) {
+  updateSubscriptionPaymentUI();
+  setEl('subscriptionUserId', subscriptionUid());
+  setEl('subscriptionCurrentMonth', subscriptionState.currentMonth || getSubscriptionMonth());
+  const overlay = document.getElementById('subscriptionOverlay');
+  if(overlay) overlay.classList.add('open');
+  applySubscriptionLock(locked, 'Payment is required for this month before using the dashboard.');
+}
+function closeSubscriptionOverlay() {
+  if(subscriptionState.locked && !subscriptionState.isAdmin) return;
+  document.getElementById('subscriptionOverlay')?.classList.remove('open');
+  document.body.classList.remove('subscription-locked');
+}
+function openSubscriptionStatus() {
+  closeUserMenu();
+  showSubscriptionOverlay(subscriptionState.locked && !subscriptionState.isAdmin);
+}
+function subscriptionCanUseDashboard(action='this action') {
+  if(subscriptionState.isAdmin || !subscriptionState.locked) return true;
+  notify(`Subscription required to use ${action}.`);
+  showSubscriptionOverlay(true);
+  return false;
+}
+async function ensureSubscriptionDocForUser(user) {
+  if(!db || !user) return null;
+  const uid = subscriptionUid(user);
+  const ref = db.collection(SUBSCRIPTION_COLLECTION).doc(uid);
+  const base = {
+    uid,
+    displayName: user.displayName || 'User',
+    email: user.email || '',
+    contact: subscriptionContact(user),
+    telegramId: user.telegramUser?.id ? String(user.telegramUser.id) : '',
+    telegramUsername: user.telegramUser?.username || '',
+    price: SUBSCRIPTION_PRICE,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  await ref.set(base, { merge:true });
+  return ref;
+}
+async function initSubscriptionGate(user) {
+  subscriptionState.currentMonth = getSubscriptionMonth();
+  subscriptionState.isAdmin = isSubscriptionAdmin(user);
+  const adminMenu = document.getElementById('adminSubscriptionsMenu');
+  if(adminMenu) adminMenu.style.display = subscriptionState.isAdmin ? 'flex' : 'none';
+  setEl('subscriptionCurrentMonth', subscriptionState.currentMonth);
+  setEl('subscriptionUserId', subscriptionUid(user));
+  updateSubscriptionPaymentUI();
+
+  if(subscriptionState.isAdmin) {
+    subscriptionState.checked = true;
+    subscriptionState.locked = false;
+    updateSubscriptionBadge('paid', 'Admin access');
+    applySubscriptionLock(false);
+    return;
+  }
+
+  if(!db) {
+    updateSubscriptionBadge('blocked', 'Payment system offline');
+    showSubscriptionOverlay(true);
+    return;
+  }
+
+  try {
+    const ref = await ensureSubscriptionDocForUser(user);
+    const doc = await ref.get();
+    const data = doc.exists ? doc.data() : {};
+    subscriptionState.data = data;
+    const monthRec = monthRecordFromDoc(data, subscriptionState.currentMonth);
+    if(data.blocked === true) {
+      updateSubscriptionBadge('blocked', 'Blocked by admin');
+      showSubscriptionOverlay(true);
+      return;
+    }
+    if(monthRecordIsPaid(monthRec)) {
+      subscriptionState.checked = true;
+      updateSubscriptionBadge('paid', `Paid · ${subscriptionState.currentMonth}`);
+      applySubscriptionLock(false);
+      return;
+    }
+    if(monthRec?.status === 'pending') updateSubscriptionBadge('pending', 'Pending approval');
+    else if(monthRec?.status === 'rejected') updateSubscriptionBadge('blocked', 'Payment rejected');
+    else updateSubscriptionBadge('blocked', `Unpaid · ${subscriptionState.currentMonth}`);
+    showSubscriptionOverlay(true);
+  } catch(err) {
+    console.error('[Subscription] status error:', err);
+    updateSubscriptionBadge('blocked', 'Subscription check failed');
+    showSubscriptionOverlay(true);
+  }
+}
+async function submitSubscriptionRequest() {
+  const user = window._currentUser;
+  if(!user) return;
+  if(!db) { notify('Payment system is not connected. Check Firebase/Firestore.'); return; }
+  const uid = subscriptionUid(user);
+  const month = subscriptionState.currentMonth || getSubscriptionMonth();
+  const method = document.getElementById('subMethod')?.value || 'Venmo';
+  const reference = document.getElementById('subReference')?.value.trim() || '';
+  const payerName = document.getElementById('subPayerName')?.value.trim() || '';
+  const note = document.getElementById('subNote')?.value.trim() || '';
+  if(!reference && !payerName) { notify('Add at least a reference or payer name.'); return; }
+  const monthPayload = {
+    status:'pending', method, reference, payerName, note,
+    amount: SUBSCRIPTION_PRICE,
+    submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  try {
+    await db.collection(SUBSCRIPTION_COLLECTION).doc(uid).set({
+      uid,
+      displayName:user.displayName||'User',
+      email:user.email||'',
+      contact:subscriptionContact(user),
+      price:SUBSCRIPTION_PRICE,
+      months:{ [month]: monthPayload },
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge:true });
+    updateSubscriptionBadge('pending', 'Pending admin approval');
+    notify('Payment request submitted ✓');
+    
+  } catch(err) {
+    console.error('[Subscription] submit error:', err);
+    notify('Could not submit payment request ✗');
+  }
+}
+function copySubscriptionPaymentInfo() {
+  const info = `Commission Dashboard subscription: $${SUBSCRIPTION_PRICE}/month\nVenmo: @${SUBSCRIPTION_VENMO_USERNAME}\nBank: ${SUBSCRIPTION_BANK_DETAILS.bank}\nAccount name: ${SUBSCRIPTION_BANK_DETAILS.accountName}\nRouting: ${SUBSCRIPTION_BANK_DETAILS.routing}\nAccount/Zelle/Memo: ${SUBSCRIPTION_BANK_DETAILS.account}`;
+  navigator.clipboard?.writeText(info).then(()=>notify('Payment info copied ✓')).catch(()=>notify(info, 7000));
+}
+function openAdminSubscriptions() {
+  closeUserMenu();
+  if(!isSubscriptionAdmin()) { notify('Admin access only.'); return; }
+  const m = document.getElementById('adminSubMonth');
+  if(m) m.value = getSubscriptionMonth();
+  document.getElementById('adminSubscriptionOverlay')?.classList.add('open');
+  renderAdminSubscriptions();
+}
+function closeAdminSubscriptions() {
+  document.getElementById('adminSubscriptionOverlay')?.classList.remove('open');
+}
+function adminMonth() { return document.getElementById('adminSubMonth')?.value || getSubscriptionMonth(); }
+function subStatusClass(status) { return status==='paid'?'paid':status==='pending'?'pending':'blocked'; }
+async function renderAdminSubscriptions() {
+  const body = document.getElementById('adminSubsBody');
+  if(!body) return;
+  if(!db) { body.innerHTML='<tr><td colspan="7" class="empty-table">Firestore is not connected.</td></tr>'; return; }
+  body.innerHTML='<tr><td colspan="7" class="empty-table">Loading subscriptions…</td></tr>';
+  const month = adminMonth();
+  try {
+    const snap = await db.collection(SUBSCRIPTION_COLLECTION).get();
+    const rows=[]; let paid=0,pending=0,blocked=0;
+    snap.forEach(doc=>{
+      const d = doc.data()||{};
+      const rec = monthRecordFromDoc(d, month) || {};
+      const status = d.blocked ? 'blocked' : (rec.status || 'unpaid');
+      if(status==='paid') paid++; else if(status==='pending') pending++; else blocked++;
+      rows.push({id:doc.id, d, rec, status});
+    });
+    _adminSubscriptionsCache = rows.map(r=>({id:r.id,...r.d,status:r.status,month}));
+    setEl('subKpiPaid', paid); setEl('subKpiPending', pending); setEl('subKpiBlocked', blocked); setEl('subKpiMrr', fmt(paid * SUBSCRIPTION_PRICE));
+    if(!rows.length){ body.innerHTML='<tr><td colspan="7" class="empty-table">No users found yet.</td></tr>'; return; }
+    body.innerHTML = rows.sort((a,b)=>String(a.d.displayName||'').localeCompare(String(b.d.displayName||''))).map(({id,d,rec,status})=>{
+      const methodRef = [rec.method, rec.reference].filter(Boolean).join(' · ') || '—';
+      const updated = rec.updatedAt?.toDate ? rec.updatedAt.toDate().toLocaleString() : '—';
+      return `<tr>
+        <td><div style="font-weight:800">${esc(d.displayName||'User')}</div><div style="font-size:.62rem;color:var(--text-faint);font-family:var(--font-mono)">${esc(id)}</div></td>
+        <td>${esc(d.contact||d.email||d.telegramUsername||'—')}</td>
+        <td style="font-family:var(--font-mono)">${esc(month)}</td>
+        <td><span class="subscription-status-badge ${subStatusClass(status)}" style="padding:3px 7px;font-size:.58rem"><i class="fas fa-circle"></i><span>${esc(status)}</span></span></td>
+        <td><div>${esc(methodRef)}</div><div style="font-size:.62rem;color:var(--text-faint)">${esc(rec.payerName||rec.note||'')}</div></td>
+        <td style="font-size:.65rem;color:var(--text-dim)">${esc(updated)}</td>
+        <td><div class="subscription-admin-actions">
+          <button class="btn btn-sm" onclick="adminSetSubscription('${esc(id)}','${esc(month)}','paid')">Approve</button>
+          <button class="btn btn-sm" onclick="adminSetSubscription('${esc(id)}','${esc(month)}','rejected')">Reject</button>
+          <button class="btn btn-sm" onclick="adminToggleBlock('${esc(id)}', ${d.blocked?'false':'true'})">${d.blocked?'Unblock':'Block'}</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  } catch(err) {
+    console.error('[Subscription admin] load error:', err);
+    body.innerHTML='<tr><td colspan="7" class="empty-table">Could not load subscriptions. Check Firestore permissions.</td></tr>';
+  }
+}
+async function adminSetSubscription(uid, month, status) {
+  if(!isSubscriptionAdmin()) { notify('Admin only'); return; }
+  const payload = { status, amount:SUBSCRIPTION_PRICE, approvedBy:subscriptionUid(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  if(status==='paid') payload.paidAt = firebase.firestore.FieldValue.serverTimestamp();
+  try {
+    await db.collection(SUBSCRIPTION_COLLECTION).doc(uid).set({ months:{ [month]: payload }, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+    notify(status==='paid'?'Subscription approved ✓':'Subscription updated ✓');
+    renderAdminSubscriptions();
+  } catch(err) { console.error(err); notify('Admin update failed ✗'); }
+}
+async function adminToggleBlock(uid, blocked) {
+  if(!isSubscriptionAdmin()) { notify('Admin only'); return; }
+  try {
+    await db.collection(SUBSCRIPTION_COLLECTION).doc(uid).set({ blocked:!!blocked, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+    notify(blocked?'User blocked':'User unblocked');
+    renderAdminSubscriptions();
+  } catch(err) { console.error(err); notify('Block update failed ✗'); }
+}
+function exportSubscriptionsCSV() {
+  const rows = _adminSubscriptionsCache || [];
+  const header = ['uid','displayName','contact','month','status','price'];
+  const csv = [header, ...rows.map(r=>[r.uid||'',r.displayName||'',r.contact||r.email||'',r.month||'',r.status||'',SUBSCRIPTION_PRICE])]
+    .map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `subscriptions_${adminMonth()}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+
 
 function defaultState() {
 return { version:5, deals:[], holdDeals:[], selectedMonth:new Date().toISOString().slice(0,7),
@@ -2953,7 +3151,8 @@ const fmtC = v => v ? `<span style="font-family:var(--font-mono);font-size:0.73r
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const setEl = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
 const setF = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
-const getMonthDeals = m => state.deals.filter(d=>d.date&&d.date.startsWith(m));
+// CUSTOM DATA ACCOUNTING: getMonthDeals uses sale date, not payment date.
+const getMonthDeals = m => state.deals.filter(d=>{ const sd=(d.saleDate||d.date||''); return sd&&String(sd).startsWith(m); });
 function notify(msg, dur=3200) {
 const el = document.getElementById('notif');
 el.textContent = msg;
@@ -2971,6 +3170,10 @@ const btn = document.getElementById('themeBtn');
 if(btn) btn.innerHTML = `<i class="fas fa-${next==='dark'?'sun':'moon'}"></i>`;
 renderCharts(); renderTradingChart();
 }
+
+// =========================================================
+// WEB DASHBOARD ONLY — No Telegram integration in this version.
+// =========================================================
 
 // 🔍 SEARCH: AUTH — PIN / OFFLINE
 function getStoredPIN() { return localStorage.getItem('vhonda_pin') || DEFAULT_PIN; }
@@ -3052,15 +3255,18 @@ const isReg = document.getElementById('authTabRegister')?.classList.contains('ac
 showAuthErr('');
 if(!FIREBASE_CONFIGURED) {
 createOfflineSession();
-onLoginSuccess({...OFFLINE_USER, displayName: nameF||'User', email});
+window._pendingOnboardingNewUser = true;
+localStorage.setItem('vhonda_onboarding_force_next', '1');
+onLoginSuccess({...OFFLINE_USER, displayName: nameF||'User', email, __showTutorial:true});
 return;
 }
 try {
 let cred;
 if(isReg) {
 cred = await fbAuth.createUserWithEmailAndPassword(email, pw);
+window._pendingOnboardingNewUser = true;
+localStorage.setItem('vhonda_onboarding_force_next', '1');
 if(nameF) await cred.user.updateProfile({displayName: nameF});
-sessionStorage.setItem('vhonda_force_tutorial','1');
 } else {
 cred = await fbAuth.signInWithEmailAndPassword(email, pw);
 }
@@ -3081,8 +3287,11 @@ if(!FIREBASE_CONFIGURED) { createOfflineSession(); onLoginSuccess(OFFLINE_USER);
 try {
 const provider = new firebase.auth.GoogleAuthProvider();
 provider.setCustomParameters({prompt:'select_account'});
-const result = await fbAuth.signInWithPopup(provider);
-if(result?.additionalUserInfo?.isNewUser) sessionStorage.setItem('vhonda_force_tutorial','1');
+const cred = await fbAuth.signInWithPopup(provider);
+if(cred?.additionalUserInfo?.isNewUser) {
+window._pendingOnboardingNewUser = true;
+localStorage.setItem('vhonda_onboarding_force_next', '1');
+}
 } catch(e) { showAuthErr(e.message); }
 }
 async function forgotPassword() {
@@ -3105,6 +3314,20 @@ o.style.opacity='0';
 o.style.transition='opacity 0.3s';
 setTimeout(()=>{ o.style.display='none'; o.style.opacity=''; o.style.transition=''; },320);
 }
+
+function ensureFirebaseCore() {
+try {
+if(!FIREBASE_CONFIGURED) return false;
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+db = db || firebase.firestore();
+fbAuth = fbAuth || firebase.auth();
+return true;
+} catch(err) {
+console.warn('Firebase core init failed:', err);
+return false;
+}
+}
+
 function initFirebase() {
 if(!FIREBASE_CONFIGURED) {
 if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
@@ -3126,7 +3349,10 @@ if(hasOfflineSession()) onLoginSuccess(OFFLINE_USER);
 else showAuthOverlay();
 }
 }
-function initAuth() { initFirebase(); }
+function initAuth() {
+ensureFirebaseCore();
+initFirebase();
+}
 function onLoginSuccess(user) {
 document.getElementById('mainHeader').style.visibility='visible';
 document.querySelectorAll('.app').forEach(el=>el.style.visibility='visible');
@@ -3136,28 +3362,23 @@ const pill = document.getElementById('userPill');
 const avatar = document.getElementById('userAvatar');
 const dn = document.getElementById('userDisplayName');
 if(pill) pill.style.display='flex';
-if(avatar) avatar.textContent=initials;
+if(avatar) {
+  avatar.textContent=initials;
+  if(user.photoURL){ avatar.textContent=''; avatar.style.backgroundImage=`url(${user.photoURL})`; avatar.style.backgroundSize='cover'; }
+}
 if(dn) dn.textContent = name;
 setEl('headerUserName', name);
 window._currentUser = user;
-initUserSubscription(user);
 loadUserProfile(user.uid||'offline');
 hideAuthOverlay();
 setSyncStatus('ok');
 if(!user.isOffline && db) subscribeFirestore(user.uid);
 else { renderAll(); renderHoldTable(); renderSummaryVerification(); }
-maybeOpenAdminFromHash();
 notify(`Welcome, ${name.split(' ')[0]} ✓`);
-scheduleNewUserTutorial();
+scheduleDashboardOnboarding(user);
 }
 function onLogout() {
 if(unsubscribeDeals){ unsubscribeDeals(); unsubscribeDeals=null; }
-if(unsubscribeAdminSubscriptions){ unsubscribeAdminSubscriptions(); unsubscribeAdminSubscriptions=null; }
-if(unsubscribeUserSubscription){ unsubscribeUserSubscription(); unsubscribeUserSubscription=null; }
-currentSubscription=null;
-closeSubscriptionModal(true);
-adminSubscriptionsLoaded=false;
-closeAdminPanel();
 const pill = document.getElementById('userPill');
 if(pill) pill.style.display='none';
 document.getElementById('mainHeader').style.visibility='hidden';
@@ -3179,386 +3400,11 @@ const m = document.getElementById('userMenu');
 if(m) m.classList.remove('open');
 }
 
-
-
-
-// 💳 SEARCH: USER SUBSCRIPTION / 7-DAY TRIAL
-function subscriptionTodayISO(){ return new Date().toISOString().slice(0,10); }
-function subscriptionAddDaysISO(days){ const d=new Date(subscriptionTodayISO()+'T00:00:00'); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
-function subscriptionDocId(email){ return String(email||'').trim().toLowerCase().replace(/[^a-z0-9._-]+/g,'_').replace(/^_+|_+$/g,'') || 'unknown_user'; }
-function normalizeSubscription(raw={}){
-  const amount=parseFloat(raw.amount ?? raw.monthlyAmount ?? SUBSCRIPTION_SETTINGS.monthlyAmount)||SUBSCRIPTION_SETTINGS.monthlyAmount;
-  return {
-    id: raw.id || subscriptionDocId(raw.email),
-    uid: String(raw.uid||''),
-    email: String(raw.email||'').trim().toLowerCase(),
-    name: String(raw.name||''),
-    plan: String(raw.plan||SUBSCRIPTION_SETTINGS.plan),
-    status: String(raw.status||'trial').toLowerCase(),
-    amount,
-    monthlyAmount: amount,
-    paidUntil: raw.paidUntil || '',
-    trialStart: raw.trialStart || '',
-    trialEnd: raw.trialEnd || '',
-    paymentMethod: String(raw.paymentMethod||'Transfer'),
-    paymentStatus: String(raw.paymentStatus||''),
-    paymentGenerated: !!raw.paymentGenerated,
-    paymentGeneratedAt: raw.paymentGeneratedAt || '',
-    paymentNote: String(raw.paymentNote||''),
-    notes: String(raw.notes||''),
-    createdAt: raw.createdAt || new Date().toISOString(),
-    updatedAt: raw.updatedAt || new Date().toISOString(),
-    updatedBy: raw.updatedBy || ''
-  };
-}
-function userSubscriptionHasAccess(sub){
-  if(!sub) return false;
-  const status=String(sub.status||'').toLowerCase();
-  if(status==='blocked'||status==='cancelled'||status==='past_due') return false;
-  if(status==='active'||status==='trial') return !sub.paidUntil || sub.paidUntil >= subscriptionTodayISO();
-  return false;
-}
-function userSubscriptionDaysLeft(sub){
-  if(!sub?.paidUntil) return null;
-  const end=new Date(sub.paidUntil+'T00:00:00').getTime();
-  const now=new Date(subscriptionTodayISO()+'T00:00:00').getTime();
-  return Math.ceil((end-now)/(24*3600*1000));
-}
-async function initUserSubscription(user){
-  if(unsubscribeUserSubscription){ unsubscribeUserSubscription(); unsubscribeUserSubscription=null; }
-  if(!user || user.isOffline || !user.email || !db) {
-    currentSubscription = normalizeSubscription({status:'active', paidUntil:'', email:user?.email||'', name:user?.displayName||'Offline User'});
-    return;
-  }
-  const email=String(user.email||'').trim().toLowerCase();
-  const id=subscriptionDocId(email);
-  const ref=db.collection(SUBSCRIPTION_SETTINGS.collection).doc(id);
-  try{
-    const snap=await ref.get();
-    if(!snap.exists){
-      const trialEnd=subscriptionAddDaysISO(SUBSCRIPTION_SETTINGS.trialDays);
-      const trialSub=normalizeSubscription({
-        id,email,uid:user.uid,name:user.displayName||email.split('@')[0],plan:SUBSCRIPTION_SETTINGS.plan,
-        status:'trial',amount:SUBSCRIPTION_SETTINGS.monthlyAmount,monthlyAmount:SUBSCRIPTION_SETTINGS.monthlyAmount,
-        paidUntil:trialEnd,trialStart:subscriptionTodayISO(),trialEnd,paymentMethod:'Transfer',paymentStatus:'trial',
-        createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),updatedBy:email
-      });
-      await ref.set(cleanForFirestore(trialSub),{merge:true});
-      notify('7-day trial activated ✓');
-    }
-    unsubscribeUserSubscription = ref.onSnapshot(doc=>{
-      currentSubscription = normalizeSubscription({id:doc.id,...(doc.data()||{})});
-      renderSubscriptionStatus();
-      enforceSubscriptionAccess();
-    },err=>{
-      console.warn('[Subscription] read failed:',err);
-      notify('Subscription check failed. Check Firebase Rules.');
-      setSyncStatus('error');
-    });
-  }catch(err){
-    console.warn('[Subscription] init failed:',err);
-    notify('Subscription could not be verified. Check Firebase Rules.');
-    setSyncStatus('error');
-  }
-}
-function renderSubscriptionStatus(){
-  const sub=currentSubscription;
-  const box=document.getElementById('subscriptionStatusBox');
-  const pill=document.getElementById('subscriptionStatusPill');
-  const close=document.getElementById('subscriptionCloseBtn');
-  if(!box||!pill) return;
-  const access=userSubscriptionHasAccess(sub);
-  const days=userSubscriptionDaysLeft(sub);
-  const status=String(sub?.status||'unknown').replace('_',' ');
-  let msg='Subscription status unavailable.';
-  let pillClass='subscription-pill';
-  let icon='fa-circle-info';
-  if(access){
-    pillClass+=' ok'; icon='fa-unlock';
-    if(sub.status==='trial') msg=`<strong>Trial active.</strong> You have ${days===0?'less than 1':days} day${days===1?'':'s'} left. Monthly access is <strong>$5.99</strong> after the trial.`;
-    else msg=`<strong>Access active.</strong> Your current access is valid${sub.paidUntil?` until <strong>${esc(sub.paidUntil)}</strong>`:''}.`;
-  } else {
-    pillClass+=' bad'; icon='fa-lock';
-    msg=`<strong>Access locked.</strong> Your subscription is ${esc(status)}${sub?.paidUntil?` / expired on <strong>${esc(sub.paidUntil)}</strong>`:''}. Generate your $5.99 monthly payment and notify the admin below.`;
-  }
-  if(sub?.paymentGenerated && sub.paymentStatus==='generated'){
-    pillClass='subscription-pill warn'; icon='fa-bell';
-    msg += `<br><br><strong>Payment generated.</strong> Admin has been notified. Your access will update once the payment is confirmed.`;
-  }
-  pill.className=pillClass;
-  pill.innerHTML=`<i class="fas ${icon}"></i> ${access?'Access allowed':(sub?.paymentGenerated?'Payment pending':'Payment required')}`;
-  box.innerHTML=msg;
-  if(close) close.style.display=access?'flex':'none';
-}
-function enforceSubscriptionAccess(){
-  const sub=currentSubscription;
-  if(!sub) return;
-  if(userSubscriptionHasAccess(sub)) {
-    renderSubscriptionStatus();
-    return;
-  }
-  openSubscriptionModal(true);
-}
-function openSubscriptionModal(lock=false){
-  renderSubscriptionStatus();
-  const o=document.getElementById('subscriptionOverlay');
-  if(!o) return;
-  o.dataset.lock = lock ? '1' : '0';
-  o.classList.add('open');
-  o.setAttribute('aria-hidden','false');
-}
-function closeSubscriptionModal(force=false){
-  const o=document.getElementById('subscriptionOverlay');
-  if(!o) return;
-  if(!force && o.dataset.lock==='1' && !userSubscriptionHasAccess(currentSubscription)) return;
-  o.classList.remove('open');
-  o.setAttribute('aria-hidden','true');
-}
-function selectSubscriptionMethod(method){
-  selectedSubscriptionMethod = method;
-  document.querySelectorAll('.subscription-method').forEach(el=>el.classList.toggle('active', el.dataset.method===method));
-}
-function copySubscriptionAmount(){
-  const text='$5.99';
-  if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>notify('Amount copied ✓')).catch(()=>notify('$5.99 monthly subscription'));
-  else notify('$5.99 monthly subscription');
-}
-async function submitPaymentGenerated(){
-  const user=window._currentUser;
-  if(!user || user.isOffline || !user.email || !db){ notify('Cloud account required to notify admin.'); return; }
-  const email=String(user.email||'').trim().toLowerCase();
-  const id=subscriptionDocId(email);
-  const note=document.getElementById('subscriptionPaymentNote')?.value.trim()||'';
-  const existing=currentSubscription||normalizeSubscription({id,email,uid:user.uid,name:user.displayName||email.split('@')[0]});
-  const patch={
-    ...existing,
-    id,email,uid:user.uid,name:user.displayName||existing.name||email.split('@')[0],plan:SUBSCRIPTION_SETTINGS.plan,
-    amount:SUBSCRIPTION_SETTINGS.monthlyAmount,monthlyAmount:SUBSCRIPTION_SETTINGS.monthlyAmount,
-    paymentMethod:selectedSubscriptionMethod,
-    paymentStatus:'generated',
-    paymentGenerated:true,
-    paymentGeneratedAt:new Date().toISOString(),
-    paymentNote:note,
-    updatedAt:new Date().toISOString(),
-    updatedBy:email
-  };
-  try{
-    await db.collection(SUBSCRIPTION_SETTINGS.collection).doc(id).set(cleanForFirestore(patch),{merge:true});
-    currentSubscription=normalizeSubscription(patch);
-    renderSubscriptionStatus();
-    notify('Admin notified about your payment ✓');
-  }catch(err){
-    console.error('[Subscription] payment notification failed:',err);
-    notify('Could not notify admin. Check Firebase Rules.');
-    setSyncStatus('error');
-  }
-}
-
-// 🔐 SEARCH: HIDDEN ADMIN SUBSCRIPTIONS PANEL
-function adminEmailList() {
-return (ADMIN_ACCESS.emails||[]).map(e=>String(e||'').trim().toLowerCase()).filter(Boolean);
-}
-function isAdminUser(user=window._currentUser) {
-const email=String(user?.email||'').trim().toLowerCase();
-return !!email && adminEmailList().includes(email);
-}
-function setupAdminHiddenAccess() {
-window.openAdminSubscriptions = requestAdminPanel;
-window.addEventListener('hashchange', maybeOpenAdminFromHash);
-document.addEventListener('keydown', e=>{
-if(e.ctrlKey && e.altKey && String(e.key||'').toLowerCase()==='a') {
-e.preventDefault(); requestAdminPanel();
-}
-});
-maybeOpenAdminFromHash();
-}
-function maybeOpenAdminFromHash() {
-if(location.hash===ADMIN_ACCESS.route) requestAdminPanel(false);
-}
-function requestAdminPanel(showHint=true) {
-if(!window._currentUser) { if(showHint) notify('Sign in first, then open admin.'); return; }
-if(!isAdminUser()) { notify('Admin access denied.'); return; }
-openAdminPanel();
-}
-function openAdminPanel() {
-const overlay=document.getElementById('adminOverlay');
-if(!overlay) return;
-overlay.classList.add('open');
-loadAdminSubscriptions(false);
-}
-function closeAdminPanel() {
-const overlay=document.getElementById('adminOverlay');
-if(overlay) overlay.classList.remove('open');
-if(location.hash===ADMIN_ACCESS.route) history.replaceState(null,'',location.pathname+location.search);
-}
-function adminDocIdFromEmail(email) {
-return String(email||'').trim().toLowerCase().replace(/[^a-z0-9._-]+/g,'_').replace(/^_+|_+$/g,'') || crypto.randomUUID();
-}
-function adminTodayISO() { return new Date().toISOString().slice(0,10); }
-function getAdminLocalSubs() {
-try { return JSON.parse(localStorage.getItem(ADMIN_SUBS_LOCAL_KEY)||'[]')||[]; } catch { return []; }
-}
-function saveAdminLocalSubs() {
-localStorage.setItem(ADMIN_SUBS_LOCAL_KEY, JSON.stringify(adminSubscriptions));
-}
-function cleanAdminSub(raw={}) {
-const amount=parseFloat(raw.amount ?? raw.monthlyAmount ?? 0)||0;
-const email=String(raw.email||'').trim().toLowerCase();
-return {
-id: raw.id || adminDocIdFromEmail(email),
-uid: String(raw.uid||''),
-email,
-name: String(raw.name||''),
-plan: String(raw.plan||'Starter'),
-status: String(raw.status||'active'),
-amount,
-monthlyAmount: amount,
-paidUntil: raw.paidUntil || '',
-paymentMethod: String(raw.paymentMethod||'Manual'),
-notes: String(raw.notes||''),
-createdAt: raw.createdAt || new Date().toISOString(),
-updatedAt: new Date().toISOString(),
-updatedBy: window._currentUser?.email || ''
-};
-}
-function subscriptionHasAccess(sub) {
-const status=String(sub.status||'').toLowerCase();
-if(status==='blocked'||status==='cancelled') return false;
-if(status==='active'||status==='trial') {
-if(!sub.paidUntil) return true;
-return sub.paidUntil >= adminTodayISO();
-}
-return false;
-}
-function subscriptionStatusLabel(status) {
-const s=String(status||'active').toLowerCase();
-return `<span class="admin-status ${esc(s)}">${esc(s.replace('_',' '))}</span>`;
-}
-async function loadAdminSubscriptions(force=false) {
-if(!isAdminUser()) return;
-if(adminSubscriptionsLoaded && !force) { renderAdminSubscriptions(); return; }
-adminSubscriptionsLoaded=true;
-if(unsubscribeAdminSubscriptions) { unsubscribeAdminSubscriptions(); unsubscribeAdminSubscriptions=null; }
-if(db && _uid()) {
-try {
-setSyncStatus('syncing');
-unsubscribeAdminSubscriptions = db.collection('subscriptions').orderBy('createdAt','desc').onSnapshot(snap=>{
-adminSubscriptions=[];
-snap.forEach(doc=>adminSubscriptions.push(cleanAdminSub({id:doc.id,...doc.data()})));
-saveAdminLocalSubs();
-renderAdminSubscriptions();
-setSyncStatus('ok');
-}, err=>{
-console.warn('[Admin subscriptions] Firestore read failed:', err);
-adminSubscriptions=getAdminLocalSubs();
-renderAdminSubscriptions();
-setSyncStatus('error');
-notify('Admin panel using local fallback. Check Firestore Rules.');
-});
-return;
-} catch(err) {
-console.warn('[Admin subscriptions] fallback:', err);
-}
-}
-adminSubscriptions=getAdminLocalSubs();
-renderAdminSubscriptions();
-}
-function renderAdminSubscriptions() {
-renderAdminKPIs();
-filterAdminSubscriptions();
-}
-function renderAdminKPIs() {
-const total=adminSubscriptions.length;
-const active=adminSubscriptions.filter(subscriptionHasAccess).length;
-const risk=adminSubscriptions.filter(s=>!subscriptionHasAccess(s)).length;
-const mrr=adminSubscriptions.filter(subscriptionHasAccess).reduce((sum,s)=>sum+(parseFloat(s.amount)||0),0);
-setEl('adminKpiUsers', total);
-setEl('adminKpiActive', active);
-setEl('adminKpiRisk', risk);
-setEl('adminKpiMrr', fmt(mrr));
-}
-function filterAdminSubscriptions() {
-const tbody=document.getElementById('adminSubsBody');
-if(!tbody) return;
-const q=String(document.getElementById('adminSearch')?.value||'').toLowerCase().trim();
-const status=String(document.getElementById('adminStatusFilter')?.value||'all').toLowerCase();
-let rows=adminSubscriptions.slice();
-if(status!=='all') rows=rows.filter(s=>String(s.status||'').toLowerCase()===status);
-if(q) rows=rows.filter(s=>[s.email,s.name,s.plan,s.status,s.paymentMethod,s.notes,s.uid].some(v=>String(v||'').toLowerCase().includes(q)));
-if(!rows.length){
-tbody.innerHTML='<tr><td colspan="7" class="empty-table">No matching subscriptions</td></tr>';
-return;
-}
-tbody.innerHTML=rows.map(s=>{
-const access=subscriptionHasAccess(s);
-return `<tr>
-<td><div style="font-weight:700">${esc(s.name||'—')}</div><div style="color:var(--text-dim);font-size:0.63rem">${esc(s.email||'—')}</div></td>
-<td>${esc(s.plan||'Starter')}</td>
-<td>${subscriptionStatusLabel(s.status)}</td>
-<td>${fmt(s.amount||0)}</td>
-<td>${esc(s.paidUntil||'—')}</td>
-<td><span class="match-badge ${access?'match-ok':'match-bad'}"><i class="fas fa-${access?'unlock':'lock'}"></i>${access?'Allowed':'Blocked'}</span></td>
-<td><div class="admin-actions"><button class="act-btn" title="Edit" onclick="editAdminSubscription('${esc(s.id)}')"><i class="fas fa-pen"></i></button><button class="act-btn del" title="Delete" onclick="deleteAdminSubscription('${esc(s.id)}')"><i class="fas fa-trash"></i></button></div></td>
-</tr>`;
-}).join('');
-}
-function clearAdminSubscriptionForm() {
-['as-id','as-email','as-name','as-uid','as-notes'].forEach(id=>setF(id,''));
-setF('as-plan','Starter'); setF('as-status','active'); setF('as-amount','5.00'); setF('as-paiduntil',''); setF('as-method','Manual');
-setEl('adminFormTitle','Create / Update Subscription');
-}
-function editAdminSubscription(id) {
-const s=adminSubscriptions.find(x=>x.id===id);
-if(!s) return;
-setF('as-id',s.id||''); setF('as-email',s.email||''); setF('as-name',s.name||''); setF('as-plan',s.plan||'Starter');
-setF('as-status',s.status||'active'); setF('as-amount',s.amount||'5.00'); setF('as-paiduntil',s.paidUntil||''); setF('as-method',s.paymentMethod||'Manual');
-setF('as-uid',s.uid||''); setF('as-notes',s.notes||''); setEl('adminFormTitle','Edit Subscription');
-}
-async function saveAdminSubscription() {
-if(!isAdminUser()) { notify('Admin access denied.'); return; }
-const email=document.getElementById('as-email')?.value.trim().toLowerCase()||'';
-if(!email) { notify('User email is required.'); return; }
-const existingId=document.getElementById('as-id')?.value.trim()||'';
-const sub=cleanAdminSub({
-id: existingId || adminDocIdFromEmail(email),
-email,
-name:document.getElementById('as-name')?.value.trim()||'',
-plan:document.getElementById('as-plan')?.value||'Starter',
-status:document.getElementById('as-status')?.value||'active',
-amount:parseFloat(document.getElementById('as-amount')?.value)||0,
-paidUntil:document.getElementById('as-paiduntil')?.value||'',
-paymentMethod:document.getElementById('as-method')?.value||'Manual',
-uid:document.getElementById('as-uid')?.value.trim()||'',
-notes:document.getElementById('as-notes')?.value.trim()||''
-});
-const idx=adminSubscriptions.findIndex(x=>x.id===sub.id);
-if(idx>=0) adminSubscriptions[idx]=sub; else adminSubscriptions.unshift(sub);
-saveAdminLocalSubs(); renderAdminSubscriptions(); clearAdminSubscriptionForm();
-try {
-if(db && _uid()) await db.doc(`subscriptions/${sub.id}`).set(cleanForFirestore(sub));
-notify('Subscription saved ✓');
-} catch(err) {
-console.error('[Admin subscriptions] save failed:', err);
-notify('Saved locally. Firestore save failed.');
-}
-}
-async function deleteAdminSubscription(id) {
-if(!isAdminUser()) { notify('Admin access denied.'); return; }
-if(!confirm('Delete this subscription record?')) return;
-adminSubscriptions=adminSubscriptions.filter(s=>s.id!==id);
-saveAdminLocalSubs(); renderAdminSubscriptions();
-try { if(db && _uid()) await db.doc(`subscriptions/${id}`).delete(); notify('Subscription deleted ✓'); }
-catch(err) { console.error('[Admin subscriptions] delete failed:', err); notify('Deleted locally. Firestore delete failed.'); }
-}
-
 // 🔍 SEARCH: FIRESTORE SYNC
 function setSyncStatus(status) {
 const dot = document.getElementById('syncDot');
 if(!dot) return;
-const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
-const finalStatus = (offline || status === 'error') ? 'error' : 'ok';
-dot.className = `sync-dot ${finalStatus}`;
-dot.title = finalStatus === 'ok' ? 'Cloud sync online' : 'Offline / sync unavailable';
+dot.className = `sync-dot ${status}`;
 }
 function _uid() { return fbAuth?.currentUser?.uid||null; }
 
@@ -3637,12 +3483,11 @@ state.holdDeals.forEach(h => batch.set(db.doc(`users/${uid}/holdDeals/${h.id}`),
 await batch.commit();
 }
 notify('Sync complete ✓');
-setSyncStatus('ok');
 } catch(err) {
 console.error('[Sync] Error:', err);
-notify('Sync failed ✗');
-setSyncStatus('error');
+notify('Sync failed ');
 }
+setSyncStatus('ok');
 }
 
 async function saveDealFirestore(deal) {
@@ -3940,39 +3785,12 @@ x:{ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,maxTicksLimi
 }
 });
 }
-function scrollToHoldFile() {
-const card = document.getElementById('holdFileCard');
-if(card) {
-  card.scrollIntoView({behavior:'smooth', block:'center'});
-  card.style.outline='2px solid var(--hold-warning, var(--accent))';
-  card.style.outlineOffset='3px';
-  setTimeout(()=>{ card.style.outline=''; card.style.outlineOffset=''; }, 1400);
-}
-}
-function updateNetworkSyncStatus() {
-setSyncStatus(navigator.onLine === false ? 'error' : 'ok');
-}
-window.addEventListener('online', updateNetworkSyncStatus);
-window.addEventListener('offline', updateNetworkSyncStatus);
 function renderHoldTable() {
 const tbody = document.getElementById('holdBody');
 if(!tbody) return;
 const h = state.holdDeals||[];
-const hasHolds = h.length > 0;
-const holdFileCard = document.getElementById('holdFileCard');
-const holdTotalCard = document.getElementById('svHoldTotalCard');
-const holdReviewBtn = document.getElementById('holdReviewBtn');
-const holdReviewBadge = document.getElementById('holdReviewBadge');
-if(holdFileCard) holdFileCard.classList.toggle('hold-warning-card', hasHolds);
-if(holdTotalCard) holdTotalCard.classList.toggle('sv-hold-total-card', hasHolds);
-if(holdReviewBtn) {
-  holdReviewBtn.classList.toggle('hold-has-items', hasHolds);
-  holdReviewBtn.title = hasHolds ? `Review Hold File: ${h.length} item${h.length===1?'':'s'} pending` : 'No Hold File items';
-}
-if(holdReviewBadge) holdReviewBadge.textContent = h.length;
 let totTotal=0;
 const holdTotalEl = document.getElementById('holdTotal');
-if(holdTotalEl) holdTotalEl.classList.toggle('hold-total-badge', hasHolds);
 if(!h.length){
 tbody.innerHTML=`<tr><td colspan="8" class="empty-table"><i class="fas fa-check-circle" style="font-size:1.2rem;opacity:0.3;display:block;margin-bottom:6px"></i>No deals on hold</td></tr>`;
 if(holdTotalEl) holdTotalEl.textContent='$0.00';
@@ -4050,48 +3868,6 @@ return `<tr>
 <td><span class="match-badge ${cls==='sv-matched'?'match-ok':cls==='sv-mismatch'?'match-bad':'match-na'}">${icon}</span></td>
 </tr>`;
 }).join('')}</tbody></table></div>`;
-}
-
-function setSummaryVerifyStatus(kind, text) {
-const el = document.getElementById('svVerifyStatus');
-if(!el) return;
-el.className = `sv-verify-status show ${kind||''}`;
-el.innerHTML = text;
-}
-function verifyCommissionSummary() {
-renderSummaryVerification();
-const summary = state.commissionSummary||[];
-const deals = getMonthDeals(state.selectedMonth);
-if(!summary.length) {
-setSummaryVerifyStatus('warn', '<i class="fas fa-file-circle-question"></i> Summary needed');
-notify('Scan your Commission Summary first to verify.');
-return;
-}
-if(!deals.length) {
-setSummaryVerifyStatus('warn', '<i class="fas fa-circle-info"></i> No deals');
-notify('No deals this month to verify.');
-return;
-}
-let matched=0, mismatched=0, missing=0;
-deals.forEach(d=>{
-const cm = checkCommissionMatch(d);
-if(cm.matched===true) matched++;
-else if(cm.matched===false) mismatched++;
-else missing++;
-});
-const issues = mismatched + missing;
-if(!issues) {
-setSummaryVerifyStatus('ok', `<i class="fas fa-check-circle"></i> All match · ${matched}`);
-notify(`Verification complete: all ${matched} deals match ✓`);
-return;
-}
-setSummaryVerifyStatus('bad', `<i class="fas fa-triangle-exclamation"></i> ${issues} issue${issues===1?'':'s'}`);
-const parts = [];
-if(mismatched) parts.push(`${mismatched} mismatch${mismatched===1?'':'es'}`);
-if(missing) parts.push(`${missing} not found in summary`);
-notify(`Verification complete: ${parts.join(' · ')}`, 5200);
-const wrap = document.getElementById('svTableWrap');
-if(wrap) wrap.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 // 🔍 SEARCH: SEARCH DEALS
@@ -4203,6 +3979,7 @@ const el=document.getElementById('ocrStatus');
 if(el) el.textContent=msg;
 }
 async function handleOCRFile(event) {
+if(!subscriptionCanUseDashboard('OCR scanning')) return;
 const file=event.target.files?.[0]; if(!file) return;
 event.target.value='';
 const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
@@ -4379,6 +4156,7 @@ return {matched:diff<=0.50,summaryTotal:entry.summaryTotal,diff,payPeriod:deal.p
 
 //  SEARCH: DEAL MODAL
 function openAddModal(ocrData) {
+if(!subscriptionCanUseDashboard('Add Deal')) return;
 editingId=null;
 clearForm();
 document.querySelector('.modal-title').innerHTML='<i class="fas fa-plus" style="color:var(--accent);margin-right:6px"></i>Add Deal';
@@ -4411,7 +4189,7 @@ if(!deal) return;
 editingId=id;
 document.querySelector('.modal-title').innerHTML='<i class="fas fa-pen" style="color:var(--accent);margin-right:6px"></i>Edit Deal';
 const e=deal.extracted||{};
-setF('dm-deal',deal.dealNo||'');
+setF('dm-deal','');
 setF('dm-stock',deal.vehicle?.stock||'');
 setF('dm-vehicle',deal.vehicle?.model||'');
 setF('dm-customer',deal.customer||'');
@@ -4491,77 +4269,8 @@ notify('Moved to Hold File ✓');
 }
 
 // 🔍 IMPORTANTE: saveDeal con async/await
-function normalizeDealValue(v) {
-return String(v||'').trim().toUpperCase().replace(/\s+/g,' ');
-}
-function normalizeMoneyValue(v) {
-const n=parseFloat(v);
-return Number.isFinite(n)?n:0;
-}
-function sameMoneyValue(a,b) {
-return Math.abs(normalizeMoneyValue(a)-normalizeMoneyValue(b))<=0.009;
-}
-function findDuplicateDeal(candidate) {
-const newDealNo=normalizeDealValue(candidate.dealNo);
-const newStock=normalizeDealValue(candidate.vehicle?.stock);
-const newCustomer=normalizeDealValue(candidate.customer);
-const newModel=normalizeDealValue(candidate.vehicle?.model);
-return state.deals.find(d=>{
-if(editingId && d.id===editingId) return false;
-const oldDealNo=normalizeDealValue(d.dealNo);
-const oldStock=normalizeDealValue(d.vehicle?.stock);
-if(newDealNo && oldDealNo && newDealNo===oldDealNo) return true;
-if(newStock && oldStock && newStock===oldStock) return true;
-const oldCustomer=normalizeDealValue(d.customer);
-const oldModel=normalizeDealValue(d.vehicle?.model);
-return !!(newCustomer && oldCustomer && newModel && oldModel && candidate.date && d.date &&
-newCustomer===oldCustomer && newModel===oldModel && candidate.date===d.date);
-})||null;
-}
-function dealDifferences(oldDeal,newDeal) {
-const diffs=[];
-const textFields=[
-['Deal #',oldDeal.dealNo,newDeal.dealNo],
-['Stock #',oldDeal.vehicle?.stock,newDeal.vehicle?.stock],
-['Vehicle',oldDeal.vehicle?.model,newDeal.vehicle?.model],
-['Customer',oldDeal.customer,newDeal.customer],
-['Date',oldDeal.date,newDeal.date],
-['Status',oldDeal.status,newDeal.status],
-['Pay Period',oldDeal.payPeriodOverride,newDeal.payPeriodOverride],
-['Split',oldDeal.splitWith,newDeal.splitWith],
-['Hold Reason',oldDeal.holdReason,newDeal.holdReason]
-];
-textFields.forEach(([label,a,b])=>{
-if(normalizeDealValue(a)!==normalizeDealValue(b)) diffs.push(label);
-});
-const oldE=oldDeal.extracted||{}, newE=newDeal.extracted||{};
-[
-['Commission No.1','commissionNo1'],
-['Accessories','accessories'],
-['Aftermarket 1','aftermarket1'],
-['F&I Bonus 1','fBonus1'],
-['Profit of Sale','profitOfSale'],
-['Acc./AM Profit','amProfit']
-].forEach(([label,key])=>{
-if(!sameMoneyValue(oldE[key],newE[key])) diffs.push(label);
-});
-return diffs;
-}
-function mergeDuplicateDeal(oldDeal,newDeal) {
-const keepStatus=(pendingOCR && newDeal.status==='Pending' && oldDeal.status && oldDeal.status!=='Pending');
-return {
-...oldDeal,
-...newDeal,
-id:oldDeal.id,
-vehicle:{...(oldDeal.vehicle||{}),...(newDeal.vehicle||{})},
-extracted:{...(oldDeal.extracted||{}),...(newDeal.extracted||{})},
-calculated:newDeal.calculated,
-status:keepStatus?oldDeal.status:newDeal.status
-};
-}
 async function saveDeal() {
-const isEdit=!!editingId;
-const dealNo=document.getElementById('dm-deal')?.value.trim()||'';
+if(!subscriptionCanUseDashboard('Save Deal')) return;
 const id = editingId||crypto.randomUUID();
 const stock=document.getElementById('dm-stock')?.value.trim()||'';
 const model=document.getElementById('dm-vehicle')?.value.trim()||'';
@@ -4582,7 +4291,7 @@ amProfit:parseFloat(document.getElementById('dm-amprofit')?.value)||0
 };
 const payout=e.commissionNo1+e.accessories+e.aftermarket1+e.fBonus1;
 const ocrConf=pendingOCR?.ocrConfidence??100;
-let deal={id,dealNo,date,vehicle:{stock,model},customer,extracted:e,
+const deal={id,date,vehicle:{stock,model},customer,extracted:e,
 calculated:{totalCommission:payout},status,
 ocrConfidence:ocrConf, needsReview:ocrConf<70,
 sourceFile:pendingOCR?.sourceFile||'',
@@ -4591,26 +4300,14 @@ payPeriodOverride:periodVal||undefined,
 splitWith:splitVal||undefined,
 holdReason:holdReason||undefined
 };
-const duplicate=!isEdit?findDuplicateDeal(deal):null;
-let duplicateUpdated=false;
-if(duplicate){
-const diffs=dealDifferences(duplicate,deal);
-if(diffs.length===0){
-notify('Duplicate warning: this deal already exists. No changes made.');
-return;
-}
-deal=mergeDuplicateDeal(duplicate,deal);
-const idx=state.deals.findIndex(d=>d.id===duplicate.id);
-if(idx>=0) state.deals[idx]=deal;
-duplicateUpdated=true;
-} else if(isEdit){
+if(editingId){
 const idx=state.deals.findIndex(d=>d.id===editingId);
 if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal);
 } else { state.deals.unshift(deal); }
 saveStateLocal(); closeModal(); renderAll(); renderSummaryVerification();
 try {
 await saveDealFirestore(deal);
-notify(duplicateUpdated?'Duplicate warning: existing deal updated with differences ✓':isEdit?'Deal updated & synced ✓':'Deal saved & synced ✓');
+notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓');
 } catch(err) {
 console.error('Firestore save error:', err);
 notify('Saved locally, sync failed ✗');
@@ -4769,7 +4466,7 @@ closeUserMenu();
 syncProfileToModal();
 document.getElementById('profileOverlay').classList.add('open');
 }
-function closeProfileModal() { document.getElementById('profileOverlay').classList.remove('open'); }
+function closeProfileModal() { document.getElementById('profileOverlay').classList.remove('open'); setTelegramMainVisible(true); updateTelegramBackButton(); }
 function switchProfileTab(tab) {
 ['info','security','dealer'].forEach(t=>{
 const el=document.getElementById(`ptab-${t}`);
@@ -5085,6 +4782,7 @@ finally { if(btn) btn.disabled=false; if(icon) icon.style.animation=''; }
 
 // 🔍 SEARCH: EXPORT
 function exportCSV() {
+if(!subscriptionCanUseDashboard('CSV export')) return;
 const mDeals=getMonthDeals(state.selectedMonth);
 const header=['Date','Customer','Stock #','Vehicle','Commission','Accessories','Aftermarket','F&I Bonus','Profit of Sale','Total Payout','Status','Pay Period','Split'];
 const rows=mDeals.map(d=>{
@@ -5170,191 +4868,276 @@ localStorage.setItem(CLEANUP_FLAG, 'true');
 
 
 
-// 🔍 SEARCH: NEW USER TUTORIAL
-let tutorialIndex = 0;
-let tutorialActive = false;
-let tutorialOpenedDealModal = false;
-const tutorialPad = 10;
-const TUTORIAL_STEPS = [
+// =========================================================
+// CUSTOM NOTE — FIRST USER ONBOARDING TUTORIAL
+// ---------------------------------------------------------
+// Senior UX logic:
+// - Shows once per user after first register/first login.
+// - Also available anytime from: User menu > Dashboard Tutorial.
+// - User advances by clicking "Next" or clicking the blurred background.
+// - Everything outside the active step is blurred with four dynamic backdrop panels.
+//
+// Future edits:
+// - Change the tutorial order/content in ONBOARDING_STEPS.
+// - If you change layout/card classes, update the selector for that step.
+// - To force all users to see it again, change ONBOARDING_VERSION to v2, v3, etc.
+// =========================================================
+const ONBOARDING_VERSION = 'v1';
+let onboardingActive = false;
+let onboardingIndex = 0;
+let onboardingResizeHandler = null;
+let onboardingKeydownHandler = null;
+window._pendingOnboardingNewUser = false;
+
+const ONBOARDING_STEPS = [
   {
     selector:'#mainHeader',
-    title:'Welcome to your Commission Dashboard',
-    body:'This dashboard helps you track <strong>deals, payouts, hold file, and mismatches</strong> in one place. The top bar shows sync, export, manual entry, settings, and your profile menu.'
+    title:'Main controls',
+    text:'Use this top bar to export CSV, add a deal manually, change theme, sync data and open your profile settings.'
   },
   {
     selector:'.kpi-grid',
-    title:'Start with the KPI cards',
-    body:'These cards summarize the month: <strong>MTD payout, units, unit bonus, gross profit, F&I bonuses, and deals that need review</strong>. Use them as your daily snapshot.'
+    title:'Monthly snapshot',
+    text:'These cards summarize the month: payout, units, unit bonus, gross profit, F&I bonuses and items that need review.'
   },
   {
-    selector:'.scan-deal-card',
-    title:'Scan a deal sheet',
-    body:'Drop a photo/PDF here or click the card. The dashboard runs OCR, fills the deal form, and flags low-confidence scans so you can review before saving.'
+    selector:'.top-action-row .glass:first-child',
+    title:'Scan Deal Sheet',
+    text:'Upload a JPG, PNG or PDF deal sheet here. The dashboard reads it with OCR and opens the deal form for review before saving.'
   },
   {
-    selector:'.scan-deal-card button',
-    title:'Scan Commission Summary too',
-    body:'Upload the <strong>Commission Summary</strong> PDF to compare what you entered against what the store summary shows. This powers mismatch detection.'
-  },
-  {
-    selector:'button[onclick="openAddModal(null)"]',
-    title:'Add a deal manually',
-    body:'Use <strong>Add Deal</strong> when you want to enter a deal yourself instead of scanning. The next step opens the form so you can see the key fields.',
-    afterNext:()=>{ tutorialOpenedDealModal=true; openAddModal(null); }
-  },
-  {
-    selector:'#dealOverlay .modal',
-    title:'Manual deal fields',
-    body:'Fill the essentials first: <strong>Deal #, Stock #, Vehicle, Customer, Date, Status, Commission, Accessories, Aftermarket, F&I, and Profit</strong>. The estimated payout updates as you type.',
-    before:()=>{ if(!document.getElementById('dealOverlay')?.classList.contains('open')){ tutorialOpenedDealModal=true; openAddModal(null); } switchModalTab(0); }
-  },
-  {
-    selector:'#dealTab1',
-    title:'Options tab',
-    body:'Use Options for advanced cases: <strong>Move to Hold File</strong>, ignore a known mismatch, override pay period, or mark a split deal with another salesperson.',
-    before:()=>{ if(!document.getElementById('dealOverlay')?.classList.contains('open')){ tutorialOpenedDealModal=true; openAddModal(null); } switchModalTab(1); }
-  },
-  {
-    selector:'#dealOverlay .modal-foot .btn-accent',
-    title:'Save only after reviewing',
-    body:'When everything looks correct, press <strong>Save Deal</strong>. The app also checks for duplicates so scanned and manual entries do not repeat the same deal.',
-    before:()=>{ if(!document.getElementById('dealOverlay')?.classList.contains('open')){ tutorialOpenedDealModal=true; openAddModal(null); } }
+    selector:'.top-action-row .pay-plan-panel',
+    title:'Pay Plan 2026',
+    text:'Track your unit tier progress and understand how many units are needed to unlock the next bonus level.'
   },
   {
     selector:'.deal-log-card',
-    title:'Your Deal Log is the source of truth',
-    body:'All saved deals appear here. Search by customer, stock, date, model, status, pay period, amount, or show mismatches only. Use the action buttons to edit or delete.',
-    before:()=>{ if(tutorialOpenedDealModal) closeModal(); }
-  },
-  {
-    selector:'.section-row .glass:first-child',
-    title:'Verify that everything matches',
-    body:'Use <strong>Commission Summary Verification</strong> and the Verify Match button to confirm each deal matches the scanned summary. Mismatches and missing deals are highlighted.'
+    title:'Deal Log — primary workspace',
+    text:'This is the main card. Review every deal, customer, stock number, payout amounts, status and actions from this table.'
   },
   {
     selector:'#holdFileCard',
-    title:'Review Hold File every day',
-    body:'Hold File deals are not paid until the issue is cleared. If the bell in the top menu alerts you, come here and resolve missing documents, signatures, funding, or other blockers.'
+    title:'Hold File = unpaid deals',
+    text:'Deals in Hold File need attention before they can be paid. The orange breathing light is intentional so users do not ignore pending money.'
+  },
+  {
+    selector:'.trading-chart-wrap',
+    title:'Daily Commission Tracker',
+    text:'Use this chart to see daily and cumulative commission movement across the selected month.'
+  },
+  {
+    selector:'#userPill',
+    title:'Profile, PIN and sync',
+    text:'Open the user menu to update profile information, document name matching, offline PIN, manual sync, or replay this tutorial.'
   }
 ];
-function getTutorialKey(){
-  const u=window._currentUser||{};
-  return 'vhonda_tutorial_seen_'+(u.uid||u.email||'offline');
-}
-function scheduleNewUserTutorial(){
-  const forced=sessionStorage.getItem('vhonda_force_tutorial')==='1';
-  const seen=localStorage.getItem(getTutorialKey())==='1';
-  if(!forced && seen) return;
-  setTimeout(()=>startUserTutorial(forced),900);
-}
-function startUserTutorial(force=false){
-  closeUserMenu();
-  if(!force && localStorage.getItem(getTutorialKey())==='1') return;
-  sessionStorage.removeItem('vhonda_force_tutorial');
-  tutorialActive=true;
-  tutorialIndex=0;
-  tutorialOpenedDealModal=false;
-  const layer=document.getElementById('tutorialLayer');
-  if(layer){ layer.classList.add('open'); layer.setAttribute('aria-hidden','false'); }
-  showTutorialStep();
-  window.addEventListener('resize', positionTutorial, {passive:true});
-  window.addEventListener('scroll', positionTutorial, {passive:true});
-}
-function endUserTutorial(markSeen=true){
-  if(markSeen) localStorage.setItem(getTutorialKey(),'1');
-  tutorialActive=false;
-  const layer=document.getElementById('tutorialLayer');
-  if(layer){ layer.classList.remove('open'); layer.setAttribute('aria-hidden','true'); }
-  if(tutorialOpenedDealModal) { closeModal(); tutorialOpenedDealModal=false; }
-  window.removeEventListener('resize', positionTutorial);
-  window.removeEventListener('scroll', positionTutorial);
-}
-function nextTutorialStep(){
-  const step=TUTORIAL_STEPS[tutorialIndex];
-  if(step?.afterNext) step.afterNext();
-  if(tutorialIndex>=TUTORIAL_STEPS.length-1){ endUserTutorial(true); notify('Tutorial completed ✓'); return; }
-  tutorialIndex++;
-  showTutorialStep();
-}
-function prevTutorialStep(){
-  if(tutorialIndex<=0) return;
-  tutorialIndex--;
-  showTutorialStep();
-}
-function findTutorialTarget(step){
-  let el=step?.selector?document.querySelector(step.selector):document.getElementById('mainHeader');
-  if(!el || !el.getBoundingClientRect) el=document.getElementById('mainHeader')||document.body;
-  return el;
-}
 
-function scrollTutorialTargetIntoView(target){
-  if(!target || !target.getBoundingClientRect) return;
-  const rect=target.getBoundingClientRect();
-  const vh=window.innerHeight || document.documentElement.clientHeight;
-  const vw=window.innerWidth || document.documentElement.clientWidth;
-  const isInsideModal=!!target.closest?.('.modal-body');
-  const safeTop=96;
-  const safeBottom=90;
-  const needsVerticalScroll=rect.top<safeTop || rect.bottom>(vh-safeBottom) || rect.height>vh*0.72;
-  const needsHorizontalScroll=rect.left<12 || rect.right>(vw-12);
-  if(needsVerticalScroll || needsHorizontalScroll){
-    target.scrollIntoView({behavior:'smooth', block:isInsideModal?'nearest':'center', inline:'nearest'});
-  }
+function onboardingUserKey(user) {
+  const raw = user?.uid || user?.email || window._currentUser?.uid || window._currentUser?.email || 'offline-local-user';
+  return `vhonda_onboarding_seen_${ONBOARDING_VERSION}_${String(raw).replace(/[^a-zA-Z0-9_-]/g,'_')}`;
 }
-function showTutorialStep(){
-  if(!tutorialActive) return;
-  const step=TUTORIAL_STEPS[tutorialIndex];
-  if(step?.before) step.before();
-  setEl('tutorialTitle', step.title||'Tutorial');
-  const body=document.getElementById('tutorialBody'); if(body) body.innerHTML=step.body||'';
-  setEl('tutorialKicker','Quick start');
-  setEl('tutorialCount',`${tutorialIndex+1} / ${TUTORIAL_STEPS.length}`);
-  const progress=document.getElementById('tutorialProgressBar');
-  if(progress) progress.style.width=`${((tutorialIndex+1)/TUTORIAL_STEPS.length)*100}%`;
-  const back=document.getElementById('tutorialBackBtn');
-  if(back) back.style.visibility=tutorialIndex===0?'hidden':'visible';
-  const next=document.getElementById('tutorialNextBtn');
-  if(next) next.innerHTML=tutorialIndex===TUTORIAL_STEPS.length-1?'Finish <i class="fas fa-check"></i>':'Next <i class="fas fa-arrow-right"></i>';
-  const target=findTutorialTarget(step);
-  scrollTutorialTargetIntoView(target);
-  requestAnimationFrame(positionTutorial);
-  setTimeout(positionTutorial, 180);
-  setTimeout(positionTutorial, 420);
-  setTimeout(positionTutorial, 760);
+function scheduleDashboardOnboarding(user) {
+  const force = localStorage.getItem('vhonda_onboarding_force_next') === '1' || window._pendingOnboardingNewUser || user?.__showTutorial;
+  const key = onboardingUserKey(user);
+  const hasSeen = localStorage.getItem(key) === '1';
+  if(!force && hasSeen) return;
+  window.clearTimeout(window._onboardingTimer);
+  window._onboardingTimer = window.setTimeout(() => {
+    startDashboardTutorial({auto:true, force});
+  }, 900);
 }
-function positionTutorial(){
-  if(!tutorialActive) return;
-  const step=TUTORIAL_STEPS[tutorialIndex];
-  const target=findTutorialTarget(step);
-  const raw=target.getBoundingClientRect();
-  const vw=window.innerWidth, vh=window.innerHeight;
-  const rect={
-    left:Math.max(8, raw.left-tutorialPad),
-    top:Math.max(8, raw.top-tutorialPad),
-    right:Math.min(vw-8, raw.right+tutorialPad),
-    bottom:Math.min(vh-8, raw.bottom+tutorialPad)
+function getVisibleTutorialSteps() {
+  return ONBOARDING_STEPS.filter(step => {
+    let el = document.querySelector(step.selector);
+    // CUSTOM NOTE — robust Hold File targeting. Do not use generic selectors like
+    // .section-row .glass:last-child because that may become Google Reviews after layout changes.
+    if(!el && /hold/i.test(step.title || '')) {
+      el = document.querySelector('#holdFileCard, [data-onboarding-target="hold-file"], .hold-warning-card');
+    }
+    if(!el) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  });
+}
+function ensureOnboardingDOM() {
+  let overlay = document.getElementById('onboardingOverlay');
+  if(overlay) return overlay;
+  overlay = document.createElement('div');
+  overlay.id = 'onboardingOverlay';
+  overlay.className = 'onboarding-overlay';
+  overlay.innerHTML = `
+    <div class="onboarding-blur-layer" id="onboardingBlurLayer" aria-hidden="true">
+      <div class="onboarding-blur-piece" data-onboarding-blur="top"></div>
+      <div class="onboarding-blur-piece" data-onboarding-blur="left"></div>
+      <div class="onboarding-blur-piece" data-onboarding-blur="right"></div>
+      <div class="onboarding-blur-piece" data-onboarding-blur="bottom"></div>
+    </div>
+    <button class="onboarding-skip" type="button" onclick="finishDashboardTutorial(true)">Skip tutorial</button>
+    <div class="onboarding-focus" id="onboardingFocus"></div>
+    <div class="onboarding-tooltip" id="onboardingTooltip" role="dialog" aria-live="polite" aria-label="Dashboard tutorial">
+      <div class="onboarding-kicker" id="onboardingKicker">Dashboard tutorial</div>
+      <div class="onboarding-title" id="onboardingTitle"></div>
+      <div class="onboarding-text" id="onboardingText"></div>
+      <div class="onboarding-progress"><div class="onboarding-progress-fill" id="onboardingProgressFill"></div></div>
+      <div class="onboarding-actions">
+        <div class="onboarding-count" id="onboardingCount"></div>
+        <div class="onboarding-btns">
+          <button class="onboarding-btn" type="button" onclick="prevDashboardTutorialStep(event)">Back</button>
+          <button class="onboarding-btn primary" type="button" onclick="nextDashboardTutorialStep(event)" id="onboardingNextBtn">Next</button>
+        </div>
+      </div>
+      <div class="onboarding-hint">Tip: click anywhere outside this box to continue. Press Esc to close.</div>
+    </div>`;
+  overlay.addEventListener('click', (event) => {
+    if(event.target === overlay) nextDashboardTutorialStep(event);
+  });
+  document.body.appendChild(overlay);
+  return overlay;
+}
+function startDashboardTutorial(opts = {}) {
+  closeUserMenu?.();
+  const steps = getVisibleTutorialSteps();
+  if(!steps.length) return;
+  window._activeOnboardingSteps = steps;
+  onboardingActive = true;
+  onboardingIndex = 0;
+  const overlay = ensureOnboardingDOM();
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  onboardingResizeHandler = () => renderDashboardTutorialStep();
+  onboardingKeydownHandler = (event) => {
+    if(event.key === 'Escape') finishDashboardTutorial(true);
+    if(event.key === 'ArrowRight') nextDashboardTutorialStep(event);
+    if(event.key === 'ArrowLeft') prevDashboardTutorialStep(event);
   };
-  rect.width=Math.max(40, rect.right-rect.left);
-  rect.height=Math.max(32, rect.bottom-rect.top);
-  const top=document.getElementById('tutorialBlurTop'), right=document.getElementById('tutorialBlurRight'), bottom=document.getElementById('tutorialBlurBottom'), left=document.getElementById('tutorialBlurLeft');
-  if(top){ top.style.left='0px'; top.style.top='0px'; top.style.width=vw+'px'; top.style.height=rect.top+'px'; }
-  if(bottom){ bottom.style.left='0px'; bottom.style.top=rect.bottom+'px'; bottom.style.width=vw+'px'; bottom.style.height=Math.max(0,vh-rect.bottom)+'px'; }
-  if(left){ left.style.left='0px'; left.style.top=rect.top+'px'; left.style.width=rect.left+'px'; left.style.height=rect.height+'px'; }
-  if(right){ right.style.left=rect.right+'px'; right.style.top=rect.top+'px'; right.style.width=Math.max(0,vw-rect.right)+'px'; right.style.height=rect.height+'px'; }
-  const spot=document.getElementById('tutorialSpotlight');
-  if(spot){ spot.style.left=rect.left+'px'; spot.style.top=rect.top+'px'; spot.style.width=rect.width+'px'; spot.style.height=rect.height+'px'; }
-  const card=document.getElementById('tutorialCard');
-  if(!card) return;
-  const cw=card.offsetWidth||380, ch=card.offsetHeight||220;
-  let x=rect.left + rect.width/2 - cw/2;
-  x=Math.min(Math.max(14,x), Math.max(14,vw-cw-14));
-  let y=rect.bottom+18;
-  if(y+ch>vh-14) y=rect.top-ch-18;
-  if(y<14) y=Math.min(vh-ch-14, Math.max(14, rect.top+rect.height/2-ch/2));
-  card.style.left=x+'px';
-  card.style.top=y+'px';
+  window.addEventListener('resize', onboardingResizeHandler);
+  document.addEventListener('keydown', onboardingKeydownHandler);
+  renderDashboardTutorialStep();
+}
+function currentOnboardingStep() {
+  return (window._activeOnboardingSteps || [])[onboardingIndex];
+}
+function renderDashboardTutorialStep() {
+  if(!onboardingActive) return;
+  const steps = window._activeOnboardingSteps || [];
+  const step = currentOnboardingStep();
+  if(!step) { finishDashboardTutorial(false); return; }
+  let target = document.querySelector(step.selector);
+  // CUSTOM NOTE — Hold File tutorial safety:
+  // If this card is moved in the future, keep id="holdFileCard" on the actual Hold File card.
+  // This prevents the Hold File step from accidentally highlighting Google Reviews or another card.
+  if(!target && /hold/i.test(step.title || '')) {
+    target = document.querySelector('#holdFileCard, [data-onboarding-target="hold-file"], .hold-warning-card');
+  }
+  if(!target) { nextDashboardTutorialStep(); return; }
+  target.scrollIntoView({behavior:'smooth', block:'center', inline:'nearest'});
+  window.setTimeout(() => positionDashboardTutorial(step, target, steps.length), 260);
 }
 
+function setOnboardingBlurPanels(top, left, width, height) {
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+  const rightEdge = Math.min(viewportW, left + width);
+  const bottomEdge = Math.min(viewportH, top + height);
+  const pieces = {
+    top: { top:0, left:0, width:viewportW, height:Math.max(0, top) },
+    left: { top:top, left:0, width:Math.max(0, left), height:Math.max(0, height) },
+    right: { top:top, left:rightEdge, width:Math.max(0, viewportW - rightEdge), height:Math.max(0, height) },
+    bottom: { top:bottomEdge, left:0, width:viewportW, height:Math.max(0, viewportH - bottomEdge) }
+  };
+  Object.entries(pieces).forEach(([key, box]) => {
+    const el = document.querySelector(`[data-onboarding-blur="${key}"]`);
+    if(!el) return;
+    el.style.top = `${box.top}px`;
+    el.style.left = `${box.left}px`;
+    el.style.width = `${box.width}px`;
+    el.style.height = `${box.height}px`;
+    el.style.opacity = box.width <= 0 || box.height <= 0 ? '0' : '1';
+  });
+}
+
+function positionDashboardTutorial(step, target, totalSteps) {
+  if(!onboardingActive) return;
+  const focus = document.getElementById('onboardingFocus');
+  const tooltip = document.getElementById('onboardingTooltip');
+  const title = document.getElementById('onboardingTitle');
+  const text = document.getElementById('onboardingText');
+  const count = document.getElementById('onboardingCount');
+  const fill = document.getElementById('onboardingProgressFill');
+  const nextBtn = document.getElementById('onboardingNextBtn');
+  const kicker = document.getElementById('onboardingKicker');
+  if(!focus || !tooltip || !title || !text || !count || !fill || !nextBtn || !kicker) return;
+
+  const rect = target.getBoundingClientRect();
+  const pad = window.innerWidth < 700 ? 8 : 10;
+  const top = Math.max(8, rect.top - pad);
+  const left = Math.max(8, rect.left - pad);
+  const width = Math.min(window.innerWidth - left - 8, rect.width + pad * 2);
+  const height = Math.min(window.innerHeight - top - 8, rect.height + pad * 2);
+  focus.style.top = `${top}px`;
+  focus.style.left = `${left}px`;
+  focus.style.width = `${width}px`;
+  focus.style.height = `${height}px`;
+  focus.style.borderRadius = target.classList.contains('kpi-grid') ? '22px' : '18px';
+  setOnboardingBlurPanels(top, left, width, height);
+
+  title.textContent = step.title;
+  text.textContent = step.text;
+  kicker.textContent = 'Dashboard tutorial';
+  count.textContent = `${onboardingIndex + 1} / ${totalSteps}`;
+  fill.style.width = `${((onboardingIndex + 1) / totalSteps) * 100}%`;
+  nextBtn.textContent = onboardingIndex === totalSteps - 1 ? 'Finish' : 'Next';
+
+  const tooltipRect = tooltip.getBoundingClientRect();
+  const gap = 16;
+  let tipLeft = left;
+  let tipTop = top + height + gap;
+
+  if(tipTop + tooltipRect.height > window.innerHeight - 16) {
+    tipTop = top - tooltipRect.height - gap;
+  }
+  if(tipTop < 16) {
+    tipTop = Math.min(window.innerHeight - tooltipRect.height - 16, top + height + gap);
+  }
+  if(tipLeft + tooltipRect.width > window.innerWidth - 16) {
+    tipLeft = window.innerWidth - tooltipRect.width - 16;
+  }
+  tipLeft = Math.max(16, tipLeft);
+  tipTop = Math.max(16, tipTop);
+
+  tooltip.style.left = `${tipLeft}px`;
+  tooltip.style.top = `${tipTop}px`;
+}
+function nextDashboardTutorialStep(event) {
+  if(event) event.stopPropagation();
+  const steps = window._activeOnboardingSteps || [];
+  if(onboardingIndex >= steps.length - 1) {
+    finishDashboardTutorial(false);
+    return;
+  }
+  onboardingIndex += 1;
+  renderDashboardTutorialStep();
+}
+function prevDashboardTutorialStep(event) {
+  if(event) event.stopPropagation();
+  onboardingIndex = Math.max(0, onboardingIndex - 1);
+  renderDashboardTutorialStep();
+}
+function finishDashboardTutorial(skipped = false) {
+  const overlay = document.getElementById('onboardingOverlay');
+  if(overlay) overlay.classList.remove('open');
+  onboardingActive = false;
+  document.body.style.overflow = '';
+  if(onboardingResizeHandler) window.removeEventListener('resize', onboardingResizeHandler);
+  if(onboardingKeydownHandler) document.removeEventListener('keydown', onboardingKeydownHandler);
+  onboardingResizeHandler = null;
+  onboardingKeydownHandler = null;
+  const key = onboardingUserKey(window._currentUser || OFFLINE_USER);
+  localStorage.setItem(key, '1');
+  localStorage.removeItem('vhonda_onboarding_force_next');
+  window._pendingOnboardingNewUser = false;
+  if(!skipped) { notify('Tutorial completed ✓'); }
+}
 
 // ✨ SPOTLIGHT GLOW EFFECT — coordenadas globales del cursor para todas las cards
 let spotlightRAF = null;
@@ -5379,6 +5162,412 @@ function initSpotlightEffect() {
   }, { passive: true });
 }
 initSpotlightEffect();
+
+
+
+/* ==========================================================
+   CUSTOM DATA ACCOUNTING PATCH — SALE MONTH VS PAYMENT MONTH
+   ----------------------------------------------------------
+   Why this exists:
+   Some deals are SOLD in one month but PAID in a later month because
+   they were held for missing documents, funding, signatures, etc.
+
+   Data model:
+   - date / saleDate: original sale date. Used for Deal Log + Units.
+   - paidDate: payment release date. Used for MTD Payout + earnings charts.
+   - Pending / On Hold deals do NOT count toward payout until paidDate exists.
+
+   Example:
+   Stock 93480 sale date: 2026-05-29
+   Stock 93480 paidDate: 2026-06-08
+   May: unit count includes 93480, payout excludes it while pending.
+   June: payout includes 93480, unit count does not double count it.
+   ========================================================== */
+function normalizeDateInput(v){
+  if(!v) return '';
+  v=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  const m=v.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if(m){
+    let y=m[3]; if(y.length===2) y='20'+y;
+    return `${y}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+  }
+  const d=new Date(v);
+  if(!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+  return '';
+}
+function getSaleDate(d){ return d?.saleDate || d?.date || d?.createdDate || ''; }
+function getPaidDate(d){
+  const explicit = d?.paidDate || d?.paymentReleaseDate || d?.releaseDate || d?.fundedDate || '';
+  if(explicit) return normalizeDateInput(explicit);
+  const st=String(d?.status||'').toLowerCase();
+  if(st==='paid' || st==='released') return getSaleDate(d); // legacy paid deals
+  return '';
+}
+function isDealPaid(d){
+  const st=String(d?.status||'').toLowerCase();
+  return !!getPaidDate(d) && st!=='pending' && st!=='on hold' && st!=='hold';
+}
+function getPaidMonthDeals(m){ return state.deals.filter(d=>isDealPaid(d)&&getPaidDate(d).startsWith(m)); }
+function calcPaidPayout(d){ return isDealPaid(d) ? calcPayout(d) : 0; }
+function formatShortDate(iso){
+  if(!iso) return '';
+  const [y,m,d]=iso.split('-');
+  if(!y||!m||!d) return iso;
+  return `${parseInt(m)}/${parseInt(d)}/${y}`;
+}
+function currentISODate(){ return new Date().toISOString().slice(0,10); }
+function findDealByHold(h){
+  if(!h) return null;
+  if(h.sourceDealId) return state.deals.find(d=>d.id===h.sourceDealId) || null;
+  const stock=(h.vehicle?.stock||h.stock||'').toString().trim().toUpperCase();
+  const sale=getSaleDate(h);
+  return state.deals.find(d=>{
+    const ds=(d.vehicle?.stock||'').toString().trim().toUpperCase();
+    return stock && ds===stock && (!sale || getSaleDate(d)===sale);
+  }) || null;
+}
+function ensurePaymentReleaseField(){
+  const tab=document.getElementById('dtab-1');
+  if(!tab || document.getElementById('dm-paid-date')) return;
+  const options=tab.querySelector('.option-cards') || tab;
+  const card=document.createElement('div');
+  card.className='option-card';
+  card.innerHTML=`
+    <div class="option-card-head">
+      <span class="option-card-title"><i class="fas fa-money-check-dollar" style="color:var(--green);margin-right:5px"></i>Payment Release Date</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Paid / released date</label>
+      <input class="form-input" id="dm-paid-date" type="date" />
+      <div class="payment-rule-help">Leave blank while Pending or On Hold. Once paid, this date controls the month where the payout appears.</div>
+    </div>`;
+  const first=options.children[1];
+  if(first) options.insertBefore(card, first); else options.appendChild(card);
+}
+const __origOpenAddModalSalePay = typeof openAddModal==='function' ? openAddModal : null;
+if(__origOpenAddModalSalePay){
+  openAddModal=function(ocrData){
+    __origOpenAddModalSalePay(ocrData);
+    ensurePaymentReleaseField();
+    const paid=document.getElementById('dm-paid-date');
+    if(paid) paid.value='';
+  };
+}
+const __origOpenEditModalSalePay = typeof openEditModal==='function' ? openEditModal : null;
+if(__origOpenEditModalSalePay){
+  openEditModal=function(id){
+    __origOpenEditModalSalePay(id);
+    ensurePaymentReleaseField();
+    const deal=state.deals.find(d=>d.id===id);
+    const paid=document.getElementById('dm-paid-date');
+    if(paid) paid.value=getPaidDate(deal)||'';
+  };
+}
+function renderMonthTabs() {
+  const months = [];
+  const seen = new Set();
+  state.deals.forEach(d => {
+    [getSaleDate(d)?.slice(0,7), getPaidDate(d)?.slice(0,7)].forEach(m=>{
+      if(m && !seen.has(m)){seen.add(m);months.push(m);}
+    });
+  });
+  (state.holdDeals||[]).forEach(h=>{
+    const m=getSaleDate(h)?.slice(0,7);
+    if(m && !seen.has(m)){seen.add(m);months.push(m);}
+  });
+  const now = new Date().toISOString().slice(0,7);
+  if(!seen.has(now)) months.unshift(now);
+  months.sort((a,b)=>b.localeCompare(a));
+  const tabs = document.getElementById('monthTabs');
+  if(!tabs) return;
+  tabs.innerHTML = months.map(m=>{
+    const [y,mo]=m.split('-');
+    const label=new Date(+y,+mo-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    return `<div class="month-tab${m===state.selectedMonth?' active':''}" onclick="selectMonth('${m}')">${label}</div>`;
+  }).join('');
+}
+function renderKPIs() {
+  const saleDeals = getMonthDeals(state.selectedMonth);
+  const paidDeals = getPaidMonthDeals(state.selectedMonth);
+  const units = saleDeals.length;
+  const payout = paidDeals.reduce((sum,d)=>sum+calcPayout(d),0);
+  const ub = getUB(units);
+  const total = payout + ub;
+  const gross = saleDeals.reduce((sum,d)=>sum+(parseFloat(d.extracted?.profitOfSale)||0),0);
+  const fni = paidDeals.reduce((sum,d)=>sum+(parseFloat(d.extracted?.fBonus1)||0),0);
+  const needs = saleDeals.filter(d=>d.needsReview).length;
+  setEl('kpi-payout', fmt(total));
+  setEl('kpi-payout-sub', `Paid this month ${fmt(payout)} + Sales bonus ${fmt(ub)}`);
+  setEl('kpi-units', units);
+  const nt = getNT(units);
+  setEl('kpi-units-sub', nt ? `${nt.u-units} more sales for $${nt.b} bonus` : 'Max sales tier reached!');
+  setEl('kpi-ubp', fmt(ub));
+  setEl('kpi-ubp-sub', getCT(units)?`Sales tier: ${getCT(units).u}u · $${getCT(units).b}`:'No tier yet');
+  setEl('kpi-gross', fmt(gross));
+  setEl('kpi-fni', fmt(fni));
+  setEl('kpi-review', needs);
+}
+function renderTable() {
+  const tbody = document.getElementById('dealsBody');
+  if(!tbody) return;
+  const mDeals = getMonthDeals(state.selectedMonth);
+  const paidDeals = getPaidMonthDeals(state.selectedMonth);
+  const badge = document.getElementById('dealCountBadge');
+  if(badge) badge.innerHTML = `${mDeals.length} sale${mDeals.length!==1?'s':''}<span class="pay-summary-note"><i class="fas fa-money-check-dollar"></i>${paidDeals.length} paid this month</span>`;
+  if(!mDeals.length) {
+    tbody.innerHTML=`<tr><td colspan="11" class="empty-table"><i class="fas fa-inbox" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:8px"></i>No sales created this month · Payouts may still appear in KPI if held deals were paid this month</td></tr>`;
+    return;
+  }
+  let totComm=0,totAft=0,totFni=0,totAcc=0,totTotal=0,totPaid=0;
+  const rows = mDeals.map((d,i)=>{
+    const e=d.extracted||{};
+    const comm=parseFloat(e.commissionNo1)||0;
+    const acc=parseFloat(e.accessories)||0;
+    const aft=parseFloat(e.aftermarket1)||0;
+    const fni=parseFloat(e.fBonus1)||0;
+    const total=calcPayout(d);
+    const paid=calcPaidPayout(d);
+    totComm+=comm;totAft+=aft;totFni+=fni;totAcc+=acc;totTotal+=total;totPaid+=paid;
+    const cm=checkCommissionMatch(d);
+    const isMismatch=cm.matched===false;
+    const saleDate=getSaleDate(d);
+    const paidDate=getPaidDate(d);
+    const paymentPending=!isDealPaid(d);
+    const rdot=d.needsReview?'<span class="rdot" title="Needs review"></span>':'';
+    const mmBadge=isMismatch?`<span class="mismatch-badge">⚠ ${fmt(cm.diff)}</span>`:'';
+    const dateBadges=`<span class="sale-date-badge">Sale ${formatShortDate(saleDate)}</span>${paidDate?`<span class="paid-date-badge">Paid ${formatShortDate(paidDate)}</span>`:`<span class="pending-pay-badge">Payment pending</span>`}`;
+    const period=cm.payPeriod?`<span class="tag-period">${esc(cm.payPeriod)}</span>`:'';
+    const split=cm.split?`<span class="tag-split">Split: ${esc(cm.split)}</span>`:'';
+    const displayStatus = paymentPending ? (String(d.status||'Pending')==='On Hold'?'On Hold':'Pending') : 'Paid';
+    const sClass='status-'+(displayStatus.replace(/\s/g,'-'));
+    return `<tr class="${isMismatch?'mismatch-row':''} ${paymentPending?'payment-pending-row':''}" data-id="${esc(d.id)}">
+      <td style="color:var(--text-faint);font-size:0.65rem">${i+1}</td>
+      <td style="max-width:220px">
+        <div style="font-weight:700;font-size:0.78rem">${rdot}${esc(d.vehicle?.model||'—')}${mmBadge}</div>
+        <div style="font-size:0.68rem;color:var(--text-dim)">${esc(d.customer||'—')}${period}${split}</div>
+        <div style="margin-top:3px">${dateBadges}</div>
+      </td>
+      <td style="font-family:var(--font-mono);font-size:0.72rem">${esc(d.vehicle?.stock||'—')}</td>
+      <td style="font-size:0.68rem;color:var(--text-dim)">${esc(saleDate||'—')}</td>
+      <td>${fmtC(comm)}</td>
+      <td>${fmtC(aft)}</td>
+      <td>${fmtC(fni)}</td>
+      <td>${fmtC(acc)}</td>
+      <td style="font-family:var(--font-mono);font-weight:700">${fmt(total)}${paymentPending?`<div style="font-size:0.58rem;color:var(--orange);font-family:var(--font-body);font-weight:700">not paid yet</div>`:''}</td>
+      <td><span class="status-badge ${sClass}">${esc(displayStatus)}</span></td>
+      <td><button class="act-btn" onclick="openEditModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
+      <button class="act-btn del" onclick="deleteDeal('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML=rows+`<tr class="totals-row">
+    <td colspan="4">SALE TOTAL (${mDeals.length} sales) · PAID FROM THESE ROWS ${fmt(totPaid)}</td>
+    <td>${fmt(totComm)}</td><td>${fmt(totAft)}</td><td>${fmt(totFni)}</td><td>${fmt(totAcc)}</td>
+    <td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
+}
+function renderSidebar() {
+  const mDeals = getMonthDeals(state.selectedMonth);
+  const units = mDeals.length;
+  const dotsEl = document.getElementById('ppDots');
+  if(dotsEl) dotsEl.innerHTML = Array.from({length:30},(_,i)=>`<div class="pp-dot${i<units?' filled':''}"></div>`).join('');
+  setEl('ppDotsLabel', `${units} / 30 sales created`);
+  const pillsEl = document.getElementById('ppTierPills');
+  if(pillsEl) pillsEl.innerHTML = PP.unitTiers.map(t=>{
+    const cls = units>=t.u?'achieved':(units>=t.u-3?'active':'');
+    return `<div class="pp-pill ${cls}">${t.u}u · $${t.b}</div>`;
+  }).join('');
+  const barsEl = document.getElementById('ppTierBars');
+  if(barsEl) barsEl.innerHTML = PP.unitTiers.map(t=>{
+    const pct = Math.min(100, Math.round((units/t.u)*100));
+    const done = units>=t.u;
+    return `<div class="pp-tier-bar-row"><span class="pp-tier-bar-label">${t.u}u</span>
+      <div class="pp-tier-bar-track"><div class="pp-tier-bar-fill${done?' achieved':''}" style="width:${pct}%"></div></div>
+      <span class="pp-tier-bar-pct">${pct}%</span><span class="pp-tier-bar-amt">$${t.b}</span></div>`;
+  }).join('');
+}
+function renderCharts() {
+  const cc = chartColors();
+  const months = getLast6Months();
+  const labels = months.map(m=>new Date(m+'-01').toLocaleDateString('en-US',{month:'short'}));
+  const commData = months.map(m=>getPaidMonthDeals(m).reduce((sum,d)=>sum+(parseFloat(d.extracted?.commissionNo1)||0),0));
+  const aftData = months.map(m=>getPaidMonthDeals(m).reduce((sum,d)=>sum+(parseFloat(d.extracted?.aftermarket1)||0),0));
+  const fniData = months.map(m=>getPaidMonthDeals(m).reduce((sum,d)=>sum+(parseFloat(d.extracted?.fBonus1)||0),0));
+  const ubData = months.map(m=>getUB(getMonthDeals(m).length));
+  const ectx = document.getElementById('earningsChart');
+  if(ectx){
+    if(earningsChartObj) earningsChartObj.destroy();
+    earningsChartObj = new Chart(ectx, {type:'bar',data:{ labels,datasets:[
+      {label:'Paid Commission',data:commData,backgroundColor:cc.comm,borderRadius:4},
+      {label:'Paid Aftermarket',data:aftData,backgroundColor:cc.aftmkt,borderRadius:4},
+      {label:'Paid F&I',data:fniData,backgroundColor:cc.fni,borderRadius:4},
+      {label:'Sales Unit Bonus',data:ubData,backgroundColor:cc.ub,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`}}},
+      scales:{x:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick},grid:{display:false}},
+      y:{stacked:true,ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}}}}
+    });
+  }
+  const leg = document.getElementById('earningsLegend');
+  if(leg){
+    const items=[['Paid Commission',cc.comm],['Paid Aftermarket',cc.aftmkt],['Paid F&I',cc.fni],['Sales Unit Bonus',cc.ub]];
+    leg.innerHTML=items.map(([l,c])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div>${l}</div>`).join('');
+  }
+  const pDeals = getPaidMonthDeals(state.selectedMonth);
+  const mComm=pDeals.reduce((sum,d)=>sum+(parseFloat(d.extracted?.commissionNo1)||0),0);
+  const mAft=pDeals.reduce((sum,d)=>sum+(parseFloat(d.extracted?.aftermarket1)||0),0);
+  const mFni=pDeals.reduce((sum,d)=>sum+(parseFloat(d.extracted?.fBonus1)||0),0);
+  const mAcc=pDeals.reduce((sum,d)=>sum+(parseFloat(d.extracted?.accessories)||0),0);
+  const mUb=getUB(getMonthDeals(state.selectedMonth).length);
+  const mctx = document.getElementById('mixChart');
+  if(mctx){
+    if(mixChartObj) mixChartObj.destroy();
+    mixChartObj = new Chart(mctx, {type:'doughnut',data:{labels:['Paid Commission','Paid Aftermarket','Paid F&I','Paid Accessories','Sales Unit Bonus'],datasets:[{data:[mComm,mAft,mFni,mAcc,mUb],backgroundColor:[cc.comm,cc.aftmkt,cc.fni,cc.acc,cc.ub],borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{family:"'DM Mono',monospace",size:10},color:cc.legend,boxWidth:10,padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}`}}}}});
+  }
+}
+function renderTradingChart() {
+  const pDeals = getPaidMonthDeals(state.selectedMonth);
+  const cc = chartColors();
+  const dayMap = {};
+  pDeals.forEach(d => {
+    const date = getPaidDate(d);
+    if(!date) return;
+    const day = date.slice(8,10);
+    dayMap[day] = (dayMap[day]||0) + calcPayout(d);
+  });
+  const [y,mo] = state.selectedMonth.split('-');
+  const daysInMonth = new Date(+y,+mo,0).getDate();
+  const days=[], daily=[], cumulative=[];
+  let cum=0;
+  for(let i=1;i<=daysInMonth;i++){ const key=String(i).padStart(2,'0'); const v=dayMap[key]||0; cum+=v; days.push(key); daily.push(v); cumulative.push(+cum.toFixed(2)); }
+  const ctx = document.getElementById('tradingChart');
+  if(!ctx) return;
+  if(tradingChartObj) tradingChartObj.destroy();
+  const tooltip = document.getElementById('tradingTooltip');
+  tradingChartObj = new Chart(ctx, {data:{labels:days,datasets:[
+    {type:'line',label:'Paid Cumulative',data:cumulative,yAxisID:'yCum',borderColor:cc.comm,borderWidth:2,pointRadius:0,pointHoverRadius:4,fill:true,backgroundColor:(context)=>{const chart=context.chart; const {ctx:c,chartArea}=chart;if(!chartArea) return 'transparent';const g=c.createLinearGradient(0,chartArea.top,0,chartArea.bottom);g.addColorStop(0,isDark()?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.10)');g.addColorStop(1,'transparent');return g;},tension:0.4},
+    {type:'bar',label:'Paid Daily',data:daily,yAxisID:'yDaily',backgroundColor:cc.daily,borderRadius:3,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:900,easing:'easeInOutQuart'},interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{enabled:false,external:(context)=>{if(!tooltip) return;if(context.tooltip.opacity===0){tooltip.style.display='none';return;}const d=context.tooltip.dataPoints;if(d&&d.length){const ttDate=document.getElementById('ttDate');const ttVal=document.getElementById('ttVal');if(ttDate) ttDate.textContent=`Paid Day ${d[0].label}`;if(ttVal) ttVal.innerHTML=`<span style="color:${cc.comm}">Cum: $${(d.find(p=>p.dataset.label==='Paid Cumulative')?.raw||0).toFixed(2)}</span><br><span style="color:var(--blue)">Day: $${(d.find(p=>p.dataset.label==='Paid Daily')?.raw||0).toFixed(2)}</span>`;tooltip.style.display='block';tooltip.style.left=Math.min(context.tooltip.caretX+12, ctx.parentElement.offsetWidth-180)+'px';tooltip.style.top=Math.max(context.tooltip.caretY-30,0)+'px';}}}}},scales:{yCum:{position:'left',ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},grid:{color:cc.grid},border:{display:false}},yDaily:{position:'right',grid:{display:false},ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,callback:v=>'$'+v},border:{display:false}},x:{ticks:{font:{family:"'DM Mono',monospace",size:10},color:cc.tick,maxTicksLimit:10},grid:{display:false}}}}
+  });
+}
+function renderHoldTable() {
+  const tbody = document.getElementById('holdBody');
+  if(!tbody) return;
+  const h = state.holdDeals||[];
+  let totTotal=0;
+  const holdTotalEl = document.getElementById('holdTotal');
+  if(!h.length){
+    tbody.innerHTML=`<tr><td colspan="8" class="empty-table"><i class="fas fa-check-circle" style="font-size:1.2rem;opacity:0.3;display:block;margin-bottom:6px"></i>No deals on hold</td></tr>`;
+    if(holdTotalEl) holdTotalEl.textContent='$0.00'; return;
+  }
+  tbody.innerHTML = h.map(d=>{
+    const e=d.extracted||{};
+    const comm=parseFloat(e.commissionNo1||d.commission)||0;
+    const aft=parseFloat(e.aftermarket1||d.aftermarket)||0;
+    const fni=parseFloat(e.fBonus1||d.fni)||0;
+    const acc=parseFloat(e.accessories||d.accessories)||0;
+    const total=comm+aft+fni+acc; totTotal+=total;
+    const saleDate=getSaleDate(d);
+    return `<tr>
+      <td><div style="font-weight:700;font-size:0.75rem">${esc(d.vehicle?.model||d.vehicle||'—')}</div><div style="font-size:0.66rem;color:var(--text-dim)">${esc(d.customer||'—')} <span class="pending-pay-badge">unpaid</span></div></td>
+      <td style="font-family:var(--font-mono);font-size:0.7rem">${esc(d.vehicle?.stock||d.stock||'—')}</td>
+      <td style="font-size:0.7rem">${esc(saleDate||'—')}</td>
+      <td>${fmtC(comm)}</td><td style="font-size:0.7rem">${fmtC(aft+fni)}</td>
+      <td style="font-family:var(--font-mono);font-weight:700">${fmt(total)}</td>
+      <td style="font-size:0.65rem;color:var(--text-dim);max-width:120px">${esc(d.holdReason||d.reason||'—')}</td>
+      <td><button class="act-btn" onclick="openHoldModal('${esc(d.id)}')" title="Edit"><i class="fas fa-pen"></i></button>
+      <button class="act-btn" style="color:var(--green)" onclick="releaseHold('${esc(d.id)}')" title="Release and set payment date"><i class="fas fa-check"></i></button>
+      <button class="act-btn del" onclick="deleteHold('${esc(d.id)}')" title="Delete"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  }).join('')+`<tr class="totals-row"><td colspan="5">UNPAID HOLD TOTAL (${h.length})</td><td>${fmt(totTotal)}</td><td colspan="2"></td></tr>`;
+  if(holdTotalEl) holdTotalEl.textContent=fmt(totTotal);
+}
+function moveCurrentToHold() {
+  const reason=document.getElementById('dm-holdreason')?.value||'';
+  if(!editingId){ notify('Save the deal first, then move to hold.'); return; }
+  const deal=state.deals.find(d=>d.id===editingId);
+  if(!deal) return;
+  deal.status='On Hold'; deal.holdReason=reason; deal.saleDate=getSaleDate(deal); delete deal.paidDate; delete deal.paymentReleaseDate; delete deal.releaseDate;
+  const exists=(state.holdDeals||[]).some(h=>h.sourceDealId===deal.id || ((h.vehicle?.stock||h.stock)===(deal.vehicle?.stock) && getSaleDate(h)===getSaleDate(deal)));
+  if(!exists){
+    const hDeal={id:crypto.randomUUID(), sourceDealId:deal.id, vehicle:deal.vehicle, customer:deal.customer, date:getSaleDate(deal), saleDate:getSaleDate(deal), extracted:deal.extracted, holdReason:reason, status:'On Hold'};
+    state.holdDeals.push(hDeal);
+    saveHoldFirestore(hDeal);
+  }
+  saveStateLocal(); closeModal(); renderAll(); renderHoldTable();
+  saveDealFirestore(deal);
+  notify('Moved to Hold File · sale stays in original month ✓');
+}
+async function saveDeal() {
+  if(!subscriptionCanUseDashboard('Save Deal')) return;
+  const id = editingId||crypto.randomUUID();
+  const stock=document.getElementById('dm-stock')?.value.trim()||'';
+  const model=document.getElementById('dm-vehicle')?.value.trim()||'';
+  const customer=document.getElementById('dm-customer')?.value.trim()||'';
+  const saleDate=document.getElementById('dm-date')?.value||currentISODate();
+  let status=document.getElementById('dm-status')?.value||'Pending';
+  const paidDateRaw=document.getElementById('dm-paid-date')?.value||'';
+  let paidDate=normalizeDateInput(paidDateRaw);
+  if(status==='Paid' && !paidDate) paidDate=saleDate;
+  if(status==='Pending' || status==='On Hold') paidDate='';
+  if(paidDate && status!=='On Hold') status='Paid';
+  const togOn=document.getElementById('mismatchToggle')?.classList.contains('on');
+  const periodVal=document.getElementById('dm-payperiod')?.value||'';
+  const splitVal=document.getElementById('dm-split')?.value.trim()||'';
+  const holdReason=document.getElementById('dm-holdreason')?.value.trim()||'';
+  const e={commissionNo1:parseFloat(document.getElementById('dm-comm')?.value)||0,accessories:parseFloat(document.getElementById('dm-acc')?.value)||0,aftermarket1:parseFloat(document.getElementById('dm-aftmkt')?.value)||0,fBonus1:parseFloat(document.getElementById('dm-fni')?.value)||0,profitOfSale:parseFloat(document.getElementById('dm-profit')?.value)||0,amProfit:parseFloat(document.getElementById('dm-amprofit')?.value)||0};
+  const payout=e.commissionNo1+e.accessories+e.aftermarket1+e.fBonus1;
+  const ocrConf=pendingOCR?.ocrConfidence??100;
+  const deal={id,date:saleDate,saleDate,paidDate:paidDate||undefined,vehicle:{stock,model},customer,extracted:e,calculated:{totalCommission:payout},status,ocrConfidence:ocrConf,needsReview:ocrConf<70,sourceFile:pendingOCR?.sourceFile||'',ignoreMismatch:togOn,payPeriodOverride:periodVal||undefined,splitWith:splitVal||undefined,holdReason:holdReason||undefined};
+  if(editingId){ const idx=state.deals.findIndex(d=>d.id===editingId); if(idx>=0) state.deals[idx]=deal; else state.deals.unshift(deal); } else state.deals.unshift(deal);
+  if(status==='On Hold'){
+    const exists=(state.holdDeals||[]).some(h=>h.sourceDealId===id);
+    if(!exists){ const hDeal={id:crypto.randomUUID(),sourceDealId:id,vehicle:deal.vehicle,customer,date:saleDate,saleDate,extracted:e,holdReason,status:'On Hold'}; state.holdDeals.push(hDeal); saveHoldFirestore(hDeal); }
+  }
+  saveStateLocal(); closeModal(); renderMonthTabs(); renderAll(); renderHoldTable(); renderSummaryVerification();
+  try{ await saveDealFirestore(deal); notify(editingId?'Deal updated & synced ✓':'Deal saved & synced ✓'); }
+  catch(err){ console.error('Firestore save error:', err); notify('Saved locally, sync failed ✗'); }
+}
+function saveHoldDeal() {
+  const id=editingHoldId||crypto.randomUUID();
+  const comm=parseFloat(document.getElementById('hm-comm')?.value)||0;
+  const aft=parseFloat(document.getElementById('hm-aftmkt')?.value)||0;
+  const fni=parseFloat(document.getElementById('hm-fni')?.value)||0;
+  const acc=parseFloat(document.getElementById('hm-acc')?.value)||0;
+  const saleDate=document.getElementById('hm-date')?.value;
+  const h={id, stock:document.getElementById('hm-stock')?.value.trim(), vehicle:{model:document.getElementById('hm-vehicle')?.value.trim(),stock:document.getElementById('hm-stock')?.value.trim()}, customer:document.getElementById('hm-customer')?.value.trim(), date:saleDate, saleDate, extracted:{commissionNo1:comm,aftermarket1:aft,fBonus1:fni,accessories:acc}, holdReason:document.getElementById('hm-reason')?.value.trim(), status:'On Hold'};
+  if(editingHoldId){ const idx=state.holdDeals.findIndex(d=>d.id===editingHoldId); if(idx>=0) state.holdDeals[idx]=h; else state.holdDeals.push(h); } else state.holdDeals.push(h);
+  const linked=findDealByHold(h);
+  if(linked){ linked.status='On Hold'; linked.holdReason=h.holdReason; linked.saleDate=getSaleDate(linked); delete linked.paidDate; saveDealFirestore(linked); }
+  saveStateLocal(); closeHoldModal(); renderAll(); renderHoldTable(); renderSummaryVerification(); saveHoldFirestore(h); notify('Hold saved · payout paused until release ✓');
+}
+function releaseHold(id) {
+  const h=state.holdDeals.find(d=>d.id===id);
+  if(!h) return;
+  const def=currentISODate();
+  const input=prompt('Payment release date? This controls the month where payout appears. Example: 2026-06-08', def);
+  if(input===null) return;
+  const paidDate=normalizeDateInput(input);
+  if(!paidDate){ notify('Invalid release date. Use YYYY-MM-DD, e.g. 2026-06-08'); return; }
+  const linked=findDealByHold(h);
+  if(linked){
+    linked.status='Paid'; linked.paidDate=paidDate; linked.saleDate=getSaleDate(linked); linked.date=getSaleDate(linked); linked.holdReason='';
+    saveDealFirestore(linked);
+  } else {
+    const active={id:crypto.randomUUID(), date:getSaleDate(h), saleDate:getSaleDate(h), paidDate, vehicle:h.vehicle||{stock:h.stock,model:h.vehicle}, customer:h.customer, extracted:h.extracted, status:'Paid', ocrConfidence:100, needsReview:false, sourceFile:''};
+    state.deals.unshift(active); saveDealFirestore(active);
+  }
+  state.holdDeals=state.holdDeals.filter(d=>d.id!==id);
+  saveStateLocal(); renderMonthTabs(); renderAll(); renderHoldTable(); renderSummaryVerification(); deleteHoldFirestore(id);
+  notify(`Released to Paid · payout will show in ${paidDate.slice(0,7)} ✓`);
+}
+function exportCSV() {
+  if(!subscriptionCanUseDashboard('CSV export')) return;
+  const mDeals=getMonthDeals(state.selectedMonth);
+  const header=['Sale Date','Paid Date','Customer','Stock #','Vehicle','Commission','Accessories','Aftermarket','F&I Bonus','Profit of Sale','Total Payout','Payment Status','Pay Period','Split'];
+  const rows=mDeals.map(d=>{ const e=d.extracted||{}; return [getSaleDate(d),getPaidDate(d),d.customer||'',d.vehicle?.stock||'',d.vehicle?.model||'',e.commissionNo1||0,e.accessories||0,e.aftermarket1||0,e.fBonus1||0,e.profitOfSale||0,calcPayout(d).toFixed(2),isDealPaid(d)?'Paid':'Pending',d.payPeriodOverride||'',d.splitWith||'']; });
+  const csv=[header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download=`commission_sales_${state.selectedMonth}.csv`; a.click(); URL.revokeObjectURL(url); notify('CSV exported ✓');
+}
 
 // 🔍 SEARCH: INIT
 window._currentUser=null;
@@ -5405,8 +5594,10 @@ filterReviews('all');
 updateUserMentionBadge();
 updateReviewsMonthLabel();
 buildPinPad();
-setupAdminHiddenAccess();
 initAuth();
+// CUSTOM FIX: remove accidental remembered scroll position on direct web/Hostinger load.
+setTimeout(()=>window.scrollTo(0,0), 50);
+setTimeout(()=>window.scrollTo(0,0), 500);
 const spinStyle=document.createElement('style');
 spinStyle.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
 document.head.appendChild(spinStyle);
