@@ -129,6 +129,12 @@ body{font-family:var(--font-body);background:var(--bg-grad);color:var(--text);mi
 .fni-check-row{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:4px}
 .fni-check-row label{display:flex;align-items:center;gap:4px;font-size:0.68rem;color:var(--text-dim);cursor:pointer;white-space:nowrap}
 .fni-check-row input{cursor:pointer}
+.pc-chip{padding:5px 10px;border-radius:8px;border:1px solid var(--sep);background:var(--surface-mute);font-size:0.68rem;font-weight:650;cursor:pointer;color:var(--text-dim)}
+.pc-chip.active{border-color:var(--accent);color:var(--text);background:rgba(255,255,255,0.06)}
+.pc-status-banner{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:12px;margin-bottom:14px;font-size:0.8rem;font-weight:700}
+.pc-status-banner.ok{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.pc-status-banner.bad{background:rgba(249,115,22,0.12);color:var(--orange);border:1px solid rgba(249,115,22,0.3)}
+.pc-status-banner.none{background:rgba(148,163,184,0.1);color:var(--text-dim);border:1px solid var(--sep)}
 .tag-period{display:inline-block;padding:1px 5px;border-radius:3px;background:var(--surface-mute);color:var(--text-dim);font-size:0.6rem;margin-left:4px}
 .tag-split{display:inline-block;padding:1px 5px;border-radius:3px;background:rgba(59,130,246,0.15);color:var(--blue);font-size:0.6rem;margin-left:4px}
 .act-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--border-line);background:transparent;color:var(--text-dim);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;transition:all 0.15s}
@@ -3717,6 +3723,10 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <i class="fas fa-file-pdf"></i> Scan Commission Summary
 </button>
 <input type="file" id="summaryOcrInput" accept="image/*,.pdf" style="display:none" onchange="handleSummaryOCR(event)"/>
+<button class="btn btn-sm" style="margin-top:6px;width:100%" onclick="document.getElementById('paycheckOcrInput').click()">
+<i class="fas fa-money-check-dollar"></i> Scan Paycheck (UKG)
+</button>
+<input type="file" id="paycheckOcrInput" accept="image/*,.pdf" style="display:none" onchange="handlePaycheckOCR(event)"/>
 </div>
 </div>
 </div>
@@ -3867,6 +3877,26 @@ Also upload <strong>Commission Summary</strong> PDF to enable mismatch detection
 <div class="blank-state">
 <div class="blank-state-icon">📋</div>
 <div class="blank-state-text">Scan your Commission Summary to enable verification · Mismatches highlighted automatically</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ─── PAYCHECK RECONCILIATION ─── -->
+<div class="glass" style="overflow:hidden">
+<div class="panel-head">
+<i class="fas fa-money-check-dollar" style="color:var(--accent);font-size:0.85rem"></i>
+<span class="panel-title">Paycheck Reconciliation</span>
+<div class="sv-verify-actions">
+<button class="btn btn-sm sv-verify-btn" onclick="document.getElementById('paycheckOcrInput').click()" title="Scan a UKG paycheck PDF"><i class="fas fa-file-pdf"></i> Scan Paycheck</button>
+<span id="pcVerifyStatus" class="sv-verify-status"></span>
+</div>
+</div>
+<div class="panel-body">
+<div id="pcChipsWrap" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+<div id="pcDetailWrap">
+<div class="blank-state">
+<div class="blank-state-icon">🧾</div>
+<div class="blank-state-text">Scan a UKG paycheck PDF. The dashboard matches it to the Commission Summary pay period and the Pay Plan engine automatically — no manual entry needed.</div>
 </div>
 </div>
 </div>
@@ -4574,7 +4604,8 @@ let pinEntry = '';
 function defaultState() {
 return { version:6, deals:[], holdDeals:[], selectedMonth:new Date().toISOString().slice(0,7),
 reviewPeriod:'', reviewCompData:null, reviewCompByMonth:{}, googleReviewsByMonth:{},
-commissionSummary:[], commissionSummaryByMonth:{}, commissionSummaryHoldsByMonth:{}, summaryMonthMeta:{} };
+commissionSummary:[], commissionSummaryByMonth:{}, commissionSummaryHoldsByMonth:{}, summaryMonthMeta:{},
+paychecks:[], selectedPaycheckId:null };
 }
 function migrate(s) {
 if (!s || typeof s !== 'object') return defaultState();
@@ -4583,6 +4614,8 @@ if (!s.commissionSummary) s.commissionSummary = [];
 if (!s.reviewCompData) s.reviewCompData = null;
 if (!s.reviewCompByMonth) s.reviewCompByMonth = {};
 if (!s.googleReviewsByMonth) s.googleReviewsByMonth = {};
+if (!s.paychecks) s.paychecks = [];
+if (s.selectedPaycheckId===undefined) s.selectedPaycheckId = null;
 s.version = 5;
 return s;
 }
@@ -5378,7 +5411,7 @@ updatedAt: firebase.firestore.FieldValue.serverTimestamp()
 // 🔍 SEARCH: RENDER
 function renderAll() {
 renderDate(); renderMonthTabs(); renderKPIs(); renderTable();
-renderSidebar(); renderCharts(); renderTradingChart();
+renderSidebar(); renderCharts(); renderTradingChart(); renderPaycheckReconciliation();
 }
 function renderDate() {
 const d=new Date();
@@ -6225,7 +6258,7 @@ state.commissionSummary = parsed.rows.map(r=>({...r, summaryMonth:month}));
 if(parsed.holds?.length) syncSummaryHoldsToHoldFile(parsed.holds, month);
 state.selectedMonth = month;
 saveState();
-renderMonthTabs(); renderTable(); renderSummaryVerification(); renderHoldTable(); renderKPIs(); renderSidebar(); renderCharts();
+renderMonthTabs(); renderTable(); renderSummaryVerification(); renderHoldTable(); renderKPIs(); renderSidebar(); renderCharts(); renderPaycheckReconciliation();
 setSummaryVerifyStatus('ok', `<i class="fas fa-check-circle"></i> Loaded · ${parsed.rows.length} rows`);
 notify(`Summary loaded for ${parsed.label||month} · ${parsed.rows.length} sales · ${parsed.holds.length} holds ✓`, 5200);
 } catch(err){
@@ -6234,6 +6267,165 @@ setSummaryVerifyStatus('bad','<i class="fas fa-triangle-exclamation"></i> OCR fa
 notify('Summary OCR failed: '+err.message, 6200);
 }
 }
+
+// ─── PAYCHECK RECONCILIATION (UKG paycheck ⇄ Commission Summary ⇄ Pay Plan engine) ───
+function parsePaycheckOCR(text) {
+const t=String(text||'').replace(/\r/g,'\n');
+const find=re=>{const m=t.match(re);return m?m[1].trim():'';};
+const periodStart=parseAnyDateToISO(find(/Period\s*Start\s*Date\s*[:\-]?\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i));
+const periodEnd=parseAnyDateToISO(find(/Period\s*End\s*Date\s*[:\-]?\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i));
+const payDate=parseAnyDateToISO(find(/Pay\s*Date\s*[:\-]?\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i));
+const documentNo=find(/Document\s*[:\-]?\s*(\d+)/i);
+const commM=t.match(/Commission\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})/i)
+||t.match(/Commission\s+\$?([\d,]+\.\d{2})/i);
+const commissionCurrent=commM?parseMoneyValue(commM[1]):0;
+const commissionYTD=commM&&commM[2]?parseMoneyValue(commM[2]):0;
+const netPayM=t.match(/Net\s*Pay\s*\$?([\d,]+\.\d{2})/i);
+const netPay=netPayM?parseMoneyValue(netPayM[1]):0;
+const grossM=t.match(/Current[\s\n]+\$?([\d,]+\.\d{2})[\s\S]{0,30}?FIT\s*Taxable/i);
+const gross=grossM?parseMoneyValue(grossM[1]):0;
+let employeeName='';
+const empIdx=t.search(/Employee\s*Number/i);
+if(empIdx>0){
+const before=t.slice(0,empIdx);
+const lines=before.split('\n').map(l=>l.trim()).filter(Boolean);
+for(let i=lines.length-1;i>=0;i--){
+if(/^[A-Z][A-Z\s\.,]{4,40}$/.test(lines[i]) && !/PAY\s*DETAILS|STATEMENT|ROUSH|AURORA|VALLEY|GROUP|ENTERPRISES/i.test(lines[i])){ employeeName=lines[i]; break; }
+}
+}
+return {periodStart,periodEnd,payDate,documentNo,commissionCurrent,commissionYTD,netPay,gross,employeeName};
+}
+function getAllSummaryRowsFlat() {
+const out=[];
+Object.values(state.commissionSummaryByMonth||{}).forEach(b=>{
+(b?.rows||[]).forEach(r=>out.push(r));
+(b?.holds||[]).forEach(r=>out.push(r));
+});
+return out;
+}
+function reconcilePaycheck(pc) {
+const allRows=getAllSummaryRowsFlat();
+// UKG's "Period End Date" and the dealer summary's "Pay Period Ending" are sometimes
+// off by a day or two due to different cutoff conventions — match by closest date
+// within a tolerance window instead of requiring an exact match.
+const uniquePeriods=[...new Set(allRows.map(r=>parseAnyDateToISO(r.payPeriod)).filter(Boolean))];
+const periodEndTime=pc.periodEnd?new Date(pc.periodEnd+'T00:00:00').getTime():NaN;
+let matchedPeriod=null, bestDiffDays=Infinity;
+uniquePeriods.forEach(p=>{
+const d=Math.abs((new Date(p+'T00:00:00').getTime()-periodEndTime)/86400000);
+if(d<bestDiffDays){ bestDiffDays=d; matchedPeriod=p; }
+});
+if(bestDiffDays>5) matchedPeriod=null;
+const rows=matchedPeriod ? allRows.filter(r=>parseAnyDateToISO(r.payPeriod)===matchedPeriod) : [];
+const summaryTotal=rows.reduce((s,r)=>s+getSummaryRowTotal(r),0);
+const diff=Math.round((pc.commissionCurrent-summaryTotal)*100)/100;
+const planRows=rows.map(r=>{
+const deal=(state.deals||[]).find(d=>normalizeStockKey(d.vehicle?.stock)===normalizeStockKey(r.stock));
+if(!deal) return {row:r, deal:null, planExpected:null, planDiff:null, planNote:'No matching deal in log — profit unknown'};
+const plan=calcPlanCommission(deal);
+const enteredCA=(parseFloat(deal.extracted?.commissionNo1)||0)+(parseFloat(deal.extracted?.accessories)||0);
+return {row:r, deal, planExpected:plan.perPerson, planDiff:Math.abs(enteredCA-plan.perPerson), planNote:plan.rateNote};
+});
+return {rows, summaryTotal, diff, matched:Math.abs(diff)<=1, planRows, matchedPeriod, dateOffsetDays:matchedPeriod?Math.round(bestDiffDays):null};
+}
+function selectPaycheck(id) {
+state.selectedPaycheckId=id;
+saveStateLocal();
+renderPaycheckReconciliation();
+}
+function renderPaycheckReconciliation() {
+const list=state.paychecks||[];
+const chipsWrap=document.getElementById('pcChipsWrap');
+const detailWrap=document.getElementById('pcDetailWrap');
+if(!detailWrap) return;
+if(!list.length){
+if(chipsWrap) chipsWrap.style.display='none';
+detailWrap.innerHTML=`<div class="blank-state"><div class="blank-state-icon">🧾</div>
+<div class="blank-state-text">Scan a UKG paycheck PDF. The dashboard matches it to the Commission Summary pay period and the Pay Plan engine automatically — no manual entry needed.</div></div>`;
+return;
+}
+if(!state.selectedPaycheckId || !list.find(p=>p.id===state.selectedPaycheckId)) state.selectedPaycheckId=list[list.length-1].id;
+if(chipsWrap){
+chipsWrap.style.display=list.length>1?'flex':'none';
+chipsWrap.innerHTML=list.map(p=>`<button class="pc-chip ${p.id===state.selectedPaycheckId?'active':''}" onclick="selectPaycheck('${p.id}')">${esc(displayDateMDY(p.periodEnd))} pay period</button>`).join('');
+}
+const pc=list.find(p=>p.id===state.selectedPaycheckId);
+const rec=reconcilePaycheck(pc);
+const bannerClass = rec.rows.length===0 ? 'none' : (rec.matched ? 'ok' : 'bad');
+const bannerIcon = rec.rows.length===0 ? 'fa-circle-question' : (rec.matched ? 'fa-circle-check' : 'fa-triangle-exclamation');
+const bannerText = rec.rows.length===0
+? `No Commission Summary rows found for pay period ending ${displayDateMDY(pc.periodEnd)} yet — scan the Commission Summary for this period to complete the check.`
+: (rec.matched
+? `✓ Paycheck matches Commission Summary for this pay period — everything reconciles.${rec.dateOffsetDays?` (matched to summary period ending ${displayDateMDY(rec.matchedPeriod)}, ${rec.dateOffsetDays}d offset from UKG's period-end date)`:''}`
+: `⚠ Paycheck commission differs from Commission Summary by ${fmt(Math.abs(rec.diff))} — ${rec.diff>0?'paycheck is higher than the summary':'paycheck is lower than the summary'}.`);
+const planIssues=rec.planRows.filter(pr=>pr.planDiff===null || pr.planDiff>1);
+const rowsHTML = rec.rows.length ? `<div style="overflow-x:auto"><table class="sv-table">
+<thead><tr><th>Stock</th><th>Customer</th><th>Split</th><th>Summary $</th><th>Plan Expected</th><th>Status</th></tr></thead>
+<tbody>${rec.planRows.map(pr=>{
+const r=pr.row;
+let cls='match-ok', label='✓ Matches plan';
+if(pr.planExpected===null){ cls='match-na'; label='No deal on file'; }
+else if(pr.planDiff>1){ cls='match-bad'; label=`⚠ Diff ${fmt(pr.planDiff)}`; }
+return `<tr class="${cls==='match-bad'?'mismatch-row':''}">
+<td style="font-family:var(--font-mono);font-weight:700;font-size:0.72rem">${esc(r.stock||'—')}</td>
+<td style="font-size:0.72rem;font-weight:650">${esc(r.customer||'—')}</td>
+<td style="font-size:0.68rem;color:var(--text-dim)">${esc(r.split||'—')}</td>
+<td style="font-family:var(--font-mono);font-size:0.7rem">${fmt(getSummaryRowTotal(r))}</td>
+<td style="font-family:var(--font-mono);font-size:0.7rem">${pr.planExpected===null?'—':fmt(pr.planExpected)}</td>
+<td><span class="match-badge ${cls}" title="${esc(pr.planNote||'')}">${label}</span></td>
+</tr>`;
+}).join('')}</tbody></table></div>` : '';
+detailWrap.innerHTML=`
+<div class="pc-status-banner ${bannerClass}"><i class="fas ${bannerIcon}"></i><span>${bannerText}</span></div>
+<div class="sv-grid">
+<div class="sv-card"><div class="sv-card-label">Paycheck Period</div><div class="sv-card-val" style="font-size:0.95rem">${esc(displayDateMDY(pc.periodStart))} – ${esc(displayDateMDY(pc.periodEnd))}</div></div>
+<div class="sv-card"><div class="sv-card-label">Paycheck Commission</div><div class="sv-card-val">${fmt(pc.commissionCurrent)}</div></div>
+<div class="sv-card"><div class="sv-card-label">Summary Total (matched)</div><div class="sv-card-val" style="color:${rec.rows.length?'var(--green)':'var(--text-dim)'}">${rec.rows.length?fmt(rec.summaryTotal):'—'}</div></div>
+<div class="sv-card"><div class="sv-card-label">Diff</div><div class="sv-card-val" style="color:${!rec.rows.length?'var(--text-dim)':(rec.matched?'var(--green)':'var(--orange)')}">${rec.rows.length?fmt(Math.abs(rec.diff)):'—'}</div></div>
+</div>
+${planIssues.length && rec.rows.length ? `<div style="font-size:0.68rem;color:var(--orange);margin-bottom:10px"><i class="fas fa-triangle-exclamation"></i> ${planIssues.length} deal(s) in this pay period don't match the Pay Plan formula or aren't in your Deal Log — check them below.</div>` : ''}
+${rowsHTML}
+<div style="font-size:0.62rem;color:var(--text-faint);margin-top:10px">Net Pay ${fmt(pc.netPay)} · Pay Date ${displayDateMDY(pc.payDate)}${pc.employeeName?` · ${esc(pc.employeeName)}`:''}${pc.documentNo?` · Doc #${esc(pc.documentNo)}`:''}</div>`;
+}
+async function handlePaycheckOCR(event) {
+const file=event.target.files?.[0]; if(!file) return;
+event.target.value='';
+notify('Processing paycheck…');
+const statusEl=document.getElementById('pcVerifyStatus');
+if(statusEl){ statusEl.className='sv-verify-status show warn'; statusEl.innerHTML='<i class="fas fa-spinner fa-spin"></i> Reading paycheck'; }
+try {
+const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+let dataUrls=[];
+if(isPDF){const buf=await file.arrayBuffer();dataUrls=await pdfToDataUrls(buf);}
+else{dataUrls=[await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);})];}
+let fullText='';
+for(let i=0;i<dataUrls.length;i++){
+const data=await runTesseractOnDataUrl(dataUrls[i],()=>{});
+fullText += '\n' + (data.text||'');
+}
+const pc=parsePaycheckOCR(fullText);
+if(!pc.periodEnd || !pc.commissionCurrent){
+if(statusEl){ statusEl.className='sv-verify-status show bad'; statusEl.innerHTML='<i class="fas fa-triangle-exclamation"></i> Could not read paycheck'; }
+notify('Could not read the pay period or commission amount from this PDF.', 6000);
+return;
+}
+state.paychecks = state.paychecks||[];
+const existingIdx=state.paychecks.findIndex(p=>p.periodEnd===pc.periodEnd);
+const entry={id: existingIdx>=0?state.paychecks[existingIdx].id:crypto.randomUUID(), ...pc, sourceFile:file.name, loadedAt:new Date().toISOString()};
+if(existingIdx>=0) state.paychecks[existingIdx]=entry; else state.paychecks.push(entry);
+state.paychecks.sort((a,b)=>(a.periodEnd||'').localeCompare(b.periodEnd||''));
+state.selectedPaycheckId=entry.id;
+saveState();
+renderPaycheckReconciliation();
+if(statusEl){ statusEl.className='sv-verify-status show ok'; statusEl.innerHTML='<i class="fas fa-check-circle"></i> Loaded'; }
+notify(`Paycheck loaded · Pay period ending ${displayDateMDY(pc.periodEnd)} · Commission ${fmt(pc.commissionCurrent)}`, 5200);
+} catch(err){
+console.error('[Paycheck OCR] failed', err);
+if(statusEl){ statusEl.className='sv-verify-status show bad'; statusEl.innerHTML='<i class="fas fa-triangle-exclamation"></i> OCR failed'; }
+notify('Paycheck OCR failed: '+err.message, 6200);
+}
+}
+
 function syncSummaryHoldsToHoldFile(holds, month) {
 state.holdDeals = state.holdDeals || [];
 (holds||[]).forEach(h=>{
@@ -6454,23 +6646,11 @@ setF('dm-type','new');
 setF('dm-category','standard');
 setF('dm-acctype','none');
 if(ocrData){
-setF('dm-deal',ocrData.dealNo||'');
-setF('dm-stock',ocrData.stockNo||'');
-setF('dm-vehicle',ocrData.model||'');
 setF('dm-customer',ocrData.customer||'');
-setF('dm-type', inferVehicleType(ocrData.stockNo||'', ocrData.model||''));
-setF('dm-date',ocrData.dateStr||new Date().toISOString().slice(0,10));
 const e=ocrData.extracted||{};
 setF('dm-comm',e.commissionNo1||0);
-setF('dm-acc',e.accessories||0);
-setF('dm-aftmkt',e.aftermarket1||0);
-setF('dm-fni',e.fBonus1||0);
-setF('dm-profit',e.profitOfSale||0);
-setF('dm-amprofit',e.amProfit||0);
-setF('dm-category',e.category||'standard');
-setF('dm-acctype',e.accType||'none');
 const conf=document.getElementById('dm-ocr-conf');
-if(conf) conf.textContent=`OCR confidence: ${ocrData.ocrConfidence||0}% · Source: ${ocrData.sourceFile||''}`;
+if(conf) conf.textContent=`OCR confidence: ${ocrData.ocrConfidence||0}% · Source: ${ocrData.sourceFile||''} · Only Name + Commission auto-filled — fill the rest manually`;
 }
 updateCalcPreview();
 refreshOptionsTab();
